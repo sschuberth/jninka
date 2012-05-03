@@ -25,17 +25,26 @@ import org.whitesource.jninka.progress.ScanProgressListener;
  */
 public class Main {
 
+	/**
+	 * Main entry point.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		try {
 			if (args.length > 1) {
 				long time = System.currentTimeMillis();
-				File sourceFolder = new File(args[0]);
+				
 				Ninka ninka = new Ninka();
-				ninka.getMonitor().addListener(getListener());
+				ninka.getMonitor().addListener(new SysOutListener());
+				
+				File sourceFolder = new File(args[0]);
 				ScanResults scanResults = ninka.scanFolderRecursive(sourceFolder, true);
 				scanResults.writeXML(new File(args[1]));
+				
 				System.out.println();
 				System.out.println(scanResults);
+				
 				time = (System.currentTimeMillis() - time) / 1000;
 				System.out.println("Running time: " + time + "s");
 			} else {
@@ -46,14 +55,16 @@ public class Main {
 		}
 	}
 	
-	private static ScanProgressListener getListener(){
-		ScanProgressListener result = new ScanProgressListener() {
-			@Override
-			public void progress(int pct, String details) {
-				System.out.println(pct + "%, " + details);
-			}
-		};
-		return result;
+	/* --- Nested classes --- */
+	
+	/**
+	 * Implementation of the interface using {@link System#out} to report progress.
+	 */
+	static class SysOutListener implements ScanProgressListener {
+		@Override
+		public void progress(int pct, String details) {
+			System.out.println(pct + "%, " + details);
+		}
 	}
 
 }

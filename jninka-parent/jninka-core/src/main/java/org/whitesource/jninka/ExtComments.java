@@ -14,6 +14,7 @@
  *  along with this patch.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.whitesource.jninka;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -24,26 +25,19 @@ import java.util.logging.Logger;
 /**
  * @author Rami.Sass
  */
-public class ExtComments extends Processor{	
+public class ExtComments extends Processor {	
 
-	// logger
+	/* --- Static members --- */
+	
 	private static Logger logger = Logger.getLogger(ExtComments.class.getCanonicalName());
 	
-	// members
+	/* --- Members --- */
 	
 	private String inputFile = "";
 	
-	// public methods
+	/* --- Public methods --- */
 	
-    public void setInputFile(String lInputFile){
-    	this.inputFile = lInputFile;
-    }
-	   
-    public String getInputFile(){
-        return this.inputFile;
-    }
-	
-	public boolean process(){	
+	public boolean process() {	
 		boolean result = true;
 		try{
 			if (this.getFileSize(this.getInputFile()) <= 0){
@@ -68,6 +62,8 @@ public class ExtComments extends Processor{
 		}
 		return result;
 	}
+	
+	/* --- Protected methods --- */
 	
 	protected int determineCommentsExtractor(String filepath){
 		String ext = ExtComments.fileExtension(filepath);
@@ -106,4 +102,14 @@ public class ExtComments extends Processor{
 	    ext = ext.toLowerCase();
 	    return ext;
 	}	
+	
+	/* --- Getters / Setters --- */
+	
+	public void setInputFile(String lInputFile){
+    	this.inputFile = lInputFile;
+    }
+	   
+    public String getInputFile(){
+        return this.inputFile;
+    }
 }

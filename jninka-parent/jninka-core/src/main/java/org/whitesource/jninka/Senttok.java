@@ -14,6 +14,7 @@
  *  along with this patch.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.whitesource.jninka;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,34 +31,20 @@ import org.whitesource.jninka.model.LicenseAttribution;
  */
 public class Senttok {	
 	
+	/* --- Static members --- */
+	
 	Logger logger = Logger.getLogger(Senttok.class.getCanonicalName());
 	
-	// members
+	/* --- Members --- */
 	
-	private InputStream licSentences;	
+	private InputStream licSentences;
+	
 	private int tooLong = 70;
+	
 	private ArrayList<String> licensesentencelist;
 
+	/* --- Public methods --- */
 	
-	// public methods
-	
-	public void setLicSentences(InputStream lLicSentences){
-    	licSentences = lLicSentences;
-    	licensesentencelist = loadLicenseSentence(lLicSentences);
-    }
-   
-    public InputStream getLicSentences(){
-        return licSentences;
-    }	
-		
-	public void setTooLong(int lTooLong){
-		tooLong = lTooLong;
-    }
-   
-    public int getTooLong(){
-        return tooLong;
-    }    
-
     public List<LicenseAttribution> getAttributions(ArrayList<String> lines, boolean getUnknown){
     	List<LicenseAttribution> result = new ArrayList<LicenseAttribution>();
 		try{
@@ -222,6 +209,8 @@ public class Senttok {
 		return result;
 	}
 	
+    /* --- Protected methods --- */
+    
 	/**
 	* Open and read a file, and return the words from file as arraylist
 	*/
@@ -418,6 +407,25 @@ public class Senttok {
 		// actually has the most recent cost counts
 		return p[n];
 	}
+	
+	/* --- Getters / Setters --- */
+	
+	public void setLicSentences(InputStream lLicSentences){
+    	licSentences = lLicSentences;
+    	licensesentencelist = loadLicenseSentence(lLicSentences);
+    }
+   
+    public InputStream getLicSentences(){
+        return licSentences;
+    }	
+		
+	public void setTooLong(int lTooLong){
+		tooLong = lTooLong;
+    }
+   
+    public int getTooLong(){
+        return tooLong;
+    }    
 }
 
 

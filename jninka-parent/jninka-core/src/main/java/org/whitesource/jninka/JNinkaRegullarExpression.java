@@ -20,9 +20,20 @@ import java.util.regex.Pattern;
 /**
  * @author Rami.Sass
  */
-public class JNinkaRegullarExpression {
-	private static int fakeFlag = -987;
+public final class JNinkaRegullarExpression {
 	
+	/* --- Static members --- */
+	
+	private static final int fakeFlag = -987;
+	
+	/* --- Public static methods --- */
+	
+	/**
+	 * @param string
+	 * @param toReplace
+	 * @param replacement
+	 * @return
+	 */
 	public static String replaceLast(String string, String toReplace, String replacement) 
 	{
 		int pos = string.lastIndexOf(toReplace);
@@ -35,10 +46,23 @@ public class JNinkaRegullarExpression {
 		}
 	}
 	
+	/**
+	 * @param text
+	 * @param patternText
+	 * @param replaceText
+	 * @return
+	 */
 	public static String applyReplace(String text, String patternText, String replaceText){ 
 		return JNinkaRegullarExpression.applyReplace(text, patternText, replaceText, JNinkaRegullarExpression.fakeFlag);		
 	}
 	
+	/**
+	 * @param text
+	 * @param patternText
+	 * @param replaceText
+	 * @param flag
+	 * @return
+	 */
 	public static String applyReplace(String text, String patternText, String replaceText, int flag){ 
 		String result = "";
 		try
@@ -64,10 +88,23 @@ public class JNinkaRegullarExpression {
 		return result;		
 	}
 	
+	/**
+	 * @param text
+	 * @param patternText
+	 * @param group
+	 * @return
+	 */
 	public static String getGroupValue(String text, String patternText, int group){ 
 		return JNinkaRegullarExpression.getGroupValue(text, patternText, group, JNinkaRegullarExpression.fakeFlag);		
 	}
 	
+	/**
+	 * @param text
+	 * @param patternText
+	 * @param group
+	 * @param flag
+	 * @return
+	 */
 	public static String getGroupValue(String text, String patternText, int group, int flag){ 
 		String result = "";
 		try
@@ -94,10 +131,21 @@ public class JNinkaRegullarExpression {
 		
 	}	
 	
+	/**
+	 * @param text
+	 * @param patternText
+	 * @return
+	 */
 	public static boolean isMatch(String text, String patternText){ 
 		return JNinkaRegullarExpression.isMatch(text, patternText, JNinkaRegullarExpression.fakeFlag);		
 	}
 	
+	/**
+	 * @param text
+	 * @param patternText
+	 * @param flag
+	 * @return
+	 */
 	public static boolean isMatch(String text, String patternText, int flag){
 		boolean result = false;
 		try
@@ -118,6 +166,10 @@ public class JNinkaRegullarExpression {
 		return result;
 	}
 	
+	/**
+	 * @param text
+	 * @return
+	 */
 	public static String escapeForRegex(String text){
 		if ( text.contains("$") ){
 			StringBuffer sb = new StringBuffer();
@@ -132,26 +184,55 @@ public class JNinkaRegullarExpression {
 		}
 		return text;
 	}
+	
+	/**
+	 * @param text
+	 * @return
+	 */
 	public static String unescapeAfterRegex(String text){
 		return text.replaceAll("__DOLLAR_SIGN__", "\\$");
 	}
 
+	/**
+	 * @param text
+	 * @param patternText
+	 * @return
+	 */
 	public static String beforeMatch(String text, String patternText){ 
 		return JNinkaRegullarExpression.beforeMatch(text, patternText, JNinkaRegullarExpression.fakeFlag);		
 	}
 	
+	/**
+	 * @param text
+	 * @param patternText
+	 * @param flag
+	 * @return
+	 */
 	public static String beforeMatch(String text, String patternText, int flag){
 		String result = JNinkaRegullarExpression.beforePostMatch(text, patternText, flag, true);
 		return result;
 	}
 
+	/**
+	 * @param text
+	 * @param patternText
+	 * @return
+	 */
 	public static String postMatch(String text, String patternText){ 
 		return JNinkaRegullarExpression.postMatch(text, patternText, JNinkaRegullarExpression.fakeFlag);		
 	}
 	
+	/**
+	 * @param text
+	 * @param patternText
+	 * @param flag
+	 * @return
+	 */
 	public static String postMatch(String text, String patternText, int flag){		
 		return JNinkaRegullarExpression.beforePostMatch(text, patternText, flag, false);
 	}
+	
+	/* --- Private static methods --- */
 	
 	private static String beforePostMatch(String text, String patternText, int flag, boolean isBeforeMatch){
 		String result = "";
@@ -178,4 +259,15 @@ public class JNinkaRegullarExpression {
 		}
 		return result;
 	}
+
+	/* --- Constructors --- */
+	
+	/**
+	 * Private constructor
+	 */
+	private JNinkaRegullarExpression() {
+		// avoid instatiaion
+	}
+	
+	
 }

@@ -20,6 +20,12 @@ package org.whitesource.jninka.progress;
  */
 public interface ScanProgressListener {
 
+	/**
+	 * The method handle progress notifications.
+	 * 
+	 * @param pct Per cent progress.
+	 * @param details progress details.
+	 */
 	public void progress(int pct, String details);
 
 }

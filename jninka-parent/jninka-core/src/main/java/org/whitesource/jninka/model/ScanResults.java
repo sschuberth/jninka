@@ -31,26 +31,36 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name="CodeScan")
 public class ScanResults {
 	
-	// members
+	/* --- Members --- */
+	
 	@XmlElement(name="File")
 	private List<CodeFileAttributions> findings;
 	
-	// constructor
+	/* --- Constructors --- */
 	
+	/**
+	 * Default constructor
+	 */
 	public ScanResults(){
 		findings = new ArrayList<CodeFileAttributions>();
 	}
 	
-	// public methods
+	/* --- Public methods  --- */
 	
+	/**
+	 * The method add the given attribution to this scan results.
+	 * 
+	 * @param attribution Code file attribution to add.
+	 */
 	public void addFinding(CodeFileAttributions attribution){
 		findings.add(attribution);
 	}
 	
-	public List<CodeFileAttributions> getfindings(){
-		return findings;
-	}
-	
+	/**
+	 * The method write this scan results to a XML file.
+	 * 
+	 * @param target Output file location.
+	 */
 	public void writeXML(File target){
 		try {
 			JAXBContext jc = JAXBContext.newInstance(ScanResults.class);
@@ -61,7 +71,7 @@ public class ScanResults {
 		}
 	}
 	
-	// override methods
+	/* --- Overridden methods  --- */
 	
 	@Override
 	public String toString() {
@@ -70,6 +80,12 @@ public class ScanResults {
 			sb.append(attribution + "\n");
 		}
 		return sb.toString();
+	}
+
+	/* --- Getters / Setters --- */
+	
+	public List<CodeFileAttributions> getfindings(){
+		return findings;
 	}
 
 }

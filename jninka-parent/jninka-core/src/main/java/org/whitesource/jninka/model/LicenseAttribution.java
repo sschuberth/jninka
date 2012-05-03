@@ -26,27 +26,45 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class LicenseAttribution {
 
-	// members
+	/* --- Members --- */
 	
 	@XmlElement
 	private List<String> params;
+	
 	@XmlElement
 	private String matchname;
+	
 	@XmlElement
 	private String subrule;
+	
 	@XmlElement
 	private String before;
+	
 	@XmlElement
 	private String after;
+	
 	@XmlElement
 	private String originalLine;
 
-	// constructor
+	/* --- Constructors --- */
 	
+	/**
+	 * Default constructor
+	 */
 	public LicenseAttribution(){
 		// for marshaling
 	}
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param params
+	 * @param matchname
+	 * @param subrule
+	 * @param before
+	 * @param after
+	 * @param originalLine
+	 */
 	public LicenseAttribution(List<String> params, String matchname, String subrule, String before, String after, String originalLine) {
 		this.params = params;
 		this.matchname = matchname;
@@ -56,7 +74,7 @@ public class LicenseAttribution {
 		this.originalLine = originalLine;
 	}
 	
-	// getters
+	/* --- Getters / Setters --- */
 
 	public List<String> getParams() {
 		return params;

@@ -21,6 +21,13 @@ import java.util.ArrayList;
  */
 public class JNinkaUtils{
 
+	/**
+	 * @param coll
+	 * @param delimiter
+	 * @return
+	 * 
+	 * @deprecated Consider using StringUtils instead. 
+	 */
 	public static String joinArrayList(ArrayList<String> coll, String delimiter){
 	    if (coll.isEmpty()){
 	    	return "";

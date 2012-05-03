@@ -14,6 +14,7 @@
  *  along with this patch.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.whitesource.jninka;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,10 +23,36 @@ import java.util.ArrayList;
 /**
  * @author Rami.Sass
  */
-public abstract class Processor{
+public abstract class Processor {
+	
+	/* --- Members --- */
+	
 	private ArrayList<String> outputInfo = new ArrayList<String>();	  
+	
 	private ArrayList<String> inputInfo = new ArrayList<String>();	
-		  	   
+	
+	/* --- Abstract methods --- */
+	
+	public abstract boolean process();
+	
+	/* --- Protected methods --- */
+	
+	protected static void writeFile(String filename, ArrayList<String> info)  throws Exception
+	{
+		try{		
+			File outputFile = new File(filename);
+			FileWriter out = new FileWriter(outputFile);
+		    for (String x : info){
+		    	out.write(x + "\n");
+		    }									
+			out.close();
+		} catch(IOException e){
+			throw new Exception("Can not write list to file "+ filename + ": " + e.getMessage());
+		}
+	}
+	
+	/* --- Getters / Setters --- */
+	
 	public ArrayList<String> getOutputInfo(){
 	    return this.outputInfo;
 	}
@@ -44,19 +71,4 @@ public abstract class Processor{
 		this.inputInfo.addAll(lInputInfo);
 	}	 
 	
-	public abstract boolean process();
-		
-	protected static void writeFile(String filename, ArrayList<String> info)  throws Exception
-	{
-		try{		
-			File outputFile = new File(filename);
-			FileWriter out = new FileWriter(outputFile);
-		    for (String x : info){
-		    	out.write(x + "\n");
-		    }									
-			out.close();
-		} catch(IOException e){
-			throw new Exception("Can not write list to file "+ filename + ": " + e.getMessage());
-		}
-	}	
 }		

@@ -23,6 +23,11 @@ import javax.swing.UIManager.LookAndFeelInfo;
  */
 public class Agent {
 
+	/**
+	 * Main entry point.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		final AgentPresenter presenter = new AgentPresenter();
 		try {
@@ -36,6 +41,7 @@ public class Agent {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
+		
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				presenter.show();

@@ -25,22 +25,47 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class CodeFileAttributions {
 
+	/* --- Members --- */
+	
 	private String fileName;
+	
 	private String extra;
+	
 	private long lastModified;
+	
 	private List<LicenseAttribution> attribution;
 	
+	/* --- Constructors --- */
+	
+	/**
+	 * Default constructor
+	 */
 	public CodeFileAttributions(){
 		// For marshaling
 	}
 
-
+	/**
+	 * Constructor
+	 * 
+	 * @param attributions
+	 * @param fileName
+	 * @param lastModified
+	 */
 	public CodeFileAttributions(List<LicenseAttribution> attributions, String fileName, long lastModified) {
 		this.attribution = attributions;
 		this.fileName = fileName;
-		this.setLastModified(lastModified);
+		this.lastModified = lastModified;
 	}
+	
+	/* --- Overridden methods --- */
 
+	@Override
+	public String toString() {
+		return fileName + " - " + attribution.size();
+	}
+	
+	/* --- Getters / Setters --- */
+	
 	public List<LicenseAttribution> getAttribution() {
 		return attribution;
 	}
@@ -61,7 +86,6 @@ public class CodeFileAttributions {
 		this.extra = extra;
 	}
 
-
 	public String getExtra() {
 		return extra;
 	}
@@ -70,13 +94,8 @@ public class CodeFileAttributions {
 		this.lastModified = lastModified;
 	}
 
-
 	public long getLastModified() {
 		return lastModified;
 	}
 	
-	@Override
-	public String toString() {
-		return fileName + " - " + attribution.size();
-	}
 }

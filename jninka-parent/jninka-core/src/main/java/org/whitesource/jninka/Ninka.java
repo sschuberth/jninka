@@ -14,6 +14,7 @@
  *  along with this patch.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.whitesource.jninka;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -60,28 +61,38 @@ import org.whitesource.jninka.resources.ResourceHandler;
  */
 public class Ninka {
 	
-	// logger
+	/* --- Static members --- */
 	
 	static private Logger logger = Logger.getLogger(Ninka.class.getCanonicalName());
 	
-	// members
+	/* --- Members --- */
 	
 	private ScanProgressMonitor monitor;
+	
 	private ResourceHandler resourceHandler;
 	
 	private FileFilter dirFilter;
+	
 	private FileFilter javaFilter;
+	
 	private Set<String> codeFileExtentions;
 	
 	private ExtComments extComments;
+	
 	private Splitter splitter;
+	
 	private Filter filter;
+	
 	private Senttok senttok;
+	
 	private boolean getUnknowns;
 	
-	// constructor
+	/* --- Constructor --- */
 	
-	public Ninka(){
+	/**
+	 * Default constructor
+	 */
+	public Ninka() {
 		initCodeFileExtentions();
 		dirFilter = getDirectoryFilter();
 		javaFilter = getCodeFileFilter();
@@ -97,6 +108,8 @@ public class Ninka {
 		monitor = new ScanProgressMonitor();
 	}
 	
+	/* --- Public methods --- */
+	
 	public ScanResults scanFolderRecursive(File folder, boolean getUnknowns){
 		ScanResults result = new ScanResults();
 		this.getUnknowns = getUnknowns;
@@ -105,21 +118,6 @@ public class Ninka {
 		monitor.setParams(folderCount, 30);
 		runRecursive(folder, result);
 		return result;
-	}
-	
-	private int runRecursive(File directory, ScanResults result){
-		int count = 0;
-		monitor.progress(1, directory.getAbsolutePath());
-		File[] javaFiles = directory.listFiles(javaFilter);
-		for(File javaFile : javaFiles){
-			run(javaFile, result);
-			count++;
-		}
-		File[] children = directory.listFiles(dirFilter);
-		for(File child : children){
-			count += runRecursive(child, result);
-		}
-		return count;
 	}
 	
 	public void run(File codeFile, ScanResults scanResult){
@@ -157,7 +155,24 @@ public class Ninka {
 			logger.severe(codeFile.getAbsolutePath() + " - " + e.getMessage());
 		}
 	}
-
+	
+	/* --- Private methods --- */
+	
+	private int runRecursive(File directory, ScanResults result){
+		int count = 0;
+		monitor.progress(1, directory.getAbsolutePath());
+		File[] javaFiles = directory.listFiles(javaFilter);
+		for(File javaFile : javaFiles){
+			run(javaFile, result);
+			count++;
+		}
+		File[] children = directory.listFiles(dirFilter);
+		for(File child : children){
+			count += runRecursive(child, result);
+		}
+		return count;
+	}
+	
 	private void handleHit(File codeFile, ScanResults scanResult, List<LicenseAttribution> attributions) {
 		CodeFileAttributions fileAttributions;
 		String pkg;
@@ -170,12 +185,6 @@ public class Ninka {
 		}
 		scanResult.addFinding(fileAttributions);
 	}
-	
-	public ScanProgressMonitor getMonitor(){
-		return this.monitor;
-	}
-
-	// private methods
 	
 	private FileFilter getDirectoryFilter(){
 		FileFilter result = new FileFilter() {
@@ -253,6 +262,12 @@ public class Ninka {
 		String result = null;
 		result = line.substring(line.indexOf(' '), line.indexOf(';'));
 		return result;
+	}
+	
+	/* --- Getters / Setters --- */
+	
+	public ScanProgressMonitor getMonitor(){
+		return this.monitor;
 	}
 }
 

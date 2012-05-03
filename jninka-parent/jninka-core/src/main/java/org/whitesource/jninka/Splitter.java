@@ -14,6 +14,7 @@
  *  along with this patch.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.whitesource.jninka;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,38 +30,24 @@ import java.util.Hashtable;
 /**
  * @author Rami.Sass
  */
-public class Splitter extends Processor{
+public class Splitter extends Processor {
+	
+	/* --- Static members --- */
 	
 	Logger logger = Logger.getLogger(Splitter.class.getCanonicalName());
 	
-	private Hashtable<String, Integer> commonTerms = new Hashtable<String, Integer>();
-	private ArrayList<String> abbreviations = new ArrayList<String>();	 
+	/* --- Members --- */
+	
+	private InputStream abbrvFile;
 	
 	private InputStream dictionary;
-	private InputStream abbrvFile;
+
+	private Hashtable<String, Integer> commonTerms = new Hashtable<String, Integer>();
+	
+	private ArrayList<String> abbreviations = new ArrayList<String>();	 
+	
+	/* --- Concrete implementation methods --- */
 	   
-    public void setDictionary(InputStream lDictionary){
-    	dictionary = lDictionary;
-		// Load in the dictionary and find the common words.
-		// Here, we assume the words in upper case are simply names and one
-		// word per line - i.e. in same form as /usr/dict/words
-    	loadDictionary();
-    }
-   
-    public void setAbbrvFile(InputStream lAbbrvFile){
-    	abbrvFile = lAbbrvFile;
-    	// Same assumptions as for dictionary
-    	loadAbbreviations();
-    }
-    
-    public InputStream getDictionary(){
-        return dictionary;
-    }
-    
-    public InputStream getAbbrvFile(){
-        return abbrvFile;
-    }
-    
 	public boolean process() {
 		boolean result = true;
 		try {
@@ -126,6 +113,8 @@ public class Splitter extends Processor{
 		}
 		return result;
 	}
+	
+	/* --- Protected methods --- */
 	
 	protected String cleanSentence(String text){		
 		//check for trailing bullets of different types
@@ -325,4 +314,29 @@ public class Splitter extends Processor{
 	
 		return text;
 	}
+	
+	/* --- Getters / Setters --- */
+	
+	public void setDictionary(InputStream lDictionary) {
+		dictionary = lDictionary;
+		// Load in the dictionary and find the common words.
+		// Here, we assume the words in upper case are simply names and one
+		// word per line - i.e. in same form as /usr/dict/words
+		loadDictionary();
+	}
+
+	public void setAbbrvFile(InputStream lAbbrvFile) {
+		abbrvFile = lAbbrvFile;
+		// Same assumptions as for dictionary
+		loadAbbreviations();
+	}
+
+	public InputStream getDictionary() {
+		return dictionary;
+	}
+
+	public InputStream getAbbrvFile() {
+		return abbrvFile;
+	}
+	
 }

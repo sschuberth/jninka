@@ -49,46 +49,62 @@ import org.whitesource.jninka.progress.ScanProgressListener;
  */
 public class AgentPresenter extends Container implements ActionListener, PropertyChangeListener {
 
-	// constants
+	/* --- Static members --- */
 
 	private static final long serialVersionUID = -8058069229069729705L;
-	private final String BROWSE = "Browse";
-	private final String RUN = "Run";
-	private final Color BG_COLOR = new Color(240, 240, 240);
+	
+	private static final String BROWSE = "Browse";
+	
+	private static final String RUN = "Run";
+	
+	private static final Color BG_COLOR = new Color(240, 240, 240);
 
-	// members
+	/* --- Members --- */
 
 	private JFrame frame;
+	
 	private JTextField dirText;
+	
 	private JButton directoryBrowseButton;
+	
 	private JFileChooser directoryDialog;
+	
 	private JTextField fileText;
+	
 	private JButton fileBrowseButton;
+	
 	private JFileChooser fileDialog;
+	
 	private String lastDir;
+	
 	private String lastFile;
+	
 	private JCheckBox sureMatchChk;
+	
 	private JButton runButton;
+	
 	private JProgressBar progressBar;
+	
 	private JLabel progressLabel;
 
-	// constructor
-
+	/* --- Constructors --- */
+	
+	/**
+	 * Default constructor
+	 */
 	public AgentPresenter() {
 		directoryBrowseButton = null;
 		lastDir = null;
 		lastFile = null;
 	}
 
-	// public methods
+	/* --- Public methods --- */
 
 	public void show() {
 		// Create and set up the window.
 		frame = new JFrame("White Source - JNinka Code Scanner");
 		frame.setResizable(false);
 		frame.setLocation(300, 300);
-		// Image image = ImageManager.getInstance().getLogoIcon();
-		// frame.setIconImage(image);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel pane = (JPanel) frame.getContentPane();
@@ -122,8 +138,66 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		frame.pack();
 		frame.setVisible(true);
 	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		if ("progress" == evt.getPropertyName()) {
+			int progress = (Integer) evt.getNewValue();
+			progressBar.setValue(progress);
+		}
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		try {
+			if (e.getSource() == directoryBrowseButton) {
+				if (frame != null) {
+					int returnValue = directoryDialog.showOpenDialog(frame);
 
-	// private methods
+					if (returnValue == JFileChooser.APPROVE_OPTION) {
+						File directory = directoryDialog.getSelectedFile();
+						lastDir = directory.getAbsolutePath();
+						dirText.setText(lastDir);
+						if (fileText.getText().isEmpty()) {
+							lastFile = lastDir + "\\wss.xml";
+							fileText.setText(lastFile);
+						}
+					}
+				}
+			}
+			if (e.getSource() == fileBrowseButton) {
+				if (frame != null) {
+					int returnValue = fileDialog.showOpenDialog(frame);
+
+					if (returnValue == JFileChooser.APPROVE_OPTION) {
+						File file = fileDialog.getSelectedFile();
+						if (file != null) {
+							lastFile = file.getAbsolutePath();
+							System.out.println("Save: " + file.getAbsolutePath());
+						}
+					}
+				}
+			}
+			if (e.getSource() == runButton) {
+				if (dirText.getText().isEmpty() || fileText.getText().isEmpty()) {
+					JOptionPane.showConfirmDialog(getParent(), "Please provide both root directory and target file.", "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
+				} else {
+					File directory = new File(dirText.getText());
+					File file = new File(fileText.getText());
+					if (directory.isDirectory()) {
+						System.out.println("Execute!");
+						run(directory, file);
+					} else {
+						JOptionPane.showConfirmDialog(getParent(), "Root directory not found", "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	/* --- Private methods --- */
 
 	private JPanel getDirectoryPanel() {
 		BorderLayout layout = new BorderLayout();
@@ -212,62 +286,17 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		return fileDialog;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		try {
-			if (e.getSource() == directoryBrowseButton) {
-				if (frame != null) {
-					int returnValue = directoryDialog.showOpenDialog(frame);
-
-					if (returnValue == JFileChooser.APPROVE_OPTION) {
-						File directory = directoryDialog.getSelectedFile();
-						lastDir = directory.getAbsolutePath();
-						dirText.setText(lastDir);
-						if (fileText.getText().isEmpty()) {
-							lastFile = lastDir + "\\wss.xml";
-							fileText.setText(lastFile);
-						}
-					}
-				}
-			}
-			if (e.getSource() == fileBrowseButton) {
-				if (frame != null) {
-					int returnValue = fileDialog.showOpenDialog(frame);
-
-					if (returnValue == JFileChooser.APPROVE_OPTION) {
-						File file = fileDialog.getSelectedFile();
-						if (file != null) {
-							lastFile = file.getAbsolutePath();
-							System.out.println("Save: " + file.getAbsolutePath());
-						}
-					}
-				}
-			}
-			if (e.getSource() == runButton) {
-				if (dirText.getText().isEmpty() || fileText.getText().isEmpty()) {
-					JOptionPane.showConfirmDialog(getParent(), "Please provide both root directory and target file.", "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
-				} else {
-					File directory = new File(dirText.getText());
-					File file = new File(fileText.getText());
-					if (directory.isDirectory()) {
-						System.out.println("Execute!");
-						run(directory, file);
-					} else {
-						JOptionPane.showConfirmDialog(getParent(), "Root directory not found", "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
-					}
-				}
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-	
 	private void run(File root, File output) {
 		ScanTask scanTask = new ScanTask(root, output);
 		scanTask.addPropertyChangeListener(this);
 		scanTask.execute();
 	}
 
+	/* --- Nested classes--- */
+	
+	/**
+	 * Subclass for executing Ninka in the background.
+	 */
 	public class ScanTask extends SwingWorker<Void, Void> {
 
 		private File root;
@@ -311,11 +340,4 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		}
 	}
 
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		if ("progress" == evt.getPropertyName()) {
-			int progress = (Integer) evt.getNewValue();
-			progressBar.setValue(progress);
-		}
-	}
 }

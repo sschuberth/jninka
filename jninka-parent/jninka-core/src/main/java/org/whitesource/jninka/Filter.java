@@ -14,6 +14,7 @@
  *  along with this patch.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.whitesource.jninka;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,40 +28,21 @@ import java.util.regex.Pattern;
  */
 public class Filter extends Processor{	   		
 	
+	/* --- Static members --- */
+	
 	Logger logger = Logger.getLogger(Filter.class.getCanonicalName());
 	
+	/* --- Members --- */
+	
 	private InputStream critWords;
+	
 	private ArrayList<String> words;
 
-	private ArrayList<String> goodOutputInfo = new ArrayList<String>();	  
+	private ArrayList<String> goodOutputInfo = new ArrayList<String>();
+	
 	private ArrayList<String> badOutputInfo = new ArrayList<String>();	
 	
-    public void setCritWords(InputStream lCritWords){
-    	this.critWords = lCritWords;
-    	words = loadWords(lCritWords);
-    }
-   
-    public InputStream getCritWords(){
-        return this.critWords;
-    }	
-
-	public ArrayList<String> getGoodOutputInfo(){
-	    return this.goodOutputInfo;
-	}
-			   
-	public void setGoodOutputInfo(ArrayList<String> loutputInfo){
-		this.goodOutputInfo.clear();
-		this.goodOutputInfo.addAll(loutputInfo);
-	}    
-
-	public ArrayList<String> getBadOutputInfo(){
-	    return this.badOutputInfo;
-	}
-			   
-	public void setBadOutputInfo(ArrayList<String> loutputInfo){
-		this.badOutputInfo.clear();
-		this.badOutputInfo.addAll(loutputInfo);
-	}
+	/* --- Public methods --- */
 	
 	public boolean process() {
 		boolean result = true;
@@ -96,6 +78,8 @@ public class Filter extends Processor{
 		return result;
 	}
 	
+	/* --- Protected methods --- */
+	
 	/**
 	* Open and read a file, and return the words from file as arraylist
 	*/
@@ -120,4 +104,35 @@ public class Filter extends Processor{
 		}
 		return list;
 	}
+	
+	/* --- Getters / Setters --- */
+	
+	public void setCritWords(InputStream lCritWords){
+		this.critWords = lCritWords;
+		words = loadWords(lCritWords);
+	}
+	
+	public InputStream getCritWords(){
+		return this.critWords;
+	}	
+	
+	public ArrayList<String> getGoodOutputInfo(){
+		return this.goodOutputInfo;
+	}
+	
+	public void setGoodOutputInfo(ArrayList<String> loutputInfo){
+		this.goodOutputInfo.clear();
+		this.goodOutputInfo.addAll(loutputInfo);
+	}    
+	
+	public ArrayList<String> getBadOutputInfo(){
+		return this.badOutputInfo;
+	}
+	
+	public void setBadOutputInfo(ArrayList<String> loutputInfo){
+		this.badOutputInfo.clear();
+		this.badOutputInfo.addAll(loutputInfo);
+	}
+	
 }
+
