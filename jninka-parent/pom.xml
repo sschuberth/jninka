@@ -68,6 +68,17 @@
 	</dependencyManagement>
 	
 	<build>
+
+		<plugins>
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<configuration>
+					<header>src/etc/header.txt</header>
+				</configuration>
+			</plugin>
+		</plugins>
+	
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -130,6 +141,28 @@
 						<arguments>-Dgpg.passphrase=${passed.gpg.passphrase} -Dgpg.homedir=${passed.gpg.homedir}</arguments>
 						<releaseProfiles>Release</releaseProfiles>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>com.mycila.maven-license-plugin</groupId>
+					<artifactId>maven-license-plugin</artifactId>
+					<version>1.9.0</version>
+					<configuration>
+						<encoding>UTF-8</encoding>
+						<strictCheck>true</strictCheck>
+						<excludes>
+		                    <exclude>target/**</exclude>
+		                    <exclude>**/*.gitignore</exclude>
+		                    <exclude>**/*.dict</exclude>
+		                    <exclude>**/*.abv</exclude>
+		                </excludes>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+	            	</executions>
 				</plugin>
 				<plugin>
 	                <groupId>org.eclipse.m2e</groupId>
