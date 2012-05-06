@@ -63,7 +63,7 @@ public class Ninka {
 	
 	/* --- Static members --- */
 	
-	static private Logger logger = Logger.getLogger(Ninka.class.getCanonicalName());
+	private static final Logger logger = Logger.getLogger(Ninka.class.getCanonicalName());
 	
 	/* --- Members --- */
 	

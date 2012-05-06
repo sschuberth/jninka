@@ -41,7 +41,8 @@ public class ScanProgressMonitor {
 	 * Default constructor
 	 */
 	public ScanProgressMonitor() {
-		reset();
+		current = 0;
+		currentStep = 0;
 		listeners = new ArrayList<ScanProgressListener>();
 	}
 

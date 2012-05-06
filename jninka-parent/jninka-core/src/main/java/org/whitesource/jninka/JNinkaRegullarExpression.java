@@ -209,8 +209,7 @@ public final class JNinkaRegullarExpression {
 	 * @return
 	 */
 	public static String beforeMatch(String text, String patternText, int flag){
-		String result = JNinkaRegullarExpression.beforePostMatch(text, patternText, flag, true);
-		return result;
+		return JNinkaRegullarExpression.beforePostMatch(text, patternText, flag, true);
 	}
 
 	/**
