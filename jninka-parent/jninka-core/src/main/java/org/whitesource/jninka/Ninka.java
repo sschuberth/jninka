@@ -200,7 +200,7 @@ public class Ninka {
 		FileFilter result = new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
-				String extention = getFileExtention(pathname.getName());
+				String extention = JNinkaUtils.fileExtension(pathname.getPath());
 				return codeFileExtentions.contains(extention);
 			}
 		};
@@ -210,14 +210,6 @@ public class Ninka {
 	private void initCodeFileExtentions(){
 		codeFileExtentions = new HashSet<String>();
 		Collections.addAll(codeFileExtentions, ".pl", ".pm", ".py", ".jl", ".el", ".java", ".c", ".cpp", ".h", ".cxx", ".c++", ".cc");
-	}
-	
-	private String getFileExtention(String fileName){
-		String result = "-";
-		if(fileName.contains(".")){
-			result = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
-		}
-		return result;
 	}
 	
 	private int countFoldersRecursive(File dir) {
@@ -242,19 +234,29 @@ public class Ninka {
 	
 	private String getPkg(File javafile){
 		String result = null;
+		BufferedReader reader = null; 
+				
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(javafile));
+			reader = new BufferedReader(new FileReader(javafile));
 			String line;
 			while(result == null && reader.ready()){
 				line = reader.readLine();
-				if(line.startsWith("package")){
+				if(line != null && line.startsWith("package")){
 					result = getPackageFromLine(line);
 				}
 			}
-			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+				logger.severe("Error: " + e.getMessage());
+			}
 		}
+		
 		return result;
 	}
 	

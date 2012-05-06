@@ -14,6 +14,7 @@
  *  along with this patch.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.whitesource.jninka;
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -39,5 +40,17 @@ public class JNinkaUtils{
 	    }
 	    sb.delete(sb.length()-delimiter.length(), sb.length());	 
 	    return sb.toString();
+	}
+
+	public static String fileExtension(String filepath){
+		String result = "";
+		
+		File file = new File(filepath);
+	    String fileName = file.getName();
+	    if(fileName.contains(".")){
+			result = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+		}
+	    
+	    return result;
 	}	
 }

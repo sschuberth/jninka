@@ -41,14 +41,14 @@ public class Senttok {
 	
 	private int tooLong = 70;
 	
-	private ArrayList<String> licensesentencelist;
+	private List<String> licensesentencelist;
 
 	/* --- Public methods --- */
 	
-    public List<LicenseAttribution> getAttributions(ArrayList<String> lines, boolean getUnknown){
+    public List<LicenseAttribution> getAttributions(List<String> lines, boolean getUnknown){
     	List<LicenseAttribution> result = new ArrayList<LicenseAttribution>();
 		try{
-			ArrayList<String> outputInfo = new ArrayList<String>();
+			List<String> outputInfo = new ArrayList<String>();
 
 //			ArrayList<String> lines = this.getInputInfo();
 			
@@ -72,9 +72,6 @@ public class Senttok {
 				boolean gpl = false;
 				boolean gplLater = false;
 				String gplVersion = "";
-
-				saveLine = line;
-				// String lineAsGPL ="";
 
 				if (this.looksLikeGPL(line)){
 					// String old = line;
@@ -175,9 +172,10 @@ public class Senttok {
 							matchname += "+";
 						}
 						matchname = LGPL + matchname;
-					} else {
-						// nothing in perl code
-					}
+					} 
+//					else {
+//						// nothing in perl code
+//					}
 					if ((before.length() > this.getTooLong())
 							|| (after.length() > this.getTooLong())){
 						matchname += "-TOOLONG";
@@ -214,8 +212,8 @@ public class Senttok {
 	/**
 	* Open and read a file, and return the words from file as arraylist
 	*/
-	protected ArrayList<String> loadLicenseSentence(InputStream filepath){
-		ArrayList<String> list = new ArrayList<String>();
+	protected List<String> loadLicenseSentence(InputStream filepath){
+		List<String> list = new ArrayList<String>();
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(filepath));
 			String line;

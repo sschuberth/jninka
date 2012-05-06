@@ -18,6 +18,7 @@ package org.whitesource.jninka;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Logger;
@@ -39,34 +40,44 @@ public class ExtComments extends Processor {
 	
 	public boolean process() {	
 		boolean result = true;
-		try{
-			if (this.getFileSize(this.getInputFile()) <= 0){
-				logger.severe("Failed to retrieve file size info: file " + this.getInputFile() + " doesn\'t exist or empty.");
-				result = false;
-			}			
-			ArrayList<String> outputInfo = new ArrayList<String>();
-					
-			int totalLineCount = this.determineCommentsExtractor(this.getInputFile());
-			BufferedReader reader = new BufferedReader(new FileReader(this.getInputFile()));
-			String line;
-			int i = totalLineCount > 0 ? 0 : 1;
-			while (((line = reader.readLine()) != null) && (i < totalLineCount)) {
-				i++;
-				outputInfo.add(line);
-			}
-			this.setOutputInfo(outputInfo);
-			reader.close();
-		} catch (Exception e){
-			logger.severe("Error: " + e.getMessage());
+		if (this.getFileSize(this.getInputFile()) <= 0){
+			logger.severe("Failed to retrieve file size info: file " + this.getInputFile() + " doesn\'t exist or empty.");
 			result = false;
+		} else {
+			BufferedReader reader = null;
+			try{
+				ArrayList<String> outputInfo = new ArrayList<String>();
+				
+				int totalLineCount = this.determineCommentsExtractor(this.getInputFile());
+				reader = new BufferedReader(new FileReader(this.getInputFile()));
+				String line;
+				int i = totalLineCount > 0 ? 0 : 1;
+				while (((line = reader.readLine()) != null) && (i < totalLineCount)) {
+					i++;
+					outputInfo.add(line);
+				}
+				this.setOutputInfo(outputInfo);
+			} catch (Exception e){
+				logger.severe("Error: " + e.getMessage());
+				result = false;
+			} finally {
+				try {
+					if (reader != null) {
+						reader.close();
+					}
+				} catch (IOException e) {
+					logger.severe("Error: " + e.getMessage());
+				}
+			}
 		}
+		
 		return result;
 	}
 	
 	/* --- Protected methods --- */
 	
 	protected int determineCommentsExtractor(String filepath){
-		String ext = ExtComments.fileExtension(filepath);
+		String ext = JNinkaUtils.fileExtension(filepath);
 		
 	    if ( ext != "" ){
 	    	if(Arrays.asList(new String[]{"pl", "pm", "py"}).contains(ext)){
@@ -94,15 +105,6 @@ public class ExtComments extends Processor {
 	    return file.length();
 	}
 		
-	protected static String fileExtension(String filepath){
-		File file = new File(filepath);
-	    String fname = file.getName();
-	    int extIndex = fname.lastIndexOf('.');
-	    String ext = extIndex == -1 ? "" : fname.substring(extIndex + 1, fname.length());
-	    ext = ext.toLowerCase();
-	    return ext;
-	}	
-	
 	/* --- Getters / Setters --- */
 	
 	public void setInputFile(String lInputFile){

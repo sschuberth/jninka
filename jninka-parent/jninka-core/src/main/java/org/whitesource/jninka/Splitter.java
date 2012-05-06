@@ -215,9 +215,10 @@ public class Splitter extends Processor {
 							&& this.abbreviations.contains(lastWord)){
 							currentSentence += sentence;
 							continue;
-						} else {
-							//just keep going, we handle this case below
-						}
+						} 
+//						else {
+//							//just keep going, we handle this case below
+//						}
 					}
 				}
 				result.add(currentSentence + sentence);					
@@ -234,20 +235,30 @@ public class Splitter extends Processor {
 	/**
 	* Open and read a file, and return the lines in the file as a  hashtable
 	*/
-	protected void loadDictionary(){
+	protected void loadDictionary() {
 		this.commonTerms = new Hashtable<String, Integer>();
+		
+		BufferedReader reader = null;
 		try{
-			BufferedReader reader = new BufferedReader(new InputStreamReader(this.getDictionary()));
+			reader = new BufferedReader(new InputStreamReader(this.getDictionary()));
 			String line;
 			while ( (line = reader.readLine()) != null ){
 				if (JNinkaRegullarExpression.isMatch(line, "^[A-Z]")){
 					this.commonTerms.put(line, 1);
 				}
 			}
-			reader.close();
-		} catch(IOException e){
+		} catch(IOException e) {
 			logger.severe("cannot open dictionary file " + this.getDictionary() + ": " + e.getMessage());
-		}				
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+				logger.severe("Error: " + e.getMessage());
+			}
+		}
+		
 	}
 
 	/**
@@ -255,16 +266,25 @@ public class Splitter extends Processor {
 	*/
 	protected void loadAbbreviations(){
 		this.abbreviations = new ArrayList<String>();
+		
+		BufferedReader reader = null;
 		try{
-			BufferedReader reader = new BufferedReader(new InputStreamReader(this.getAbbrvFile()));
+			reader = new BufferedReader(new InputStreamReader(this.getAbbrvFile()));
 			String line;
 			while ( (line = reader.readLine()) != null ){
 				line = line.toLowerCase();//java=>perl
 				this.abbreviations.add(line);
 			}
-			reader.close();
 		} catch(IOException e){
 			logger.severe("cannot open dictionary file " + this.getAbbrvFile() + ": " + e.getMessage());
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+				logger.severe("Error: " + e.getMessage());
+			}
 		}
 	}
 	

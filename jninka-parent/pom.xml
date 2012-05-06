@@ -74,7 +74,8 @@
 				<groupId>com.mycila.maven-license-plugin</groupId>
 				<artifactId>maven-license-plugin</artifactId>
 				<configuration>
-					<header>src/etc/header.txt</header>
+                	<aggregate>true</aggregate>
+                	<header>src/etc/header.txt</header>
 				</configuration>
 			</plugin>
 		</plugins>

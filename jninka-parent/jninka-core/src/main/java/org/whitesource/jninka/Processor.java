@@ -15,9 +15,6 @@
  */
 package org.whitesource.jninka;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -34,22 +31,6 @@ public abstract class Processor {
 	/* --- Abstract methods --- */
 	
 	public abstract boolean process();
-	
-	/* --- Protected methods --- */
-	
-	protected static void writeFile(String filename, ArrayList<String> info)  throws Exception
-	{
-		try{		
-			File outputFile = new File(filename);
-			FileWriter out = new FileWriter(outputFile);
-		    for (String x : info){
-		    	out.write(x + "\n");
-		    }									
-			out.close();
-		} catch(IOException e){
-			throw new Exception("Can not write list to file "+ filename + ": " + e.getMessage());
-		}
-	}
 	
 	/* --- Getters / Setters --- */
 	

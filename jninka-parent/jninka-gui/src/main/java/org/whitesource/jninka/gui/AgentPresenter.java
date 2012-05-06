@@ -249,7 +249,6 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 	private JButton getBrowseBtn() {
 		JButton result = new JButton();
-		result = new JButton();
 		result.setSize(80, 20);
 		result.setText(BROWSE);
 		result.setActionCommand(BROWSE);
@@ -261,7 +260,6 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 	private JButton getRunBtn() {
 		JButton result = new JButton();
-		result = new JButton();
 		result.setSize(80, 20);
 		result.setText(RUN);
 		result.setActionCommand(RUN);

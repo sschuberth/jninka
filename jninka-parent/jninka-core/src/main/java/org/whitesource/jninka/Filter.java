@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -36,11 +37,11 @@ public class Filter extends Processor{
 	
 	private InputStream critWords;
 	
-	private ArrayList<String> words;
+	private List<String> words;
 
-	private ArrayList<String> goodOutputInfo = new ArrayList<String>();
+	private List<String> goodOutputInfo = new ArrayList<String>();
 	
-	private ArrayList<String> badOutputInfo = new ArrayList<String>();	
+	private List<String> badOutputInfo = new ArrayList<String>();	
 	
 	/* --- Public methods --- */
 	
@@ -85,8 +86,9 @@ public class Filter extends Processor{
 	*/
 	protected ArrayList<String> loadWords(InputStream filepath){
 		ArrayList <String>list = new ArrayList<String>();
+		BufferedReader reader = null;
 		try{
-			BufferedReader reader = new BufferedReader(new InputStreamReader(filepath));
+			reader = new BufferedReader(new InputStreamReader(filepath));
 			String line;
 			while ( (line = reader.readLine()) != null ){
 				if (JNinkaRegullarExpression.isMatch(line, "^\\#")){
@@ -98,10 +100,18 @@ public class Filter extends Processor{
 					list.add(line);
 				}
 			}
-			reader.close();
 		} catch(IOException e){
 			logger.severe("Couldn't open " + filepath + " for reading! :" + e.getMessage());
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+				logger.severe("Error: " + e.getMessage());
+			}
 		}
+		
 		return list;
 	}
 	
@@ -116,7 +126,7 @@ public class Filter extends Processor{
 		return this.critWords;
 	}	
 	
-	public ArrayList<String> getGoodOutputInfo(){
+	public List<String> getGoodOutputInfo(){
 		return this.goodOutputInfo;
 	}
 	
@@ -125,7 +135,7 @@ public class Filter extends Processor{
 		this.goodOutputInfo.addAll(loutputInfo);
 	}    
 	
-	public ArrayList<String> getBadOutputInfo(){
+	public List<String> getBadOutputInfo(){
 		return this.badOutputInfo;
 	}
 	
