@@ -35,7 +35,7 @@ public class Main {
 			if (args.length > 1) {
 				long time = System.currentTimeMillis();
 				
-				Ninka ninka = new Ninka();
+				JNinka ninka = new JNinka();
 				ninka.getMonitor().addListener(new SysOutListener());
 				
 				File sourceFolder = new File(args[0]);

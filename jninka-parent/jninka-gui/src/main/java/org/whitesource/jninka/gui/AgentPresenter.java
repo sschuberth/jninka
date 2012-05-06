@@ -40,7 +40,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.whitesource.jninka.Ninka;
+import org.whitesource.jninka.JNinka;
 import org.whitesource.jninka.model.ScanResults;
 import org.whitesource.jninka.progress.ScanProgressListener;
 
@@ -313,17 +313,23 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 			progressBar.setVisible(true);
 			progressLabel.setVisible(true);
 			progressLabel.setText("Warming up...");
-			Ninka ninka = new Ninka();
-			ninka.getMonitor().addListener(new ScanProgressListener() {
-				@Override
-				public void progress(int pct, String details) {
-					setProgress(pct);
-					progressLabel.setText(details);
-				}
-			});
-			boolean sureMatches = sureMatchChk.isSelected();
-			ScanResults scanResults = ninka.scanFolderRecursive(root, !sureMatches);
-			scanResults.writeXML(output);
+			
+			try {
+				JNinka ninka = new JNinka();
+				ninka.getMonitor().addListener(new ScanProgressListener() {
+					@Override
+					public void progress(int pct, String details) {
+						setProgress(pct);
+						progressLabel.setText(details);
+					}
+				});
+				boolean sureMatches = sureMatchChk.isSelected();
+				ScanResults scanResults = ninka.scanFolderRecursive(root, !sureMatches);
+				scanResults.writeXML(output);
+			} catch (RuntimeException e) {
+				progressLabel.setText("Error during execution, see log file.");
+			}
+			
 			// YEY
 			return null;
 		}

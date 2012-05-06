@@ -31,7 +31,6 @@ import org.whitesource.jninka.model.CodeFileAttributions;
 import org.whitesource.jninka.model.LicenseAttribution;
 import org.whitesource.jninka.model.ScanResults;
 import org.whitesource.jninka.progress.ScanProgressMonitor;
-import org.whitesource.jninka.resources.ResourceHandler;
 
 /**
  * Ninka
@@ -59,17 +58,15 @@ import org.whitesource.jninka.resources.ResourceHandler;
  * You should have received a copy of the GNU Affero General Public License
  * along with this patch.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class Ninka {
+public class JNinka {
 	
 	/* --- Static members --- */
 	
-	private static final Logger logger = Logger.getLogger(Ninka.class.getCanonicalName());
+	private static final Logger logger = Logger.getLogger(JNinka.class.getCanonicalName());
 	
 	/* --- Members --- */
 	
 	private ScanProgressMonitor monitor;
-	
-	private ResourceHandler resourceHandler;
 	
 	private FileFilter dirFilter;
 	
@@ -77,13 +74,13 @@ public class Ninka {
 	
 	private Set<String> codeFileExtentions;
 	
-	private ExtComments extComments;
+	private CommentsExtractor extComments;
 	
-	private Splitter splitter;
+	private SentenceSplitter splitter;
 	
-	private Filter filter;
+	private SentenceFilter filter;
 	
-	private Senttok senttok;
+	private SentenceTokenizer senttok;
 	
 	private boolean getUnknowns;
 	
@@ -92,19 +89,18 @@ public class Ninka {
 	/**
 	 * Default constructor
 	 */
-	public Ninka() {
+	public JNinka() {
 		initCodeFileExtentions();
 		dirFilter = getDirectoryFilter();
 		javaFilter = getCodeFileFilter();
-		resourceHandler = new ResourceHandler();
-		extComments = new ExtComments();
-		splitter = new Splitter();
-		splitter.setDictionary(resourceHandler.getAsStream("splitter.dict"));
-		splitter.setAbbrvFile(resourceHandler.getAsStream("splitter.abv"));
-		filter = new Filter();
-		filter.setCritWords(resourceHandler.getAsStream("criticalword.dict"));
-		senttok = new Senttok();
-		senttok.setLicSentences(resourceHandler.getAsStream("licensesentence.dict"));
+		extComments = new CommentsExtractor();
+		splitter = new SentenceSplitter();
+		splitter.setDictionary(getClass().getResourceAsStream("/splitter.dict"));
+		splitter.setAbbrvFile(getClass().getResourceAsStream("/splitter.abv"));
+		filter = new SentenceFilter();
+		filter.setCritWords(getClass().getResourceAsStream("/criticalword.dict"));
+		senttok = new SentenceTokenizer();
+		senttok.setLicSentences(getClass().getResourceAsStream("/licensesentence.dict"));
 		monitor = new ScanProgressMonitor();
 	}
 	
@@ -121,22 +117,17 @@ public class Ninka {
 	}
 	
 	public void run(File codeFile, ScanResults scanResult){
-		boolean result;
 		try {
 			// Stage 1.
 			extComments.setInputFile(codeFile.getAbsolutePath());
-			result = extComments.process();
-			if (result) {
+			if (extComments.process()) {
 				// Stage 2.
 				splitter.setInputInfo(extComments.getOutputInfo());
-				result = splitter.process();
-				if (result) {
+				if (splitter.process()) {
 					// Stage 3.
 					filter.setInputInfo(splitter.getOutputInfo());
-					result = filter.process();
-					if (result) {
+					if (filter.process()) {
 						// Stage 4.
-						// senttok.setInputInfo(filter.getGoodOutputInfo());
 						senttok.setTooLong(70);
 						List<LicenseAttribution> attributions = senttok.getAttributions(filter.getGoodOutputInfo(), getUnknowns);
 						if (attributions.size() > 0) {

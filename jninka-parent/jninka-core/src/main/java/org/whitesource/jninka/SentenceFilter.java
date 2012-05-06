@@ -27,11 +27,11 @@ import java.util.regex.Pattern;
 /**
  * @author Rami.Sass
  */
-public class Filter extends Processor{	   		
+public class SentenceFilter extends StageProcessor{	   		
 	
 	/* --- Static members --- */
 	
-	Logger logger = Logger.getLogger(Filter.class.getCanonicalName());
+	Logger logger = Logger.getLogger(SentenceFilter.class.getCanonicalName());
 	
 	/* --- Members --- */
 	

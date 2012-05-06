@@ -20,7 +20,7 @@ import java.util.ArrayList;
 /**
  * @author Rami.Sass
  */
-public abstract class Processor {
+public abstract class StageProcessor {
 	
 	/* --- Members --- */
 	

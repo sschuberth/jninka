@@ -26,11 +26,11 @@ import java.util.logging.Logger;
 /**
  * @author Rami.Sass
  */
-public class ExtComments extends Processor {	
+public class CommentsExtractor extends StageProcessor {	
 
 	/* --- Static members --- */
 	
-	private static Logger logger = Logger.getLogger(ExtComments.class.getCanonicalName());
+	private static Logger logger = Logger.getLogger(CommentsExtractor.class.getCanonicalName());
 	
 	/* --- Members --- */
 	

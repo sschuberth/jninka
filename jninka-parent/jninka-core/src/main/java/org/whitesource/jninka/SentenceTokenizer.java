@@ -29,11 +29,11 @@ import org.whitesource.jninka.model.LicenseAttribution;
 /**
  * @author Rami.Sass
  */
-public class Senttok {	
+public class SentenceTokenizer {	
 	
 	/* --- Static members --- */
 	
-	Logger logger = Logger.getLogger(Senttok.class.getCanonicalName());
+	Logger logger = Logger.getLogger(SentenceTokenizer.class.getCanonicalName());
 	
 	/* --- Members --- */
 	
@@ -48,20 +48,19 @@ public class Senttok {
     public List<LicenseAttribution> getAttributions(List<String> lines, boolean getUnknown){
     	List<LicenseAttribution> result = new ArrayList<LicenseAttribution>();
 		try{
-			List<String> outputInfo = new ArrayList<String>();
+//			List<String> outputInfo = new ArrayList<String>();
 
-//			ArrayList<String> lines = this.getInputInfo();
-			
 			for (String line : lines){
 				String saveLine;
 				String originalLine = line;
 
-				if (JNinkaRegullarExpression.isMatch(line, "^Alternatively,? ?")){
-					outputInfo.add("Altern");
-				}
+//				if (JNinkaRegullarExpression.isMatch(line, "^Alternatively,? ?")){
+//					outputInfo.add("Altern");
+//				}
 				line = this.normalizeSentence(line);
 
 				boolean check = false;
+				Integer id = Integer.MIN_VALUE;
 				String matchname = "UNKNOWN";
 				ArrayList<String> parm = new ArrayList<String>();
 
@@ -92,15 +91,16 @@ public class Senttok {
 				for (int ki = 0; ki < licensesentencelist.size(); ki++){
 					String sentence = licensesentencelist.get(ki);
 					String[] separated = sentence.split(":");
-					if ((separated.length < 4) || (separated.length > 5)){
+					if ((separated.length < 5) || (separated.length > 6)){
 						logger.severe("licensesentencelist file has incorrect format:" + separated.length + "!\n");
 						throw new IllegalArgumentException();
 					}
-					String name = separated[0];
-					subRule = separated[1];
-					int number = Integer.parseInt(separated[2]);
-					String regexp = separated[3];
-					// String option = separated.length == 5 ? separated[4] :
+					id = Integer.parseInt(separated[0]);
+					String name = separated[1];
+					subRule = separated[2];
+					int number = Integer.parseInt(separated[3]);
+					String regexp = separated[4];
+					// String option = separated.length == 6 ? separated[5] :
 					// "";
 
 					// we need this due to the goto (loop in java) again
@@ -181,21 +181,21 @@ public class Senttok {
 						matchname += "-TOOLONG";
 					}
 
-					ArrayList<String> parm2 = new ArrayList<String>();
-					parm2.add(matchname);
-					parm2.add(subRule);
-					parm2.add(before);
-					parm2.add(after);
-					parm2.addAll(parm);
-					String parmstrings = JNinkaUtils.joinArrayList(parm2, ";");
-					String outputStr = parmstrings + ":" + originalLine;
-					outputInfo.add(outputStr);
-					result.add(new LicenseAttribution(parm, matchname, subRule, before, after, originalLine));
+//					ArrayList<String> parm2 = new ArrayList<String>();
+//					parm2.add(matchname);
+//					parm2.add(subRule);
+//					parm2.add(before);
+//					parm2.add(after);
+//					parm2.addAll(parm);
+//					String parmstrings = JNinkaUtils.joinArrayList(parm2, ";");
+//					String outputStr = parmstrings + ":" + originalLine;
+//					outputInfo.add(outputStr);
+					result.add(new LicenseAttribution(parm, id, matchname, subRule, before, after, originalLine));
 				} else {
 					// UNKNOWN, sentence
 					if (getUnknown) {
 						// String outputStr = matchname + ";" + "0;" + mostsimilarname + ";" + distance + ";" + saveLine + ":" + originalLine;
-						result.add(new LicenseAttribution(null, matchname, mostsimilarname, Integer.toString(distance), saveLine, originalLine));
+						result.add(new LicenseAttribution(null, Integer.MIN_VALUE, matchname, mostsimilarname, Integer.toString(distance), saveLine, originalLine));
 //					outputInfo.add(outputStr);
 					}
 				}
@@ -214,8 +214,9 @@ public class Senttok {
 	*/
 	protected List<String> loadLicenseSentence(InputStream filepath){
 		List<String> list = new ArrayList<String>();
+		BufferedReader reader = null;
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(filepath));
+			reader = new BufferedReader(new InputStreamReader(filepath));
 			String line;
 			while ((line = reader.readLine()) != null) {
 				if (JNinkaRegullarExpression.isMatch(line, "^\\#")) {
@@ -230,10 +231,18 @@ public class Senttok {
 				}
 				list.add(line);
 			}
-			reader.close();
 		} catch (IOException e) {
 			logger.severe("cannot open file " + filepath + ": "+ e.getMessage());
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+				logger.severe("Error: " + e.getMessage());
+			}
 		}
+		
 		return list;
 	}
 	

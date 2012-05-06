@@ -32,6 +32,9 @@ public class LicenseAttribution {
 	private List<String> params;
 	
 	@XmlElement
+	private Integer id;
+	
+	@XmlElement
 	private String matchname;
 	
 	@XmlElement
@@ -65,8 +68,9 @@ public class LicenseAttribution {
 	 * @param after
 	 * @param originalLine
 	 */
-	public LicenseAttribution(List<String> params, String matchname, String subrule, String before, String after, String originalLine) {
+	public LicenseAttribution(List<String> params, Integer id, String matchname, String subrule, String before, String after, String originalLine) {
 		this.params = params;
+		this.id = id;
 		this.matchname = matchname;
 		this.subrule = subrule;
 		this.before = before;
@@ -76,14 +80,19 @@ public class LicenseAttribution {
 	
 	/* --- Getters / Setters --- */
 
+
 	public List<String> getParams() {
 		return params;
+	}
+
+	public Integer getId() {
+		return id;
 	}
 
 	public String getMatchname() {
 		return matchname;
 	}
-
+	
 	public String getSubrule() {
 		return subrule;
 	}

@@ -30,11 +30,11 @@ import java.util.Hashtable;
 /**
  * @author Rami.Sass
  */
-public class Splitter extends Processor {
+public class SentenceSplitter extends StageProcessor {
 	
 	/* --- Static members --- */
 	
-	Logger logger = Logger.getLogger(Splitter.class.getCanonicalName());
+	Logger logger = Logger.getLogger(SentenceSplitter.class.getCanonicalName());
 	
 	/* --- Members --- */
 	
