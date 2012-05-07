@@ -159,7 +159,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 						lastDir = directory.getAbsolutePath();
 						dirText.setText(lastDir);
 						if (fileText.getText().isEmpty()) {
-							lastFile = lastDir + "\\wss.xml";
+							lastFile = lastDir + "\\jninka.xml";
 							fileText.setText(lastFile);
 						}
 					}

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	Schema for the scan result, output, XML file.
+	
+	@author Edo.Shor
+ -->
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+
+  <xs:element name="CodeScan" type="scanResults"/>
+
+  <xs:element name="codeFileAttributions" type="codeFileAttributions"/>
+
+  <xs:element name="licenseAttribution" type="licenseAttribution"/>
+
+  <xs:complexType name="scanResults">
+    <xs:sequence>
+      <xs:element name="File" type="codeFileAttributions" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="scanTime" type="xs:dateTime"/>
+  </xs:complexType>
+
+  <xs:complexType name="codeFileAttributions">
+    <xs:sequence>
+      <xs:element name="attribution" type="licenseAttribution" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="extra" type="xs:string" minOccurs="0"/>
+      <xs:element name="fileName" type="xs:string" minOccurs="0"/>
+      <xs:element name="lastModified" type="xs:long"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="licenseAttribution">
+    <xs:sequence>
+      <xs:element name="originalLine" type="xs:string" minOccurs="0"/>
+      <xs:element name="after" type="xs:string" minOccurs="0"/>
+      <xs:element name="before" type="xs:string" minOccurs="0"/>
+      <xs:element name="subrule" type="xs:string" minOccurs="0"/>
+      <xs:element name="matchname" type="xs:string" minOccurs="0"/>
+      <xs:element name="id" type="xs:int" minOccurs="0"/>
+      <xs:element name="params" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
+

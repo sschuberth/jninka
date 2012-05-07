@@ -16,12 +16,15 @@
 package org.whitesource.jninka.model;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -36,12 +39,16 @@ public class ScanResults {
 	@XmlElement(name="File")
 	private List<CodeFileAttributions> findings;
 	
+	@XmlAttribute(name="scanTime")
+	private Date scanTime;
+	
 	/* --- Constructors --- */
 	
 	/**
 	 * Default constructor
 	 */
 	public ScanResults(){
+		scanTime = new Date();
 		findings = new ArrayList<CodeFileAttributions>();
 	}
 	
@@ -76,6 +83,7 @@ public class ScanResults {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("scanTime = ").append(SimpleDateFormat.getInstance().format(scanTime)).append("\n\n");
 		for(CodeFileAttributions attribution : findings){
 			sb.append(attribution + "\n");
 		}
