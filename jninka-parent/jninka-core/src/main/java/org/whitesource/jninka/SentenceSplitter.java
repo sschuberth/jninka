@@ -199,14 +199,14 @@ public class SentenceSplitter extends StageProcessor {
 							currentSentence += sentence;
 							continue;
 						}
-						logger.info("last word an abbrev " + sentenceMatch + " lastword [" + lastWord + "] before [" + before + "]");
+						logger.fine("last word an abbrev " + sentenceMatch + " lastword [" + lastWord + "] before [" + before + "]");
 	
 						//but some are lowercase!
 						if ((c == 'e') || (c == 'i')){
 							currentSentence += sentence;
 							continue;
 						}
-						logger.info("2 last word an abbrev " + sentenceMatch + " lastword [" + lastWord + "] before [" + before + "]");
+						logger.fine("2 last word an abbrev " + sentenceMatch + " lastword [" + lastWord + "] before [" + before + "]");
 					} else {					
 						lastWord = lastWord.toLowerCase();
 						//only accept abbreviations if the previous char to the abbrev is space or

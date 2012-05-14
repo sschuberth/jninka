@@ -24,6 +24,8 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -58,6 +60,8 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	private static final String RUN = "Run";
 	
 	private static final Color BG_COLOR = new Color(240, 240, 240);
+	
+	private static final Logger log = Logger.getLogger(AgentPresenter.class.getName());
 
 	/* --- Members --- */
 
@@ -173,7 +177,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 						File file = fileDialog.getSelectedFile();
 						if (file != null) {
 							lastFile = file.getAbsolutePath();
-							System.out.println("Save: " + file.getAbsolutePath());
+							log.info("Save: " + file.getAbsolutePath());
 						}
 					}
 				}
@@ -185,7 +189,6 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 					File directory = new File(dirText.getText());
 					File file = new File(fileText.getText());
 					if (directory.isDirectory()) {
-						System.out.println("Execute!");
 						run(directory, file);
 					} else {
 						JOptionPane.showConfirmDialog(getParent(), "Root directory not found", "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
@@ -193,9 +196,11 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 				}
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.log(Level.SEVERE, "General error", ex);
 		}
 	}
+	
+	
 
 	/* --- Private methods --- */
 
@@ -297,25 +302,46 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	 */
 	public class ScanTask extends SwingWorker<Void, Void> {
 
+		/* --- Members --- */
+		
 		private File root;
+		
 		private File output;
+		
+		private String resultMessage;
+		
+		/* --- Constructors --- */
 
+		/**
+		 * Constructor
+		 * 
+		 * @param root Root scan folder.
+		 * @param output Scan results output file.
+		 */
 		public ScanTask(File root, File output) {
 			this.root = root;
 			this.output = output;
 		}
 
+		/* --- Concrete implementation methods --- */
+		
 		@Override
 		protected Void doInBackground() throws Exception {
-			setProgress(0);
+			long startTime = System.currentTimeMillis();
+			
+			Logger log = Logger.getLogger(getClass().getName());
+			log.info("----------------------------------------------------------------------");
+			log.info("Start scanning folder " + root);
+			log.info("Results file is " + output);
+			log.info("----------------------------------------------------------------------");
+			
+			initProgressBar();
 			runButton.setVisible(false);
-			progressBar.setValue(0);
-			progressBar.setVisible(true);
-			progressLabel.setVisible(true);
-			progressLabel.setText("Warming up...");
+			resultMessage = "Completed successfully.";
 			
 			try {
 				JNinka ninka = new JNinka();
+				
 				ninka.getMonitor().addListener(new ScanProgressListener() {
 					@Override
 					public void progress(int pct, String details) {
@@ -323,24 +349,43 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 						progressLabel.setText(details);
 					}
 				});
+				
 				boolean sureMatches = sureMatchChk.isSelected();
 				ScanResults scanResults = ninka.scanFolderRecursive(root, !sureMatches);
 				scanResults.writeXML(output);
 			} catch (RuntimeException e) {
-				progressLabel.setText("Error during execution, see log file.");
+				resultMessage ="Completed with errors, see log file.";
 			}
+			
+			log.info("Scan completed in " + (System.currentTimeMillis() - startTime) +" [msec].");
+			log.info("Scan results message: " + resultMessage);
+			log.info("----------------------------------------------------------------------");
 			
 			// YEY
 			return null;
 		}
-
+		
 		@Override
 		protected void done() {
+			endProgressBar();
+			runButton.setVisible(true);
+			JOptionPane.showConfirmDialog(getParent(), resultMessage, "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE);
+		}
+		
+		/* --- Protected methods --- */
+		
+		protected void initProgressBar() {
+			setProgress(0);
+			progressBar.setValue(0);
+			progressBar.setVisible(true);
+			progressLabel.setVisible(true);
+			progressLabel.setText("Warming up...");
+		}
+		
+		protected void endProgressBar() {
 			setProgress(100);
 			progressBar.setVisible(false);
 			progressLabel.setVisible(false);
-			runButton.setVisible(true);
-			JOptionPane.showConfirmDialog(getParent(), "Done!", "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 

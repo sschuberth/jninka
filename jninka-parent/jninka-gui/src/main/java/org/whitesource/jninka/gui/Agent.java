@@ -15,6 +15,12 @@
  */
 package org.whitesource.jninka.gui;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -29,6 +35,14 @@ public class Agent {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		initLogging();
+		
+		Logger log = Logger.getLogger(Agent.class.getName());
+		log.info("********************************************************************************");
+		log.info("********************            Starting JNinka             ********************");
+		log.info("********************************************************************************");
+		
 		final AgentPresenter presenter = new AgentPresenter();
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -37,9 +51,8 @@ public class Agent {
 					break;
 				}
 			}
-
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			log.log(Level.SEVERE, "General error", e);
 		}
 		
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -47,6 +60,33 @@ public class Agent {
 				presenter.show();
 			}
 		});
+	}
+
+	/**
+	 * The method initialize the application logging facilities.
+	 */
+	private static void initLogging() {
+		Logger log = Logger.getLogger("jninka");
+		log.setLevel(Level.ALL);
+		log.info("Loading logging configuration file ...");
+
+		InputStream configFile = null; 
+		try {
+			configFile = Agent.class.getResourceAsStream("/logging.properties");
+		    LogManager.getLogManager().readConfiguration(configFile);
+		} catch (IOException ex) {
+		    System.out.println("WARNING: Could not open configuration file");
+		    System.out.println("WARNING: Logging not configured (console output only)");
+		} finally {
+			if (configFile != null) {
+				try {
+					configFile.close();
+				} catch (IOException e) {
+					System.out.println("ERROR: Could not close configuration file");
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 }
