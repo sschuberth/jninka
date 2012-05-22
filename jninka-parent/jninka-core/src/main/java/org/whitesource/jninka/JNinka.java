@@ -111,7 +111,7 @@ public class JNinka {
 		this.getUnknowns = getUnknowns;
 		int folderCount = countFoldersRecursive(folder);
 		monitor.reset();
-		monitor.setParams(folderCount, 30);
+		monitor.setParams(folderCount, 1);
 		runRecursive(folder, result);
 		return result;
 	}

@@ -18,6 +18,7 @@ package org.whitesource.jninka.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,12 +36,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 
 import org.whitesource.jninka.JNinka;
 import org.whitesource.jninka.model.ScanResults;
@@ -67,6 +70,8 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 	private JFrame frame;
 	
+	private JFrame scanFrame;
+	
 	private JTextField dirText;
 	
 	private JButton directoryBrowseButton;
@@ -89,7 +94,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	
 	private JProgressBar progressBar;
 	
-	private JLabel progressLabel;
+	private DefaultTableModel resultsModel;
 
 	/* --- Constructors --- */
 	
@@ -100,6 +105,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		directoryBrowseButton = null;
 		lastDir = null;
 		lastFile = null;
+		resultsModel = new DefaultTableModel();
 	}
 
 	/* --- Public methods --- */
@@ -141,6 +147,8 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		// Display the window.
 		frame.pack();
 		frame.setVisible(true);
+		
+		scanFrame = getScanningFrame();
 	}
 	
 	@Override
@@ -240,14 +248,14 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		BorderLayout layout = new BorderLayout();
 		JPanel result = new JPanel(layout);
 		result.add(runButton = getRunBtn(), BorderLayout.WEST);
-		progressBar = new JProgressBar(0);
-		progressBar.setValue(0);
-		progressBar.setStringPainted(true);
-		progressBar.setVisible(false);
-		result.add(progressBar, BorderLayout.CENTER);
-		progressLabel = new JLabel();
-		progressLabel.setVisible(false);
-		result.add(progressLabel, BorderLayout.SOUTH);
+//		progressBar = new JProgressBar(0);
+//		progressBar.setValue(0);
+//		progressBar.setStringPainted(true);
+//		progressBar.setVisible(false);
+//		result.add(progressBar, BorderLayout.CENTER);
+//		progressLabel = new JLabel();
+//		progressLabel.setVisible(false);
+//		result.add(progressLabel, BorderLayout.SOUTH);
 		result.setBackground(BG_COLOR);
 		return result;
 	}
@@ -272,6 +280,33 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		result.setVerticalAlignment(SwingConstants.BOTTOM);
 		result.setHorizontalAlignment(SwingConstants.LEFT);
 		result.setBackground(new Color(150, 200, 16));
+		return result;
+	}
+	
+	private JFrame getScanningFrame(){
+		JFrame result = new JFrame("Scanning...");
+		result.setResizable(false);
+		result.setLocation(330, 330);
+		result.setMinimumSize(new Dimension(500, 300));
+		result.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		JPanel pane = (JPanel) result.getContentPane();
+		pane.setBackground(BG_COLOR);
+		BorderLayout layout = new BorderLayout();
+		pane.setLayout(layout);
+
+		progressBar = new JProgressBar(0);
+		progressBar.setValue(0);
+		progressBar.setStringPainted(true);
+		progressBar.setVisible(false);
+		pane.add(progressBar, BorderLayout.NORTH);
+		pane.add(getTable(),BorderLayout.CENTER);
+		result.pack();
+		return result;
+	}
+	
+	private JTable getTable(){
+		resultsModel.addColumn("Folder");
+		JTable result = new JTable(resultsModel);
 		return result;
 	}
 
@@ -336,17 +371,20 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 			log.info("----------------------------------------------------------------------");
 			
 			initProgressBar();
+			resultsModel.insertRow(0 ,new String[]{"Warming up..."});
+			scanFrame.setVisible(true);
+			scanFrame.setAlwaysOnTop(true);
 			runButton.setVisible(false);
 			resultMessage = "Completed successfully.";
 			
 			try {
 				JNinka ninka = new JNinka();
-				
+				final int startIdx = root.getAbsolutePath().length();
 				ninka.getMonitor().addListener(new ScanProgressListener() {
 					@Override
 					public void progress(int pct, String details) {
 						setProgress(pct);
-						progressLabel.setText(details);
+						resultsModel.insertRow(0 ,new String[]{details.substring(startIdx)});
 					}
 				});
 				
@@ -367,9 +405,12 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		
 		@Override
 		protected void done() {
-			endProgressBar();
-			runButton.setVisible(true);
+			setProgress(100);
+			scanFrame.setAlwaysOnTop(false);
 			JOptionPane.showConfirmDialog(getParent(), resultMessage, "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE);
+			scanFrame.setVisible(false);
+			progressBar.setVisible(false);
+			runButton.setVisible(true);
 		}
 		
 		/* --- Protected methods --- */
@@ -378,15 +419,8 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 			setProgress(0);
 			progressBar.setValue(0);
 			progressBar.setVisible(true);
-			progressLabel.setVisible(true);
-			progressLabel.setText("Warming up...");
 		}
 		
-		protected void endProgressBar() {
-			setProgress(100);
-			progressBar.setVisible(false);
-			progressLabel.setVisible(false);
-		}
 	}
 
 }
