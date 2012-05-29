@@ -109,7 +109,10 @@ public class JNinka {
 	public ScanResults scanFolderRecursive(File folder, boolean getUnknowns){
 		ScanResults result = new ScanResults();
 		this.getUnknowns = getUnknowns;
-		int folderCount = countFoldersRecursive(folder);
+		// Problem: Folder count does not include parent folder, as oppose to the progress updater, which caused the range of progression
+		// to go over 100 (not allowed, throws exception)
+		// Solution: Includes parent folder (+1) to overall count.
+		int folderCount = countFoldersRecursive(folder) + 1;
 		monitor.reset();
 		monitor.setParams(folderCount, 1);
 		runRecursive(folder, result);
