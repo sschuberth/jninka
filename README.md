@@ -16,6 +16,9 @@ and Yuki Manabe
 Details at:
 <http://ninka.turingmachine.org/>
 
+Also available at:
+<https://github.com/dmgerman/ninka/>
+
 
 License
 -------
