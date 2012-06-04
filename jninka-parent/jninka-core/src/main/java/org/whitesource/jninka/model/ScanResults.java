@@ -20,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -72,9 +74,10 @@ public class ScanResults {
 		try {
 			JAXBContext jc = JAXBContext.newInstance(ScanResults.class);
 			Marshaller marshaller = jc.createMarshaller();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			marshaller.marshal(this, target);
 		} catch (JAXBException e) {
-			e.printStackTrace();
+			Logger.getLogger(ScanResults.class.getCanonicalName()).log(Level.SEVERE, "Unable to marshal " + e.getMessage(), e);
 		}
 	}
 	

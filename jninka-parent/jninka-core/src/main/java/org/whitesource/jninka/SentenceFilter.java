@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -31,7 +32,7 @@ public class SentenceFilter extends StageProcessor{
 	
 	/* --- Static members --- */
 	
-	Logger logger = Logger.getLogger(SentenceFilter.class.getCanonicalName());
+	private static Logger logger = Logger.getLogger(SentenceFilter.class.getCanonicalName());
 	
 	/* --- Members --- */
 	
@@ -39,56 +40,47 @@ public class SentenceFilter extends StageProcessor{
 	
 	private List<String> words;
 
-	private List<String> goodOutputInfo = new ArrayList<String>();
+	private List<String> goodOutputInfo;
 	
-	private List<String> badOutputInfo = new ArrayList<String>();	
+	private List<String> badOutputInfo;	
 	
 	/* --- Public methods --- */
 	
 	public boolean process() {
-		boolean result = true;
-		try {
-			ArrayList<String> goodOutputInfo = new ArrayList<String>();
-			ArrayList<String> badOutputInfo = new ArrayList<String>();
+		goodOutputInfo = new ArrayList<String>();
+		badOutputInfo = new ArrayList<String>();
 
-			ArrayList<String> sentences = this.getInputInfo();
-			for (String sentence : sentences){
-				boolean isCheck = false;
-				for (int i = 0; i < words.size(); i++) {
-					String word = words.get(i);
-					isCheck = JNinkaRegullarExpression.isMatch(sentence, "\\b"
-							+ word + "\\b", Pattern.CASE_INSENSITIVE);
-					if (isCheck) {
-						break;
-					}
-				}
+		for (String sentence : this.getInputInfo()) {
+			boolean isCheck = false;
+			for (int i = 0; i < words.size(); i++) {
+				String word = words.get(i);
+				isCheck = JNinkaRegullarExpression.isMatch(sentence, "\\b" + word + "\\b", Pattern.CASE_INSENSITIVE);
 				if (isCheck) {
-					goodOutputInfo.add(sentence);
-				} else {
-					badOutputInfo.add(sentence);
+					break;
 				}
 			}
-
-			this.setGoodOutputInfo(goodOutputInfo);
-			this.setBadOutputInfo(badOutputInfo);
-		} catch (Exception e) {
-			logger.severe("Error: " + e.getMessage());
-			result = false;
+			
+			if (isCheck) {
+				goodOutputInfo.add(sentence);
+			} else {
+				badOutputInfo.add(sentence);
+			}
 		}
-		
-		return result;
+
+		return true;
 	}
 	
 	/* --- Protected methods --- */
 	
 	/**
-	* Open and read a file, and return the words from file as arraylist
+	* Open and read a file, and return the words from file as a list.
 	*/
-	protected ArrayList<String> loadWords(InputStream filepath){
+	protected ArrayList<String> loadWords() {
 		ArrayList <String>list = new ArrayList<String>();
+		
 		BufferedReader reader = null;
 		try{
-			reader = new BufferedReader(new InputStreamReader(filepath));
+			reader = new BufferedReader(new InputStreamReader(critWords));
 			String line;
 			while ( (line = reader.readLine()) != null ){
 				if (JNinkaRegullarExpression.isMatch(line, "^\\#")){
@@ -101,14 +93,14 @@ public class SentenceFilter extends StageProcessor{
 				}
 			}
 		} catch(IOException e){
-			logger.severe("Couldn't open " + filepath + " for reading! :" + e.getMessage());
+			logger.log(Level.SEVERE, "Couldn't open " + critWords + " for reading! :" + e.getMessage(), e);
 		} finally {
 			try {
 				if (reader != null) {
 					reader.close();
 				}
 			} catch (IOException e) {
-				logger.severe("Error: " + e.getMessage());
+				logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 		
@@ -117,9 +109,9 @@ public class SentenceFilter extends StageProcessor{
 	
 	/* --- Getters / Setters --- */
 	
-	public void setCritWords(InputStream lCritWords){
-		this.critWords = lCritWords;
-		words = loadWords(lCritWords);
+	public void setCritWords(InputStream critWords){
+		this.critWords = critWords;
+		words = loadWords();
 	}
 	
 	public InputStream getCritWords(){
@@ -130,18 +122,16 @@ public class SentenceFilter extends StageProcessor{
 		return this.goodOutputInfo;
 	}
 	
-	public void setGoodOutputInfo(ArrayList<String> loutputInfo){
-		this.goodOutputInfo.clear();
-		this.goodOutputInfo.addAll(loutputInfo);
+	public void setGoodOutputInfo(List<String> outputInfo){
+		this.goodOutputInfo = outputInfo;
 	}    
 	
 	public List<String> getBadOutputInfo(){
 		return this.badOutputInfo;
 	}
 	
-	public void setBadOutputInfo(ArrayList<String> loutputInfo){
-		this.badOutputInfo.clear();
-		this.badOutputInfo.addAll(loutputInfo);
+	public void setBadOutputInfo(ArrayList<String> outputInfo){
+		this.badOutputInfo = outputInfo;
 	}
 	
 }

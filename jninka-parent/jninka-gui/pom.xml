@@ -24,30 +24,19 @@
 	<build>
 		<plugins>
 			<plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-jar-plugin</artifactId>
-		        <configuration>
-					<archive>
-			            <manifest>
-			            	<addClasspath>true</addClasspath>
-			            	<mainClass>org.whitesource.jninka.gui.Agent</mainClass>
-			        	</manifest>
-			        </archive>
-		        </configuration>
-      		</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
 						<goals>
-							<goal>attached</goal>
+							<goal>single</goal>
 						</goals>
 						<phase>package</phase>
 						<configuration>
-							<descriptorRefs>
-								<descriptorRef>jar-with-dependencies</descriptorRef>
-							</descriptorRefs>
+							<descriptorId>jar-with-dependencies</descriptorId>
+							<appendAssemblyId>false</appendAssemblyId>
+							<finalName>jninka-application-${project.version}</finalName>
+							<classifier>application</classifier>
 							<archive>
 								<manifest>
 									<mainClass>org.whitesource.jninka.gui.Agent</mainClass>

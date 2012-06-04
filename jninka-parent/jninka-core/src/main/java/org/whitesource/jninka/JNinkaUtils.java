@@ -15,13 +15,15 @@
  */
 package org.whitesource.jninka;
 import java.io.File;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Rami.Sass
  */
 public class JNinkaUtils{
 
+	/* --- Public static methods --- */
+	
 	/**
 	 * @param coll
 	 * @param delimiter
@@ -29,7 +31,7 @@ public class JNinkaUtils{
 	 * 
 	 * @deprecated Consider using StringUtils instead. 
 	 */
-	public static String joinArrayList(ArrayList<String> coll, String delimiter){
+	public static String joinArrayList(List<String> coll, String delimiter){
 	    if (coll.isEmpty()){
 	    	return "";
 	    }
@@ -53,4 +55,14 @@ public class JNinkaUtils{
 	    
 	    return result;
 	}	
+	
+	/* --- Constructors --- */
+	
+	/**
+	 * Private default constructor
+	 */
+	private JNinkaUtils() {
+		// avoid instantiation
+	}
+	
 }

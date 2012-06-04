@@ -16,6 +16,11 @@
 package org.whitesource.jninka;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import org.whitesource.jninka.model.ScanResults;
 import org.whitesource.jninka.progress.ScanProgressListener;
@@ -31,27 +36,35 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		try {
-			if (args.length > 1) {
-				long time = System.currentTimeMillis();
-				
+		if (args.length < 2) {
+			System.out.println("usage: jninka <source-folder> <output-file>");
+		} else {
+			long time = System.currentTimeMillis();
+			
+			System.out.println("Source code directory is " + args[0]);
+			System.out.println("Scan results file is " + args[1]);
+			
+			initLogging();
+			
+			try {
 				JNinka ninka = new JNinka();
 				ninka.getMonitor().addListener(new SysOutListener());
-				
+
+				System.out.println("Starting scan ...");
 				File sourceFolder = new File(args[0]);
 				ScanResults scanResults = ninka.scanFolderRecursive(sourceFolder, true);
+				
+				System.out.println(" finished.\nWriting results to file ...");
 				scanResults.writeXML(new File(args[1]));
 				
-				System.out.println();
-				System.out.println(scanResults);
+				System.out.println("Scan results found " + scanResults.getfindings().size() + " potential files." );
 				
 				time = (System.currentTimeMillis() - time) / 1000;
-				System.out.println("Running time: " + time + "s");
-			} else {
-				System.out.println("usage: jninka <source-folder> <output-xml-file>");
+				System.out.println("Completed at " + time + " [sec]");
+			} catch (Exception e) {
+				System.out.println("Error: " + e.getMessage());
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
 		}
 	}
 	
@@ -63,8 +76,46 @@ public class Main {
 	static class SysOutListener implements ScanProgressListener {
 		@Override
 		public void progress(int pct, String details) {
-			System.out.println(pct + "%, " + details);
+			System.out.print("\rScan progress: " + pct + " %");
 		}
+	}
+	
+	/* --- Private methods --- */
+	
+	/**
+	 * The method initialize the application logging facilities.
+	 */
+	private static void initLogging() {
+		Logger log = Logger.getLogger("jninka");
+		log.setLevel(Level.ALL);
+		log.fine("Loading logging configuration file ...");
+
+		InputStream configFile = null; 
+		try {
+			configFile = Main.class.getResourceAsStream("/logging.properties");
+		    LogManager.getLogManager().readConfiguration(configFile);
+		} catch (IOException ex) {
+		    System.out.println("WARNING: Could not open configuration file");
+		    System.out.println("WARNING: Logging not configured (console output only)");
+		} finally {
+			if (configFile != null) {
+				try {
+					configFile.close();
+				} catch (IOException e) {
+					System.out.println("ERROR: Could not close configuration file");
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+/* --- Constructors --- */
+	
+	/**
+	 * Private default constructor
+	 */
+	private Main() {
+		// avoid instantiation
 	}
 
 }

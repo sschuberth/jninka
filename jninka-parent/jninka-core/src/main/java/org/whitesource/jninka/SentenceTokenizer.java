@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -33,7 +34,7 @@ public class SentenceTokenizer {
 	
 	/* --- Static members --- */
 	
-	Logger logger = Logger.getLogger(SentenceTokenizer.class.getCanonicalName());
+	private static Logger logger = Logger.getLogger(SentenceTokenizer.class.getCanonicalName());
 	
 	/* --- Members --- */
 	
@@ -47,163 +48,145 @@ public class SentenceTokenizer {
 	
     public List<LicenseAttribution> getAttributions(List<String> lines, boolean getUnknown){
     	List<LicenseAttribution> result = new ArrayList<LicenseAttribution>();
-		try{
-//			List<String> outputInfo = new ArrayList<String>();
 
-			for (String line : lines){
-				String saveLine;
-				String originalLine = line;
+		for (String line : lines){
+			String saveLine;
+			String originalLine = line;
 
-//				if (JNinkaRegullarExpression.isMatch(line, "^Alternatively,? ?")){
-//					outputInfo.add("Altern");
-//				}
-				line = this.normalizeSentence(line);
+			line = this.normalizeSentence(line);
 
-				boolean check = false;
-				Integer id = Integer.MIN_VALUE;
-				String matchname = "UNKNOWN";
-				ArrayList<String> parm = new ArrayList<String>();
+			boolean check = false;
+			Integer id = Integer.MIN_VALUE;
+			String matchname = "UNKNOWN";
+			ArrayList<String> parm = new ArrayList<String>();
 
-				int distance = 1; // maximum? number
-				String mostsimilarname = "UNKNOWN";
-				String before = "";
-				String after = "";
-				boolean gpl = false;
-				boolean gplLater = false;
-				String gplVersion = "";
+			int distance = 1; // maximum? number
+			String mostsimilarname = "UNKNOWN";
+			String before = "";
+			String after = "";
+			boolean gpl = false;
+			boolean gplLater = false;
+			String gplVersion = "";
 
-				if (this.looksLikeGPL(line)){
-					// String old = line;
-					gpl = true;
+			if (this.looksLikeGPL(line)){
+				// String old = line;
+				gpl = true;
 
-					Object object[] = this.normalizeGPL(line);
-					line = object[0].toString();
-					gplLater = Boolean.parseBoolean(object[1].toString());
-					gplVersion = object[2].toString();//Integer.parseInt(object[2].toString());
+				Object object[] = this.normalizeGPL(line);
+				line = object[0].toString();
+				gplLater = Boolean.parseBoolean(object[1].toString());
+				gplVersion = object[2].toString();//Integer.parseInt(object[2].toString());
 
-					// lineAsGPL = line;
+				// lineAsGPL = line;
+			}
+
+			String subRule = "";
+			saveLine = line;
+			boolean saveGPL = gpl;
+			String LGPL = "";
+			for (int ki = 0; ki < licensesentencelist.size(); ki++){
+				String sentence = licensesentencelist.get(ki);
+				String[] separated = sentence.split(":");
+				if ((separated.length < 5) || (separated.length > 6)){
+					logger.severe("licensesentencelist file has incorrect format:" + separated.length + "!\n");
+					throw new IllegalArgumentException();
 				}
+				id = Integer.parseInt(separated[0]);
+				String name = separated[1];
+				subRule = separated[2];
+				int number = Integer.parseInt(separated[3]);
+				String regexp = separated[4];
+				// String option = separated.length == 6 ? separated[5] :
+				// "";
 
-				String subRule = "";
-				saveLine = line;
-				boolean saveGPL = gpl;
-				String LGPL = "";
-				for (int ki = 0; ki < licensesentencelist.size(); ki++){
-					String sentence = licensesentencelist.get(ki);
-					String[] separated = sentence.split(":");
-					if ((separated.length < 5) || (separated.length > 6)){
-						logger.severe("licensesentencelist file has incorrect format:" + separated.length + "!\n");
-						throw new IllegalArgumentException();
-					}
-					id = Integer.parseInt(separated[0]);
-					String name = separated[1];
-					subRule = separated[2];
-					int number = Integer.parseInt(separated[3]);
-					String regexp = separated[4];
-					// String option = separated.length == 6 ? separated[5] :
-					// "";
+				// we need this due to the goto (loop in java) again
+				line = saveLine;
+				gpl = saveGPL;
+				LGPL = "";
 
-					// we need this due to the goto (loop in java) again
-					line = saveLine;
-					gpl = saveGPL;
-					LGPL = "";
+				boolean isContinueExternalLoop = true;
 
-					boolean isContinueExternalLoop = true;
+				boolean isCondition = false;
+				while (true) {
+					isCondition = false;
+					if (JNinkaRegullarExpression.isMatch(line, regexp, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE)) {
+						isCondition = true;
+						before = JNinkaRegullarExpression.beforeMatch(line, regexp, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+						after = JNinkaRegullarExpression.postMatch(line, regexp, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
-					boolean isCondition = false;
-					while (true) {
-						isCondition = false;
-						if (JNinkaRegullarExpression.isMatch(line, regexp, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE)) {
-							isCondition = true;
-							before = JNinkaRegullarExpression.beforeMatch(line, regexp, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-							after = JNinkaRegullarExpression.postMatch(line, regexp, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+						check = true;
+						matchname = name;
 
-							check = true;
-							matchname = name;
-
-							for (int i = 1; i <= number; i++){
-								String r = JNinkaRegullarExpression.getGroupValue(line, regexp, i, Pattern.CASE_INSENSITIVE	| Pattern.MULTILINE);
-								if (r == null) {
-									r = "";
-								}
-								parm.add(r);
+						for (int i = 1; i <= number; i++){
+							String r = JNinkaRegullarExpression.getGroupValue(line, regexp, i, Pattern.CASE_INSENSITIVE	| Pattern.MULTILINE);
+							if (r == null) {
+								r = "";
 							}
-							isContinueExternalLoop = false;
-							break;
-						} else {
-							isCondition = true;
-							// let us try again in case it is lesser/library
-							// do it only once
-							if (gpl	&& JNinkaRegullarExpression.isMatch(line, "(Lesser|Library) GPL/GPL", Pattern.CASE_INSENSITIVE)) {
-								LGPL = JNinkaRegullarExpression.getGroupValue(line, "(Lesser|Library) GPL/GPL", 1, Pattern.CASE_INSENSITIVE);
-								continue;
-							}
-							if (gpl){
-								gpl = false;
-								line = saveLine;
-								continue;
-							}
-							isContinueExternalLoop = true;
-							break;// dmg
-							/*
-							 * commented in perl String targetset = regexp;
-							 * targetset =
-							 * JNinkaRegullarExpression.applyReplace(targetset,
-							 * "^(.*)$", "$1"); int tmpdist =
-							 * senttok.getLevenshteinDistance(line,
-							 * targetset)/Math
-							 * .max(targetset.length(),sentence.length()); if (
-							 * tmpdist < distance){ mostsimilarname = name;
-							 * distance = tmpdist; } isCondition = false;
-							 */
+							parm.add(r);
 						}
-						// in case of uncomment upper text??
-						// isContinueExternalLoop = false;
-					}
-					if (!isContinueExternalLoop || !isCondition){
+						isContinueExternalLoop = false;
 						break;
-					}
-				}
-				if (check){
-					// licensesentence name, parm1, parm2,..
-					if (gpl) {
-						matchname += "Ver" + gplVersion;
-						if (gplLater){
-							matchname += "+";
+					} else {
+						isCondition = true;
+						// let us try again in case it is lesser/library
+						// do it only once
+						if (gpl	&& JNinkaRegullarExpression.isMatch(line, "(Lesser|Library) GPL/GPL", Pattern.CASE_INSENSITIVE)) {
+							LGPL = JNinkaRegullarExpression.getGroupValue(line, "(Lesser|Library) GPL/GPL", 1, Pattern.CASE_INSENSITIVE);
+							continue;
 						}
-						matchname = LGPL + matchname;
-					} 
+						if (gpl){
+							gpl = false;
+							line = saveLine;
+							continue;
+						}
+						isContinueExternalLoop = true;
+						break;// dmg
+						/*
+						 * commented in perl String targetset = regexp;
+						 * targetset =
+						 * JNinkaRegullarExpression.applyReplace(targetset,
+						 * "^(.*)$", "$1"); int tmpdist =
+						 * senttok.getLevenshteinDistance(line,
+						 * targetset)/Math
+						 * .max(targetset.length(),sentence.length()); if (
+						 * tmpdist < distance){ mostsimilarname = name;
+						 * distance = tmpdist; } isCondition = false;
+						 */
+					}
+					// in case of uncomment upper text??
+					// isContinueExternalLoop = false;
+				}
+				if (!isContinueExternalLoop || !isCondition){
+					break;
+				}
+			}
+			if (check){
+				// licensesentence name, parm1, parm2,..
+				if (gpl) {
+					matchname += "Ver" + gplVersion;
+					if (gplLater){
+						matchname += "+";
+					}
+					matchname = LGPL + matchname;
+				} 
 //					else {
 //						// nothing in perl code
 //					}
-					if ((before.length() > this.getTooLong())
-							|| (after.length() > this.getTooLong())){
-						matchname += "-TOOLONG";
-					}
+				if ((before.length() > this.getTooLong())
+						|| (after.length() > this.getTooLong())){
+					matchname += "-TOOLONG";
+				}
 
-//					ArrayList<String> parm2 = new ArrayList<String>();
-//					parm2.add(matchname);
-//					parm2.add(subRule);
-//					parm2.add(before);
-//					parm2.add(after);
-//					parm2.addAll(parm);
-//					String parmstrings = JNinkaUtils.joinArrayList(parm2, ";");
-//					String outputStr = parmstrings + ":" + originalLine;
-//					outputInfo.add(outputStr);
-					result.add(new LicenseAttribution(parm, id, matchname, subRule, before, after, originalLine));
-				} else {
-					// UNKNOWN, sentence
-					if (getUnknown) {
-						// String outputStr = matchname + ";" + "0;" + mostsimilarname + ";" + distance + ";" + saveLine + ":" + originalLine;
-						result.add(new LicenseAttribution(null, Integer.MIN_VALUE, matchname, mostsimilarname, Integer.toString(distance), saveLine, originalLine));
-//					outputInfo.add(outputStr);
-					}
+				result.add(new LicenseAttribution(parm, id, matchname, subRule, before, after, originalLine));
+			} else {
+				// UNKNOWN, sentence
+				if (getUnknown) {
+					// String outputStr = matchname + ";" + "0;" + mostsimilarname + ";" + distance + ";" + saveLine + ":" + originalLine;
+					result.add(new LicenseAttribution(null, Integer.MIN_VALUE, matchname, mostsimilarname, Integer.toString(distance), saveLine, originalLine));
 				}
 			}
-//			this.setOutputInfo(outputInfo);
-		} catch (Exception e){
-			logger.severe("Error: " + e.getMessage());
 		}
+			
 		return result;
 	}
 	
@@ -232,14 +215,14 @@ public class SentenceTokenizer {
 				list.add(line);
 			}
 		} catch (IOException e) {
-			logger.severe("cannot open file " + filepath + ": "+ e.getMessage());
+			logger.log(Level.SEVERE, "cannot open file " + filepath + ": "+ e.getMessage(), e);
 		} finally {
 			try {
 				if (reader != null) {
 					reader.close();
 				}
 			} catch (IOException e) {
-				logger.severe("Error: " + e.getMessage());
+				logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 		

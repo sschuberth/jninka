@@ -50,7 +50,10 @@ import org.whitesource.jninka.model.ScanResults;
 import org.whitesource.jninka.progress.ScanProgressListener;
 
 /**
+ * Main frame of the JNinka GUI application.
+ * 
  * @author Rami.Sass
+ * @author Edo.Shor
  */
 public class AgentPresenter extends Container implements ActionListener, PropertyChangeListener {
 
@@ -112,7 +115,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 	public void show() {
 		// Create and set up the window.
-		frame = new JFrame("White Source - JNinka Code Scanner");
+		frame = new JFrame("JNinka Code Scanner");
 		frame.setResizable(false);
 		frame.setLocation(300, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -192,14 +195,14 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 			}
 			if (e.getSource() == runButton) {
 				if (dirText.getText().isEmpty() || fileText.getText().isEmpty()) {
-					JOptionPane.showConfirmDialog(getParent(), "Please provide both root directory and target file.", "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showConfirmDialog(getParent(), "Please provide both root directory and target file.", "JNinka", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
 				} else {
 					File directory = new File(dirText.getText());
 					File file = new File(fileText.getText());
 					if (directory.isDirectory()) {
 						run(directory, file);
 					} else {
-						JOptionPane.showConfirmDialog(getParent(), "Root directory not found", "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showConfirmDialog(getParent(), "Root directory not found", "JNinka", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
@@ -407,7 +410,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		protected void done() {
 			setProgress(100);
 			scanFrame.setAlwaysOnTop(false);
-			JOptionPane.showConfirmDialog(getParent(), resultMessage, "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showConfirmDialog(getParent(), resultMessage, "JNinka", JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE);
 			scanFrame.setVisible(false);
 			progressBar.setVisible(false);
 			runButton.setVisible(true);

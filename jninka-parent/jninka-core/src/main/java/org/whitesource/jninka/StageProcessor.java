@@ -16,17 +16,20 @@
 package org.whitesource.jninka;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
+ * Base, abstract, class for a generic stage in the algorithm.
+ * 
  * @author Rami.Sass
  */
 public abstract class StageProcessor {
 	
 	/* --- Members --- */
 	
-	private ArrayList<String> outputInfo = new ArrayList<String>();	  
+	private List<String> outputInfo = new ArrayList<String>();	  
 	
-	private ArrayList<String> inputInfo = new ArrayList<String>();	
+	private List<String> inputInfo = new ArrayList<String>();	
 	
 	/* --- Abstract methods --- */
 	
@@ -34,22 +37,20 @@ public abstract class StageProcessor {
 	
 	/* --- Getters / Setters --- */
 	
-	public ArrayList<String> getOutputInfo(){
+	public List<String> getOutputInfo(){
 	    return this.outputInfo;
 	}
 			   
-	public void setOutputInfo(ArrayList<String> lOutputInfo){
-		this.outputInfo.clear();
-		this.outputInfo.addAll(lOutputInfo);
+	public void setOutputInfo(List<String> outputInfo){
+		outputInfo = new ArrayList<String>(outputInfo);
 	}
 	   
-	public ArrayList<String> getInputInfo(){
+	public List<String> getInputInfo(){
 		return this.inputInfo;
 	}
 			   
-	public void setInputInfo(ArrayList<String> lInputInfo){
-		this.inputInfo.clear();
-		this.inputInfo.addAll(lInputInfo);
+	public void setInputInfo(List<String> inputInfo){
+		this.inputInfo = new ArrayList<String>(inputInfo);
 	}	 
 	
 }		

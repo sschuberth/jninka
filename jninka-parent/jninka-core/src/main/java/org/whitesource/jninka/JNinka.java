@@ -33,7 +33,7 @@ import org.whitesource.jninka.model.ScanResults;
 import org.whitesource.jninka.progress.ScanProgressMonitor;
 
 /**
- * Ninka
+ * JNinka
  * Original Authors: Daniel M German and Y. Manabe
  *
  * This program is originally based on the Ninka program
@@ -91,16 +91,22 @@ public class JNinka {
 	 */
 	public JNinka() {
 		initCodeFileExtentions();
+		
 		dirFilter = getDirectoryFilter();
 		javaFilter = getCodeFileFilter();
+		
 		extComments = new CommentsExtractor();
+		
 		splitter = new SentenceSplitter();
-		splitter.setDictionary(getClass().getResourceAsStream("/splitter.dict"));
-		splitter.setAbbrvFile(getClass().getResourceAsStream("/splitter.abv"));
+		splitter.setDictionary(JNinka.class.getResourceAsStream("/splitter.dict"));
+		splitter.setAbbrvFile(JNinka.class.getResourceAsStream("/splitter.abv"));
+		
 		filter = new SentenceFilter();
-		filter.setCritWords(getClass().getResourceAsStream("/criticalword.dict"));
+		filter.setCritWords(JNinka.class.getResourceAsStream("/criticalword.dict"));
+		
 		senttok = new SentenceTokenizer();
-		senttok.setLicSentences(getClass().getResourceAsStream("/licensesentence.dict"));
+		senttok.setLicSentences(JNinka.class.getResourceAsStream("/licensesentence.dict"));
+		
 		monitor = new ScanProgressMonitor();
 	}
 	
@@ -146,7 +152,7 @@ public class JNinka {
 				logger.severe("extract-comments failed");
 			}
 		} catch (Exception e) {
-			logger.severe(codeFile.getAbsolutePath() + " - " + e.getMessage());
+			logger.log(Level.SEVERE, codeFile.getAbsolutePath() + " - " + e.getMessage(), e);
 		}
 	}
 	
@@ -216,8 +222,8 @@ public class JNinka {
 					result += countFoldersRecursive(directory);
 				}
 			}
-		}catch(Exception e){
-			logger.log(Level.INFO, e.getMessage());
+		} catch(Exception e){
+			logger.log(Level.WARNING, e.getMessage(), e);
 		}
 		return result;
 	}
@@ -240,14 +246,14 @@ public class JNinka {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error reading package from file " + e.getMessage(), e);
 		} finally {
 			try {
 				if (reader != null) {
 					reader.close();
 				}
 			} catch (IOException e) {
-				logger.severe("Error: " + e.getMessage());
+				logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 		

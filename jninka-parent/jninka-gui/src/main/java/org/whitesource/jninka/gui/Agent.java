@@ -39,9 +39,7 @@ public class Agent {
 		initLogging();
 		
 		Logger log = Logger.getLogger(Agent.class.getName());
-		log.info("********************************************************************************");
 		log.info("********************            Starting JNinka             ********************");
-		log.info("********************************************************************************");
 		
 		final AgentPresenter presenter = new AgentPresenter();
 		try {
@@ -61,6 +59,8 @@ public class Agent {
 			}
 		});
 	}
+	
+	/* --- Private mehtods --- */
 
 	/**
 	 * The method initialize the application logging facilities.
@@ -87,6 +87,15 @@ public class Agent {
 				}
 			}
 		}
+	}
+	
+	/* --- Constructors --- */
+	
+	/**
+	 * Private default constructor
+	 */
+	private Agent() {
+		// avoid instantiation
 	}
 
 }

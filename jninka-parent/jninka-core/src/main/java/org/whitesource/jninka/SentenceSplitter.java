@@ -19,13 +19,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Rami.Sass
@@ -34,7 +36,7 @@ public class SentenceSplitter extends StageProcessor {
 	
 	/* --- Static members --- */
 	
-	Logger logger = Logger.getLogger(SentenceSplitter.class.getCanonicalName());
+	private static Logger logger = Logger.getLogger(SentenceSplitter.class.getCanonicalName());
 	
 	/* --- Members --- */
 	
@@ -42,16 +44,16 @@ public class SentenceSplitter extends StageProcessor {
 	
 	private InputStream dictionary;
 
-	private Hashtable<String, Integer> commonTerms = new Hashtable<String, Integer>();
+	private Map<String, Integer> commonTerms = new Hashtable<String, Integer>();
 	
-	private ArrayList<String> abbreviations = new ArrayList<String>();	 
+	private List<String> abbreviations = new ArrayList<String>();	 
 	
 	/* --- Concrete implementation methods --- */
 	   
 	public boolean process() {
 		boolean result = true;
 		try {
-			ArrayList<String> outputInfo = new ArrayList<String>();
+			List<String> outputInfo = new ArrayList<String>();
 			
 			String text = JNinkaUtils.joinArrayList(this.getInputInfo(), "\n");
 			// append a "\n" just in case
@@ -73,8 +75,7 @@ public class SentenceSplitter extends StageProcessor {
 				// are skipping anything we should not
 				int count = 0;
 				for (int i = 0; i < curr.length(); i++) {
-					if (JNinkaRegullarExpression.isMatch(curr.substring(i, i),
-							"[A-Za-z]")) {
+					if (JNinkaRegullarExpression.isMatch(curr.substring(i, i), "[A-Za-z]")) {
 						count++;
 					}
 				}
@@ -85,8 +86,7 @@ public class SentenceSplitter extends StageProcessor {
 				while (it.hasNext()) {
 					String s = (String) it.next();
 					for (int i = 0; i < s.length(); i++) {
-						if (JNinkaRegullarExpression.isMatch(s.substring(i, i),
-								"[A-Za-z]")) {
+						if (JNinkaRegullarExpression.isMatch(s.substring(i, i), "[A-Za-z]")) {
 							count2++;
 						}
 					}
@@ -94,6 +94,7 @@ public class SentenceSplitter extends StageProcessor {
 					s = JNinkaRegullarExpression.unescapeAfterRegex(s);
 					outputInfo.add(s);
 				}
+				
 				if (count != count2) {
 					logger.severe("[" + curr + "]");
 					it = sentences.iterator();
@@ -101,16 +102,18 @@ public class SentenceSplitter extends StageProcessor {
 						String s = (String) it.next();
 						logger.severe(this.cleanSentence(s));
 					}
-					logger.severe("Number of printable chars does not match!  [" + count + "][" + count2 + "]");
 					result = false;
+					logger.severe("Number of printable chars does not match!  [" + count + "][" + count2 + "]");
 				}
 			}
+			
 			this.setOutputInfo(outputInfo);
 
 		} catch (Exception e) {
-			logger.severe("Error: " + e.getMessage());
 			result = false;
+			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
+			
 		return result;
 	}
 	
@@ -140,7 +143,7 @@ public class SentenceSplitter extends StageProcessor {
 	* Open and read a file, and return the lines in the file as a  hashtable
 	 * @throws Exception 
 	*/
-	protected List<String> splitText(String text) throws Exception{
+	protected List<String> splitText(String text) throws Exception {
 		//int len = 0;
 		List<String> result = new ArrayList<String>();
 		String currentSentence = "";
@@ -199,14 +202,14 @@ public class SentenceSplitter extends StageProcessor {
 							currentSentence += sentence;
 							continue;
 						}
-						logger.fine("last word an abbrev " + sentenceMatch + " lastword [" + lastWord + "] before [" + before + "]");
+						logger.finer("last word an abbrev " + sentenceMatch + " lastword [" + lastWord + "] before [" + before + "]");
 	
 						//but some are lowercase!
 						if ((c == 'e') || (c == 'i')){
 							currentSentence += sentence;
 							continue;
 						}
-						logger.fine("2 last word an abbrev " + sentenceMatch + " lastword [" + lastWord + "] before [" + before + "]");
+						logger.finer("2 last word an abbrev " + sentenceMatch + " lastword [" + lastWord + "] before [" + before + "]");
 					} else {					
 						lastWord = lastWord.toLowerCase();
 						//only accept abbreviations if the previous char to the abbrev is space or
@@ -225,10 +228,13 @@ public class SentenceSplitter extends StageProcessor {
 				currentSentence = "";
 				continue;
 			}
+			
 			logger.severe("We have not dealt with this case");
 			throw new Exception();			
 		}
-		result.add(currentSentence + text);		
+		
+		result.add(currentSentence + text);
+		
 		return result;
 	}	
 	
@@ -248,14 +254,14 @@ public class SentenceSplitter extends StageProcessor {
 				}
 			}
 		} catch(IOException e) {
-			logger.severe("cannot open dictionary file " + this.getDictionary() + ": " + e.getMessage());
+			logger.log(Level.SEVERE, "cannot open dictionary file " + this.getDictionary() + ": " + e.getMessage(), e);
 		} finally {
 			try {
 				if (reader != null) {
 					reader.close();
 				}
 			} catch (IOException e) {
-				logger.severe("Error: " + e.getMessage());
+				logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 		
@@ -276,14 +282,14 @@ public class SentenceSplitter extends StageProcessor {
 				this.abbreviations.add(line);
 			}
 		} catch(IOException e){
-			logger.severe("cannot open dictionary file " + this.getAbbrvFile() + ": " + e.getMessage());
+			logger.log(Level.SEVERE, "cannot open dictionary file " + this.getAbbrvFile() + ": " + e.getMessage(), e);
 		} finally {
 			try {
 				if (reader != null) {
 					reader.close();
 				}
 			} catch (IOException e) {
-				logger.severe("Error: " + e.getMessage());
+				logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 	}
