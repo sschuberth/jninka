@@ -21,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,13 +42,14 @@ public class CommentsExtractor extends StageProcessor {
 	
 	public boolean process() {	
 		boolean result = true;
+		
 		if (this.getFileSize(this.getInputFile()) <= 0){
 			logger.severe("Failed to retrieve file size info: file " + this.getInputFile() + " doesn\'t exist or empty.");
 			result = false;
 		} else {
 			BufferedReader reader = null;
 			try{
-				ArrayList<String> outputInfo = new ArrayList<String>();
+				List<String> outputInfo = new ArrayList<String>();
 				
 				int totalLineCount = this.determineCommentsExtractor(this.getInputFile());
 				reader = new BufferedReader(new FileReader(this.getInputFile()));

@@ -42,7 +42,7 @@ public abstract class StageProcessor {
 	}
 			   
 	public void setOutputInfo(List<String> outputInfo){
-		outputInfo = new ArrayList<String>(outputInfo);
+		this.outputInfo = outputInfo;
 	}
 	   
 	public List<String> getInputInfo(){
@@ -50,7 +50,7 @@ public abstract class StageProcessor {
 	}
 			   
 	public void setInputInfo(List<String> inputInfo){
-		this.inputInfo = new ArrayList<String>(inputInfo);
+		this.inputInfo = inputInfo;
 	}	 
 	
 }		
