@@ -28,15 +28,15 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>make-assembly</id>
 						<goals>
 							<goal>single</goal>
 						</goals>
 						<phase>package</phase>
 						<configuration>
-							<descriptorId>jar-with-dependencies</descriptorId>
-							<appendAssemblyId>false</appendAssemblyId>
-							<finalName>jninka-application-${project.version}</finalName>
-							<classifier>application</classifier>
+							<descriptors>
+								<descriptor>src/main/assemble/application.xml</descriptor>
+							</descriptors>							
 							<archive>
 								<manifest>
 									<mainClass>org.whitesource.jninka.gui.Agent</mainClass>
