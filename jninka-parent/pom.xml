@@ -358,6 +358,7 @@
 				</plugins>
 			</build>
 		</profile>
+		
 	</profiles>
 	
 	<distributionManagement>
