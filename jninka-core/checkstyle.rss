@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<rss version="0.91">
+  <channel>
+    <title>JNinka core module - Checkstyle report</title>
+    <link>https://github.com/whitesource/jninka/jninka-core/</link>
+    <description>JNinka core module - Checkstyle report</description>
+    <language>en-us</language>
+    <copyright>&#169;2012 White Source</copyright>
+    <item>
+      <title>File: 14,
+             Errors: 2980,
+             Warnings: 0,
+             Infos: 0
+      </title>
+            <link>https://github.com/whitesource/jninka/jninka-core//checkstyle.html</link>
+      <description>
+        <p>Click <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html">here</a> for the full Checkstyle report.</p>
+
+        <table summary="Files" boder="1">
+          <thead>
+            <tr>
+              <th>Files</th>
+              <th style="width:30px;"><abbr title="Info">I</abbr></th>
+              <th style="width:30px;"><abbr title="Warning">W</abbr></th>
+              <th style="width:30px;"><abbr title="Error">E</abbr></th>
+            </tr>
+          </thead>
+          <tbody>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.CommentsExtractor.java">org/whitesource/jninka/CommentsExtractor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  152
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.model.CodeFileAttributions.java">org/whitesource/jninka/model/CodeFileAttributions.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  119
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.progress.ScanProgressListener.java">org/whitesource/jninka/progress/ScanProgressListener.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.SentenceSplitter.java">org/whitesource/jninka/SentenceSplitter.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  538
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.JNinkaRegullarExpression.java">org/whitesource/jninka/JNinkaRegullarExpression.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  465
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.Main.java">org/whitesource/jninka/Main.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  119
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.JNinka.java">org/whitesource/jninka/JNinka.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  338
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.model.LicenseAttribution.java">org/whitesource/jninka/model/LicenseAttribution.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  135
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.SentenceFilter.java">org/whitesource/jninka/SentenceFilter.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  178
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.progress.ScanProgressMonitor.java">org/whitesource/jninka/progress/ScanProgressMonitor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  106
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.SentenceTokenizer.java">org/whitesource/jninka/SentenceTokenizer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  582
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.model.ScanResults.java">org/whitesource/jninka/model/ScanResults.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  101
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.JNinkaUtils.java">org/whitesource/jninka/JNinkaUtils.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  72
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/whitesource/jninka/jninka-core//checkstyle.html#org.whitesource.jninka.StageProcessor.java">org/whitesource/jninka/StageProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  65
+                </td>
+              </tr>
+                      </tbody>
+        </table>
+        
+      </description>
+    </item>
+  </channel>
+</rss>
+
