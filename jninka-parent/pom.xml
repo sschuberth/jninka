@@ -161,7 +161,7 @@
 					<artifactId>maven-release-plugin</artifactId>
 					<version>2.2.2</version>
 					<configuration>
-						<arguments>-Dgpg.passphrase=${passed.gpg.passphrase} -Dgpg.homedir=${passed.gpg.homedir}</arguments>
+						<arguments>-Dgpg.passphrase=${passed.gpg.passphrase} -Dgpg.homedir=${passed.gpg.homedir} -Dgithub.api.token=${github.api.token} -Dgithub.username=${github.username} -Dgithub.password=${github.password}</arguments>
 						<releaseProfiles>Release</releaseProfiles>
 					</configuration>
 				</plugin>
