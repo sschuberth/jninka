@@ -62,3 +62,8 @@ java -jar jninka.jar ~/my-project/src ~/my-project/scan.xml
 * UI wrapper application:
 
 	Execute jninka-gui-x.jar by double click or java -jar
+	
+Documentation
+-------------
+Project documentation can be found on <http://docs.whitesourcesoftware.com/display/docs/JNinka/>
+Project information can be found on <http://whitesource.github.com/jninka/>
