@@ -21,6 +21,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -40,13 +42,14 @@ public class CommentsExtractor extends StageProcessor {
 	
 	public boolean process() {	
 		boolean result = true;
+		
 		if (this.getFileSize(this.getInputFile()) <= 0){
 			logger.severe("Failed to retrieve file size info: file " + this.getInputFile() + " doesn\'t exist or empty.");
 			result = false;
 		} else {
 			BufferedReader reader = null;
 			try{
-				ArrayList<String> outputInfo = new ArrayList<String>();
+				List<String> outputInfo = new ArrayList<String>();
 				
 				int totalLineCount = this.determineCommentsExtractor(this.getInputFile());
 				reader = new BufferedReader(new FileReader(this.getInputFile()));
@@ -56,17 +59,19 @@ public class CommentsExtractor extends StageProcessor {
 					i++;
 					outputInfo.add(line);
 				}
+				
 				this.setOutputInfo(outputInfo);
-			} catch (Exception e){
-				logger.severe("Error: " + e.getMessage());
+			} catch (IOException e){
 				result = false;
-			} finally {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
+			finally {
 				try {
 					if (reader != null) {
 						reader.close();
 					}
 				} catch (IOException e) {
-					logger.severe("Error: " + e.getMessage());
+					logger.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
 		}
@@ -77,22 +82,20 @@ public class CommentsExtractor extends StageProcessor {
 	/* --- Protected methods --- */
 	
 	protected int determineCommentsExtractor(String filepath){
-		String ext = JNinkaUtils.fileExtension(filepath);
+		int linecount = 700;
 		
-	    if ( ext != "" ){
+		String ext = JNinkaUtils.fileExtension(filepath);
+	    if (!ext.equals("")) {
 	    	if(Arrays.asList(new String[]{"pl", "pm", "py"}).contains(ext)){
-	    		//for the time being, let us just extract the top 400 lines
 	    		return 400;
 	        } else if(Arrays.asList(new String[]{"jl", "el"}).contains(ext)){
 	            return 400;
 	        } else if (Arrays.asList(new String[]{"java", "c", "cpp", "h", "cxx", "c++", "cc"}).contains(ext)){
 	            return 700;
-	        } else {
-	            return 700;
 	        }
-	    } else {
-	        return 700;
 	    }
+	    
+	    return linecount;
 	}
 	
 	protected long getFileSize(String filename){

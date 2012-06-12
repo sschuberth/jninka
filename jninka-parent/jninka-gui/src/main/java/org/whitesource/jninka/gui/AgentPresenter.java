@@ -18,13 +18,17 @@ package org.whitesource.jninka.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,7 +54,10 @@ import org.whitesource.jninka.model.ScanResults;
 import org.whitesource.jninka.progress.ScanProgressListener;
 
 /**
+ * Main frame of the JNinka GUI application.
+ * 
  * @author Rami.Sass
+ * @author Edo.Shor
  */
 public class AgentPresenter extends Container implements ActionListener, PropertyChangeListener {
 
@@ -112,16 +119,17 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 	public void show() {
 		// Create and set up the window.
-		frame = new JFrame("White Source - JNinka Code Scanner");
+		frame = new JFrame("JNinka Code Scanner");
 		frame.setResizable(false);
 		frame.setLocation(300, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel pane = (JPanel) frame.getContentPane();
 		pane.setBackground(BG_COLOR);
-		GridLayout layout = new GridLayout(6, 0);
+		GridLayout layout = new GridLayout(8, 0);
 		pane.setLayout(layout);
 
+		pane.add(getInfoPanel());
 		// Oddly - spaces seem to resolve sizing issue...
 		JLabel dirLabel = new JLabel("Project root directory                                                                                                             ");
 		pane.add(dirLabel);
@@ -140,7 +148,9 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		pane.add(originalsPanel);
 
 		pane.add(getRunPanel());
-
+		
+		pane.add(getLinkButton("Load scan results", "http://www.whitesourcesoftware.com"));
+		
 		directoryDialog = getDirectoryChooser();
 		fileDialog = getFileChooser();
 
@@ -192,14 +202,14 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 			}
 			if (e.getSource() == runButton) {
 				if (dirText.getText().isEmpty() || fileText.getText().isEmpty()) {
-					JOptionPane.showConfirmDialog(getParent(), "Please provide both root directory and target file.", "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showConfirmDialog(getParent(), "Please provide both root directory and target file.", "JNinka", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
 				} else {
 					File directory = new File(dirText.getText());
 					File file = new File(fileText.getText());
 					if (directory.isDirectory()) {
 						run(directory, file);
 					} else {
-						JOptionPane.showConfirmDialog(getParent(), "Root directory not found", "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showConfirmDialog(getParent(), "Root directory not found", "JNinka", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
@@ -211,6 +221,42 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	
 
 	/* --- Private methods --- */
+	
+	private JPanel getInfoPanel(){
+		JPanel result = new JPanel();
+		BorderLayout layout = new BorderLayout();
+		result.setLayout(layout);
+		Label label = new Label("JNinka Code Scanner");
+		result.add(label, BorderLayout.CENTER);
+		JButton readmeBtn = getLinkButton("i", "http://github.com/whitesource/jninka/blob/master/README.md");
+		readmeBtn.setToolTipText("Info");
+		result.add(readmeBtn, BorderLayout.EAST);
+		return result;
+	}
+	
+	private JButton getLinkButton(String text, String address){
+		JButton result = new JButton();
+		final URI uri;
+		try {
+			uri = new URI(address);
+			result.setText(text);
+			result.setHorizontalAlignment(SwingConstants.CENTER);
+			result.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Desktop.isDesktopSupported()) {
+						Desktop desktop = Desktop.getDesktop();
+						try {
+							desktop.browse(uri);
+						} catch (Exception ex) {
+						}
+					} 
+				}
+			});
+		} catch (URISyntaxException e) {
+			log.severe("error: " + e.getMessage());
+		}
+        return result;
+	}
 
 	private JPanel getDirectoryPanel() {
 		BorderLayout layout = new BorderLayout();
@@ -407,7 +453,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		protected void done() {
 			setProgress(100);
 			scanFrame.setAlwaysOnTop(false);
-			JOptionPane.showConfirmDialog(getParent(), resultMessage, "White Source", JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showConfirmDialog(getParent(), resultMessage, "JNinka", JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE);
 			scanFrame.setVisible(false);
 			progressBar.setVisible(false);
 			runButton.setVisible(true);
