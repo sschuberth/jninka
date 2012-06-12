@@ -18,13 +18,17 @@ package org.whitesource.jninka.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -122,9 +126,10 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 		JPanel pane = (JPanel) frame.getContentPane();
 		pane.setBackground(BG_COLOR);
-		GridLayout layout = new GridLayout(6, 0);
+		GridLayout layout = new GridLayout(8, 0);
 		pane.setLayout(layout);
 
+		pane.add(getInfoPanel());
 		// Oddly - spaces seem to resolve sizing issue...
 		JLabel dirLabel = new JLabel("Project root directory                                                                                                             ");
 		pane.add(dirLabel);
@@ -143,7 +148,9 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		pane.add(originalsPanel);
 
 		pane.add(getRunPanel());
-
+		
+		pane.add(getLinkButton("Load scan results", "http://www.whitesourcesoftware.com"));
+		
 		directoryDialog = getDirectoryChooser();
 		fileDialog = getFileChooser();
 
@@ -214,6 +221,42 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	
 
 	/* --- Private methods --- */
+	
+	private JPanel getInfoPanel(){
+		JPanel result = new JPanel();
+		BorderLayout layout = new BorderLayout();
+		result.setLayout(layout);
+		Label label = new Label("JNinka Code Scanner");
+		result.add(label, BorderLayout.CENTER);
+		JButton readmeBtn = getLinkButton("i", "http://github.com/whitesource/jninka/blob/master/README.md");
+		readmeBtn.setToolTipText("Info");
+		result.add(readmeBtn, BorderLayout.EAST);
+		return result;
+	}
+	
+	private JButton getLinkButton(String text, String address){
+		JButton result = new JButton();
+		final URI uri;
+		try {
+			uri = new URI(address);
+			result.setText(text);
+			result.setHorizontalAlignment(SwingConstants.CENTER);
+			result.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Desktop.isDesktopSupported()) {
+						Desktop desktop = Desktop.getDesktop();
+						try {
+							desktop.browse(uri);
+						} catch (Exception ex) {
+						}
+					} 
+				}
+			});
+		} catch (URISyntaxException e) {
+			log.severe("error: " + e.getMessage());
+		}
+        return result;
+	}
 
 	private JPanel getDirectoryPanel() {
 		BorderLayout layout = new BorderLayout();
