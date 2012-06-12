@@ -119,14 +119,14 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 	public void show() {
 		// Create and set up the window.
-		frame = new JFrame("JNinka Code Scanner");
+		frame = new JFrame("JNinka Code Scanner - v1.0");
 		frame.setResizable(false);
 		frame.setLocation(300, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel pane = (JPanel) frame.getContentPane();
 		pane.setBackground(BG_COLOR);
-		GridLayout layout = new GridLayout(8, 0);
+		GridLayout layout = new GridLayout(9, 0);
 		pane.setLayout(layout);
 
 		pane.add(getInfoPanel());
@@ -146,10 +146,10 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		
 		JPanel originalsPanel = getUnknownsPanel();
 		pane.add(originalsPanel);
-
 		pane.add(getRunPanel());
-		
-		pane.add(getLinkButton("Load scan results", "http://www.whitesourcesoftware.com"));
+
+		pane.add(getLinkButton("Load Scan Results", "http://www.whitesourcesoftware.com?ref=scan"));
+		pane.add(getCreditPanel());
 		
 		directoryDialog = getDirectoryChooser();
 		fileDialog = getFileChooser();
@@ -222,6 +222,17 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 	/* --- Private methods --- */
 	
+	private JPanel getCreditPanel(){
+		JPanel result = new JPanel();
+		BorderLayout layout = new BorderLayout();
+		result.setLayout(layout);
+		Label label = new Label("By White Source Software", Label.CENTER);
+		result.add(label, BorderLayout.SOUTH);
+		result.setBackground(BG_COLOR);
+		return result;
+	}
+	
+	
 	private JPanel getInfoPanel(){
 		JPanel result = new JPanel();
 		BorderLayout layout = new BorderLayout();
@@ -293,7 +304,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	private JPanel getRunPanel() {
 		BorderLayout layout = new BorderLayout();
 		JPanel result = new JPanel(layout);
-		result.add(runButton = getRunBtn(), BorderLayout.WEST);
+		result.add(runButton = getRunBtn(), BorderLayout.CENTER);
 //		progressBar = new JProgressBar(0);
 //		progressBar.setValue(0);
 //		progressBar.setStringPainted(true);
@@ -324,7 +335,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		result.setActionCommand(RUN);
 		result.addActionListener(this);
 		result.setVerticalAlignment(SwingConstants.BOTTOM);
-		result.setHorizontalAlignment(SwingConstants.LEFT);
+		result.setHorizontalAlignment(SwingConstants.CENTER);
 		result.setBackground(new Color(150, 200, 16));
 		return result;
 	}
