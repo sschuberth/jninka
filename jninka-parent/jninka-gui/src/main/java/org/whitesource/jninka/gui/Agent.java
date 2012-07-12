@@ -17,6 +17,7 @@ package org.whitesource.jninka.gui;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -29,6 +30,18 @@ import javax.swing.UIManager.LookAndFeelInfo;
  */
 public class Agent {
 
+	/* --- Static members --- */
+	
+	private static final String LOGGING_PROPERTIES = "/logging.properties";
+	
+	private static final String APPLICATION_PROPERTIES = "/jninka.properties";
+
+	private static String version = null;
+	
+	private static Logger logger;
+	
+	/* --- Main --- */
+	
 	/**
 	 * Main entry point.
 	 * 
@@ -38,8 +51,10 @@ public class Agent {
 		
 		initLogging();
 		
-		Logger log = Logger.getLogger(Agent.class.getName());
-		log.info("********************            Starting JNinka             ********************");
+		logger = Logger.getLogger(Agent.class.getName());
+		logger.info("********************            Starting JNinka             ********************");
+		
+		initProperties();
 		
 		final AgentPresenter presenter = new AgentPresenter();
 		try {
@@ -50,17 +65,43 @@ public class Agent {
 				}
 			}
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "General error", e);
+			logger.log(Level.SEVERE, "General error", e);
 		}
 		
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
+				presenter.setVersion(version);
 				presenter.show();
+				presenter.checkForUpdates();
 			}
 		});
 	}
 	
-	/* --- Private mehtods --- */
+	/* --- Private methods --- */
+
+	/**
+	 * The method initializes the application properties.
+	 */
+	private static void initProperties() {
+		logger.info("Loading properties file ...");
+		InputStream propertiesFile = null;
+		try {
+			propertiesFile = Agent.class.getResourceAsStream(APPLICATION_PROPERTIES);
+			Properties properties = new Properties();
+			properties.load(propertiesFile);
+			version = properties.getProperty("version");
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "Error reading properties file");
+		} finally {
+			if (propertiesFile != null) {
+				try {
+					propertiesFile.close();
+				} catch (IOException e) {
+					logger.log(Level.WARNING, "Could not close resource", e);
+				}
+			}
+		}
+	}
 
 	/**
 	 * The method initialize the application logging facilities.
@@ -72,7 +113,7 @@ public class Agent {
 
 		InputStream configFile = null; 
 		try {
-			configFile = Agent.class.getResourceAsStream("/logging.properties");
+			configFile = Agent.class.getResourceAsStream(LOGGING_PROPERTIES);
 		    LogManager.getLogManager().readConfiguration(configFile);
 		} catch (IOException ex) {
 		    System.out.println("WARNING: Could not open configuration file");

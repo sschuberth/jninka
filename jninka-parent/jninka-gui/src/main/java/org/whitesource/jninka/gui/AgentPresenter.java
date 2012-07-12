@@ -52,6 +52,7 @@ import javax.swing.table.DefaultTableModel;
 import org.whitesource.jninka.JNinka;
 import org.whitesource.jninka.model.ScanResults;
 import org.whitesource.jninka.progress.ScanProgressListener;
+import org.whitesource.jninka.update.JNinkaUpdateClient;
 
 /**
  * Main frame of the JNinka GUI application.
@@ -103,6 +104,8 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	
 	private DefaultTableModel resultsModel;
 
+	private String version;
+	
 	/* --- Constructors --- */
 	
 	/**
@@ -119,7 +122,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 	public void show() {
 		// Create and set up the window.
-		frame = new JFrame("JNinka Code Scanner - v1.0");
+		frame = new JFrame("JNinka Code Scanner - v" + version);
 		frame.setResizable(false);
 		frame.setLocation(300, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -218,8 +221,11 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		}
 	}
 	
+	public void checkForUpdates() {
+		UpdateTask updateTask = new UpdateTask(version);
+		updateTask.execute();
+	}
 	
-
 	/* --- Private methods --- */
 	
 	private JPanel getCreditPanel(){
@@ -260,7 +266,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 							desktop.browse(uri);
 						} catch (Exception ex) {
 						}
-					} 
+					}
 				}
 			});
 		} catch (URISyntaxException e) {
@@ -479,5 +485,88 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		}
 		
 	}
+	
+	/**
+	 * Subclass for executing update check in the background.
+	 */
+	public class UpdateTask extends SwingWorker<Void, Void> {
 
+		/* --- Members --- */
+		
+		private String version;
+		
+		/* --- Constructors --- */
+		
+		/**
+		 * Constructor
+		 * 
+		 * @param version The current JNinka version.
+		 */
+		public UpdateTask(String version) {
+			this.version = version;
+		}
+		
+		/* --- Overridden methods --- */
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			// check for updates
+			log.log(Level.INFO, "Checking for update");
+			JNinkaUpdateClient updater = new JNinkaUpdateClient();
+			String response = updater.checkForUpdate(version);
+			if (!response.isEmpty()) {
+				doNewVersionLogic(response);
+			}
+			
+			return null;
+		}
+
+		/* --- Private methods --- */
+		
+		private void doNewVersionLogic(String downloadUrl) {
+			int choice = JOptionPane.showConfirmDialog(
+					getParent(),
+					"A new version is available!\nGo to download page?",
+					"Version update",
+					JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.INFORMATION_MESSAGE);
+			
+			if (choice == 0) {
+				final URI uri;
+				try {
+					uri = new URI(downloadUrl);
+					if (Desktop.isDesktopSupported()) {
+						Desktop desktop = Desktop.getDesktop();
+						try {
+							desktop.browse(uri);
+						} catch (Exception ex) {
+							// do nothing
+						}
+					}
+				} catch (URISyntaxException e) {
+					log.severe("error: " + e.getMessage());
+				}
+			}
+		}
+
+		public void setVersion(String version) {
+			this.version = version;
+		}
+
+		public String getVersion() {
+			return version;
+		}
+		
+	}
+
+	/* --- Getters / Setters --- */
+	
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+	
 }
