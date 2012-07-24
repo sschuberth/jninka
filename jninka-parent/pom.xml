@@ -209,12 +209,12 @@
 				<plugin>
 					<groupId>com.github.github</groupId>
 					<artifactId>downloads-maven-plugin</artifactId>
-					<version>0.5</version>
+					<version>0.6</version>
 				</plugin>
 				<plugin>
 					<groupId>com.github.github</groupId>
 					<artifactId>site-maven-plugin</artifactId>
-					<version>0.6</version>
+					<version>0.7</version>
 				</plugin>
 				<plugin>
 	                <groupId>org.eclipse.m2e</groupId>
@@ -336,31 +336,9 @@
 				<plugins>
 					<plugin>
 						<groupId>com.github.github</groupId>
-						<artifactId>downloads-maven-plugin</artifactId>
-						<configuration>
-							<oauth2Token>${github.api.token}</oauth2Token>
-							<userName>${github.username}</userName>
-							<password>${github.password}</password>
-							<description>${project.version} release of ${project.name}</description>
-							<override>true</override>
-							<includeAttached>true</includeAttached>
-						</configuration>
-						<executions>
-							<execution>
-								<goals>
-									<goal>upload</goal>
-								</goals>
-								<phase>install</phase>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>com.github.github</groupId>
 						<artifactId>site-maven-plugin</artifactId>
 						<configuration>
-							<oauth2Token>${github.api.token}</oauth2Token>
-							<userName>${github.username}</userName>
-							<password>${github.password}</password>
+							<server>github</server>
 							<message>Building site for ${project.version}</message>
 						</configuration>
 						<executions>

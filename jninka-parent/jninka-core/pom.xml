@@ -53,27 +53,5 @@
       		</plugin>
 		</plugins>
 	</build>
-	
-	<profiles>
-		<profile>
-			<id>Release</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.github.github</groupId>
-						<artifactId>downloads-maven-plugin</artifactId>
-						<configuration>
-							<includes>
-								<include>jninka-core-${project.version}.jar</include>
-							</includes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 
 </project>
