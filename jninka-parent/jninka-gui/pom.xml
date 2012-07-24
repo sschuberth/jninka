@@ -1,3 +1,20 @@
+<!-- 
+
+ Copyright (C) 2012 White Source (www.whitesourcesoftware.com)
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version.
+ 
+ This patch is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+ 
+ You should have received a copy of the GNU Affero General Public License
+ along with this patch.  If not, see <http://www.gnu.org/licenses/>.
+
+ -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -5,7 +22,7 @@
 	<parent>
 		<artifactId>jninka-parent</artifactId>
 		<groupId>org.whitesource</groupId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.1.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>jninka-gui</artifactId>
@@ -34,6 +51,7 @@
 						</goals>
 						<phase>package</phase>
 						<configuration>
+							<finalName>whitesource-jninka-${project.version}</finalName>
 							<descriptors>
 								<descriptor>src/main/assemble/application.xml</descriptor>
 							</descriptors>							
@@ -47,6 +65,15 @@
 				</executions>
 			</plugin>
 		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>jninka.properties</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 	</build>
 
 	<profiles>

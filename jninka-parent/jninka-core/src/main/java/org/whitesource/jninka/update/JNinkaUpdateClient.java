@@ -1,3 +1,18 @@
+/**
+ *  Copyright (C) 2012 White Source (www.whitesourcesoftware.com)
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as
+ *  published by the Free Software Foundation, either version 3 of the
+ *  License, or (at your option) any later version.
+ *
+ *  This patch is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with this patch.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.whitesource.jninka.update;
 
 import java.io.BufferedReader;
@@ -22,19 +37,22 @@ import java.util.logging.Logger;
  */
 public class JNinkaUpdateClient  {
 
+
 	/* --- Static members --- */
 	
-	private static final Logger logger = Logger.getLogger(JNinkaUpdateClient.class.getCanonicalName());
+	private static final String UPDATE_URL_KEY = "wss.update.url";
 	
-	private static final String JNINKA_UPDATE_URL = "http://localhost:8888/Wss/jninkaUpdate";
+	private static final String DEFAULT_UPDATE_URL = "http://saas.whitesourcesoftware.com/jninkaUpdate";
 	
 	private static final String JNINKA_VERSION_PARAM = "version";
 	
+	private static final String VERSION_UP_TO_DATE = "VERSION-UP-TO-DATE";
+	
 	private static final String ENCODING_UTF8 = "UTF-8";
 	
-	private static final int TIMEOUT = 60000;
+	private static final int CONNECTION_TIMEOUT = 60000;
 	
-	private static final String VERSION_UP_TO_DATE = "VERSION-UP-TO-DATE";
+	private static final Logger logger = Logger.getLogger(JNinkaUpdateClient.class.getCanonicalName());
 	
 	/* --- Public methods --- */
 	
@@ -47,15 +65,17 @@ public class JNinkaUpdateClient  {
 		String response = "";
 		HttpURLConnection connection = null;
 		try {
-			// init connection
-			connection = initConnection();
-			
 			// create request
 			StringBuilder request = new StringBuilder();
 			addParamter(request, JNINKA_VERSION_PARAM, currentVersion);
 			
+			// init connection
+			connection = initConnection();
+			
 			// send request
 			response = sendRequest(connection, request);
+			
+			// handle response
 			if (response.equals(VERSION_UP_TO_DATE)) {
 				logger.log(Level.INFO, "Version is up to date");
 				response = "";
@@ -76,6 +96,7 @@ public class JNinkaUpdateClient  {
 				connection.disconnect();
 			}
 		}
+		
 	    return response;
 	}
 
@@ -83,13 +104,14 @@ public class JNinkaUpdateClient  {
 	
 	private HttpURLConnection initConnection()
 			throws MalformedURLException, IOException, ProtocolException {
-		URL url = new URL(JNINKA_UPDATE_URL);
+		String updateUrl = System.getProperty(UPDATE_URL_KEY, DEFAULT_UPDATE_URL);
+		URL url = new URL(updateUrl);
 		
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
 		connection.setDoOutput(true);
-		connection.setConnectTimeout(TIMEOUT);
-		connection.setReadTimeout(TIMEOUT);
+		connection.setConnectTimeout(CONNECTION_TIMEOUT);
+		connection.setReadTimeout(CONNECTION_TIMEOUT);
 		
 		return connection;
 	}
