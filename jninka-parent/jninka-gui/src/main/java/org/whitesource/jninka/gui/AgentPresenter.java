@@ -64,8 +64,6 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 	/* --- Static members --- */
 
-	private static final long serialVersionUID = -8058069229069729705L;
-	
 	private static final String BROWSE = "Browse";
 	
 	private static final String RUN = "Run";
@@ -73,6 +71,8 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	private static final Color BG_COLOR = new Color(240, 240, 240);
 	
 	private static final Logger log = Logger.getLogger(AgentPresenter.class.getName());
+	
+	private static final long serialVersionUID = -8058069229069729705L;
 
 	/* --- Members --- */
 
@@ -122,7 +122,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 	public void show() {
 		// Create and set up the window.
-		frame = new JFrame("JNinka Code Scanner - v" + version);
+		frame = new JFrame(" White Source JNinka Scanner - v" + version);
 		frame.setResizable(false);
 		frame.setLocation(300, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
