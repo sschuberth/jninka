@@ -42,7 +42,7 @@ public class SentenceTokenizer {
 	
 	private int tooLong = 70;
 	
-	private List<String> licensesentencelist;
+	private List<String> licenseSentenceList;
 
 	/* --- Public methods --- */
 	
@@ -84,11 +84,11 @@ public class SentenceTokenizer {
 			saveLine = line;
 			boolean saveGPL = gpl;
 			String LGPL = "";
-			for (int ki = 0; ki < licensesentencelist.size(); ki++){
-				String sentence = licensesentencelist.get(ki);
+			for (int ki = 0; ki < licenseSentenceList.size(); ki++){
+				String sentence = licenseSentenceList.get(ki);
 				String[] separated = sentence.split(":");
 				if ((separated.length < 5) || (separated.length > 6)){
-					logger.severe("licensesentencelist file has incorrect format:" + separated.length + "!\n");
+					logger.severe("licenseSentenceList file has incorrect format:" + separated.length + "!\n");
 					throw new IllegalArgumentException();
 				}
 				id = Integer.parseInt(separated[0]);
@@ -190,24 +190,20 @@ public class SentenceTokenizer {
 		return result;
 	}
 	
-    /* --- Protected methods --- */
+    /* --- Private methods --- */
     
 	/**
 	* Open and read a file, and return the words from file as arraylist
 	*/
-	protected List<String> loadLicenseSentence(InputStream filepath){
+	private List<String> loadLicenseSentence(InputStream filepath){
 		List<String> list = new ArrayList<String>();
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new InputStreamReader(filepath));
 			String line;
 			while ((line = reader.readLine()) != null) {
-				if (JNinkaRegullarExpression.isMatch(line, "^\\#")) {
-					continue;
-				}
-				if (JNinkaRegullarExpression.isMatch(line, "^ *$")) {
-					continue;
-				}
+				if (JNinkaRegullarExpression.isMatch(line, "^\\#")) { continue; }
+				if (JNinkaRegullarExpression.isMatch(line, "^ *$")) { continue; }
 				if (!JNinkaRegullarExpression.isMatch(line, "(.*?):(.*?):(.*)")) {
 					logger.severe("Illegal format in license expression [" + line + "]");
 					throw new IllegalArgumentException("Illegal format in license expression [" + line + "]");
@@ -217,19 +213,13 @@ public class SentenceTokenizer {
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "cannot open file " + filepath + ": "+ e.getMessage(), e);
 		} finally {
-			try {
-				if (reader != null) {
-					reader.close();
-				}
-			} catch (IOException e) {
-				logger.log(Level.SEVERE, e.getMessage(), e);
-			}
+			JNinkaUtils.close(reader, logger);
 		}
 		
 		return list;
 	}
-	
-	protected Object[] normalizeGPL(String line){
+
+    private Object[] normalizeGPL(String line){
 	    boolean later = false;
 	    String version = "0";
 	    	    
@@ -306,21 +296,16 @@ public class SentenceTokenizer {
         object[2] = version;    	
 	    return object;
 	}
-	
-	protected boolean looksLikeGPL(String line){
-		if (JNinkaRegullarExpression.isMatch(line, "GNU")){
-			return true;
-		}
-		if (JNinkaRegullarExpression.isMatch(line, "General Public License")){
-			return true;
-		}
-		if (JNinkaRegullarExpression.isMatch(line, "GPL")){
-			return true;
-		}
+
+    private boolean looksLikeGPL(String line){
+        if (JNinkaRegullarExpression.isMatch(line, "GNU")){ return true; }
+		if (JNinkaRegullarExpression.isMatch(line, "General Public License")) { return true; }
+		if (JNinkaRegullarExpression.isMatch(line, "GPL")){ return true; }
+
 	    return false;
 	}
-	
-	protected String normalizeSentence(String line){
+
+    private String normalizeSentence(String line){
 	    // do some very quick spelling corrections for english/british words
 	    line = JNinkaRegullarExpression.applyReplace(line, "icence", "icense", Pattern.CASE_INSENSITIVE);
 	    line = JNinkaRegullarExpression.applyReplace(line, "(\\.|;)$", "");	    	    	    		
@@ -328,7 +313,7 @@ public class SentenceTokenizer {
 	}
 	
 	//Source http://www.merriampark.com/ldjava.htm
-	protected int getLevenshteinDistance(String s, String t)
+    private int getLevenshteinDistance(String s, String t)
 	{	
 		if (s == null || t == null){
 			throw new IllegalArgumentException("Strings must not be null");
@@ -402,7 +387,7 @@ public class SentenceTokenizer {
 	
 	public void setLicSentences(InputStream lLicSentences){
     	licSentences = lLicSentences;
-    	licensesentencelist = loadLicenseSentence(lLicSentences);
+    	licenseSentenceList = loadLicenseSentence(lLicSentences);
     }
    
     public InputStream getLicSentences(){

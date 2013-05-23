@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,14 +53,12 @@ public class SentenceFilter extends StageProcessor{
 
 		for (String sentence : this.getInputInfo()) {
 			boolean isCheck = false;
-			for (int i = 0; i < words.size(); i++) {
-				String word = words.get(i);
-				isCheck = JNinkaRegullarExpression.isMatch(sentence, "\\b" + word + "\\b", Pattern.CASE_INSENSITIVE);
-				if (isCheck) {
-					break;
-				}
-			}
-			
+            Iterator<String> iterator = words.iterator();
+            while (iterator.hasNext() && !isCheck) {
+                String word = iterator.next();
+                isCheck = JNinkaRegullarExpression.isMatch(sentence, "\\b" + word + "\\b", Pattern.CASE_INSENSITIVE);
+            }
+
 			if (isCheck) {
 				goodOutputInfo.add(sentence);
 			} else {
@@ -70,12 +69,12 @@ public class SentenceFilter extends StageProcessor{
 		return true;
 	}
 	
-	/* --- Protected methods --- */
+	/* --- Private methods --- */
 	
 	/**
 	* Open and read a file, and return the words from file as a list.
 	*/
-	protected ArrayList<String> loadWords() {
+	private ArrayList<String> loadWords() {
 		ArrayList <String>list = new ArrayList<String>();
 		
 		BufferedReader reader = null;
@@ -83,25 +82,17 @@ public class SentenceFilter extends StageProcessor{
 			reader = new BufferedReader(new InputStreamReader(critWords));
 			String line;
 			while ( (line = reader.readLine()) != null ){
-				if (JNinkaRegullarExpression.isMatch(line, "^\\#")){
-					continue;
-				}
+				if (JNinkaRegullarExpression.isMatch(line, "^\\#")) { continue; }
+
 				line = JNinkaRegullarExpression.applyReplace(line, "\\#.*$", "");
-				
-				if ( !line.isEmpty() ){
+				if (!JNinkaUtils.isBlank(line)){
 					list.add(line);
 				}
 			}
 		} catch(IOException e){
 			logger.log(Level.SEVERE, "Couldn't open " + critWords + " for reading! :" + e.getMessage(), e);
 		} finally {
-			try {
-				if (reader != null) {
-					reader.close();
-				}
-			} catch (IOException e) {
-				logger.log(Level.SEVERE, e.getMessage(), e);
-			}
+            JNinkaUtils.close(reader, logger);
 		}
 		
 		return list;

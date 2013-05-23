@@ -20,10 +20,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -70,9 +67,7 @@ public class JNinka {
 	
 	private FileFilter dirFilter;
 	
-	private FileFilter javaFilter;
-	
-	private Set<String> codeFileExtentions;
+	private FileFilter sourceCodeFilter;
 	
 	private CommentsExtractor extComments;
 	
@@ -90,10 +85,18 @@ public class JNinka {
 	 * Default constructor
 	 */
 	public JNinka() {
-		initCodeFileExtentions();
-		
-		dirFilter = getDirectoryFilter();
-		javaFilter = getCodeFileFilter();
+        dirFilter = new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isDirectory();
+            }
+        };
+        sourceCodeFilter = new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return JNinkaUtils.isSourceCode(pathname);
+            }
+        };
 		
 		extComments = new CommentsExtractor();
 		
@@ -113,15 +116,18 @@ public class JNinka {
 	/* --- Public methods --- */
 	
 	public ScanResults scanFolderRecursive(File folder, boolean getUnknowns){
-		ScanResults result = new ScanResults();
-		this.getUnknowns = getUnknowns;
 		// Problem: Folder count does not include parent folder, as oppose to the progress updater, which caused the range of progression
 		// to go over 100 (not allowed, throws exception)
 		// Solution: Includes parent folder (+1) to overall count.
 		int folderCount = countFoldersRecursive(folder) + 1;
 		monitor.reset();
 		monitor.setParams(folderCount, 1);
-		runRecursive(folder, result);
+
+		this.getUnknowns = getUnknowns;
+
+		ScanResults result = new ScanResults();
+        runRecursive(folder, result);
+
 		return result;
 	}
 	
@@ -161,60 +167,38 @@ public class JNinka {
 	private int runRecursive(File directory, ScanResults result){
 		int count = 0;
 		monitor.progress(1, directory.getAbsolutePath());
-		File[] javaFiles = directory.listFiles(javaFilter);
-		for(File javaFile : javaFiles){
-			run(javaFile, result);
+
+        File[] sourceFiles = directory.listFiles(sourceCodeFilter);
+		for(File sourceFile : sourceFiles){
+			run(sourceFile, result);
 			count++;
 		}
-		File[] children = directory.listFiles(dirFilter);
-		for(File child : children){
+
+        File[] children = directory.listFiles(dirFilter);
+        for(File child : children){
 			count += runRecursive(child, result);
 		}
-		return count;
+
+        return count;
 	}
 	
 	private void handleHit(File codeFile, ScanResults scanResult, List<LicenseAttribution> attributions) {
-		CodeFileAttributions fileAttributions;
-		String pkg;
-		fileAttributions = new CodeFileAttributions(attributions, codeFile.getName(), codeFile.lastModified());
-		if(isJava(codeFile)){
-			pkg = getPkg(codeFile);
-			if(pkg != null){
+        CodeFileAttributions fileAttributions = new CodeFileAttributions(attributions, codeFile.getName(), codeFile.lastModified());
+
+        if(isJava(codeFile)){
+            String pkg = getPkg(codeFile);
+            if(!JNinkaUtils.isBlank(pkg)){
 				fileAttributions.setExtra(pkg);
 			}
 		}
+
 		scanResult.addFinding(fileAttributions);
 	}
-	
-	private FileFilter getDirectoryFilter(){
-		FileFilter result = new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.isDirectory();
-			}
-		};
-		return result;
-	}
-	
-	private FileFilter getCodeFileFilter(){
-		FileFilter result = new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				String extention = JNinkaUtils.fileExtension(pathname.getPath());
-				return codeFileExtentions.contains(extention);
-			}
-		};
-		return result;
-	}
 
-	private void initCodeFileExtentions(){
-		codeFileExtentions = new HashSet<String>();
-		Collections.addAll(codeFileExtentions, ".pl", ".pm", ".py", ".jl", ".el", ".java", ".c", ".cpp", ".h", ".cxx", ".c++", ".cc");
-	}
-	
-	private int countFoldersRecursive(File dir) {
+    private int countFoldersRecursive(File dir) {
 		int result = 0;
-		try{
+
+        try{
 			File[] directories = dir.listFiles(dirFilter);
 			if (directories != null) {
 				result = directories.length;
@@ -225,11 +209,13 @@ public class JNinka {
 		} catch(Exception e){
 			logger.log(Level.WARNING, e.getMessage(), e);
 		}
+
 		return result;
 	}
 	
 	private boolean isJava(File codeFile){
-		return codeFile.getName().toLowerCase().endsWith(".java");
+        String ext = JNinkaUtils.fileExtension(codeFile);
+        return JNinkaUtils.JAVA_EXT_PATTERN.matcher(ext).matches();
 	}
 	
 	private String getPkg(File javafile){
@@ -248,22 +234,14 @@ public class JNinka {
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Error reading package from file " + e.getMessage(), e);
 		} finally {
-			try {
-				if (reader != null) {
-					reader.close();
-				}
-			} catch (IOException e) {
-				logger.log(Level.SEVERE, e.getMessage(), e);
-			}
+            JNinkaUtils.close(reader, logger);
 		}
 		
 		return result;
 	}
 	
 	private String getPackageFromLine(String line){
-		String result = null;
-		result = line.substring(line.indexOf(' '), line.indexOf(';'));
-		return result;
+        return line.substring(line.indexOf(' '), line.indexOf(';'));
 	}
 	
 	/* --- Getters / Setters --- */

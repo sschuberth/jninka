@@ -16,14 +16,12 @@
 package org.whitesource.jninka;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * @author Rami.Sass
@@ -31,9 +29,23 @@ import java.util.logging.Logger;
 public class CommentsExtractor extends StageProcessor {	
 
 	/* --- Static members --- */
-	
+    public static final int DEFAULT_COMMENTS_LENGTH = 700;
+
+    private static final Map<Pattern, Integer> commentsLengthMap = new HashMap<Pattern, Integer>();
+    static {
+        commentsLengthMap.put(JNinkaUtils.PERL_EXT_PATTERN, 400);
+        commentsLengthMap.put(JNinkaUtils.LISP_EXT_PATTERN, 400);
+        commentsLengthMap.put(JNinkaUtils.PHP_EXT_PATTERN, 400);
+        commentsLengthMap.put(JNinkaUtils.JAVA_EXT_PATTERN, DEFAULT_COMMENTS_LENGTH);
+        commentsLengthMap.put(JNinkaUtils.JS_EXT_PATTERN, DEFAULT_COMMENTS_LENGTH);
+        commentsLengthMap.put(JNinkaUtils.C_CPP_EXT_PATTERN, DEFAULT_COMMENTS_LENGTH);
+        commentsLengthMap.put(JNinkaUtils.DOT_NET_EXT_PATTERN, DEFAULT_COMMENTS_LENGTH);
+        commentsLengthMap.put(JNinkaUtils.AS_EXT_PATTERN, DEFAULT_COMMENTS_LENGTH);
+        commentsLengthMap.put(JNinkaUtils.OBJECTIVE_C_EXT_PATTERN, DEFAULT_COMMENTS_LENGTH);
+    }
+
 	private static Logger logger = Logger.getLogger(CommentsExtractor.class.getCanonicalName());
-	
+
 	/* --- Members --- */
 	
 	private String inputFile = "";
@@ -43,16 +55,16 @@ public class CommentsExtractor extends StageProcessor {
 	public boolean process() {	
 		boolean result = true;
 		
-		if (this.getFileSize(this.getInputFile()) <= 0){
-			logger.severe("Failed to retrieve file size info: file " + this.getInputFile() + " doesn\'t exist or empty.");
+		if (getInputFile().length() <= 0){
+			logger.severe("Failed to retrieve file size info: file " + getInputFile() + " doesn\'t exist or empty.");
 			result = false;
 		} else {
 			BufferedReader reader = null;
 			try{
 				List<String> outputInfo = new ArrayList<String>();
 				
-				int totalLineCount = this.determineCommentsExtractor(this.getInputFile());
-				reader = new BufferedReader(new FileReader(this.getInputFile()));
+				int totalLineCount = commentsLength(getInputFile());
+				reader = new BufferedReader(new FileReader(getInputFile()));
 				String line;
 				int i = totalLineCount > 0 ? 0 : 1;
 				while (((line = reader.readLine()) != null) && (i < totalLineCount)) {
@@ -66,55 +78,45 @@ public class CommentsExtractor extends StageProcessor {
 				logger.log(Level.WARNING, e.getMessage(), e);
 			}
 			finally {
-				try {
-					if (reader != null) {
-						reader.close();
-					}
-				} catch (IOException e) {
-					logger.log(Level.SEVERE, e.getMessage(), e);
-				}
+				JNinkaUtils.close(reader, logger);
 			}
 		}
 		
 		return result;
 	}
 	
-	/* --- Protected methods --- */
+	/* --- Private methods --- */
 	
-	protected int determineCommentsExtractor(String filepath){
-		int linecount = 700;
-		
-		String ext = JNinkaUtils.fileExtension(filepath);
-	    if (!ext.equals("")) {
-	    	if(Arrays.asList(new String[]{"pl", "pm", "py"}).contains(ext)){
-	    		return 400;
-	        } else if(Arrays.asList(new String[]{"jl", "el"}).contains(ext)){
-	            return 400;
-	        } else if (Arrays.asList(new String[]{"java", "c", "cpp", "h", "cxx", "c++", "cc"}).contains(ext)){
-	            return 700;
-	        }
+	private int commentsLength(String filepath){
+		Integer lineCount = null;
+
+        String ext = JNinkaUtils.fileExtension(filepath);
+	    if (JNinkaUtils.isBlank(ext)) {
+            lineCount = DEFAULT_COMMENTS_LENGTH;
+        } else {
+            Iterator<Map.Entry<Pattern, Integer>> iterator = commentsLengthMap.entrySet().iterator();
+            while (iterator.hasNext() && lineCount == null) {
+                Map.Entry<Pattern, Integer> entry = iterator.next();
+                if (entry.getKey().matcher(ext).matches()) {
+                    lineCount = entry.getValue();
+                }
+            }
+            if (lineCount == null) {
+                lineCount = DEFAULT_COMMENTS_LENGTH;
+	        } 
 	    }
 	    
-	    return linecount;
-	}
-	
-	protected long getFileSize(String filename){
-	    File file = new File(filename);
-	    
-	    if ( !file.exists() || !file.isFile() ){
-	      return -1;
-	    }		    
-	    //Here we get the actual size
-	    return file.length();
+	    return lineCount;
 	}
 		
 	/* --- Getters / Setters --- */
 	
-	public void setInputFile(String lInputFile){
-    	this.inputFile = lInputFile;
-    }
-	   
     public String getInputFile(){
         return this.inputFile;
     }
+
+	public void setInputFile(String lInputFile){
+    	this.inputFile = lInputFile;
+    }
+
 }
