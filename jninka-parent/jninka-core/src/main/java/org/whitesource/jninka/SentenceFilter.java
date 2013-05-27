@@ -83,7 +83,7 @@ public class SentenceFilter extends StageProcessor{
 			String line;
 			while ( (line = reader.readLine()) != null ){
                 if (JNinkaUtils.isBlank(line) || line.startsWith("#")) { continue; }
-                int index = line.indexOf("#");
+                int index = line.indexOf('#');
                 if (index > 0) { line = line.substring(0, index); }
                 if (!JNinkaUtils.isBlank(line)){
                     wordPatterns.add(Pattern.compile("\\b" + line + "\\b", Pattern.CASE_INSENSITIVE));

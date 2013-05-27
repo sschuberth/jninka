@@ -34,9 +34,9 @@ public class SentenceSplitter extends StageProcessor {
 	
 	/* --- Static members --- */
 
-    private final static Pattern LAST_WORD_ABBREVIATION_PATTERN = Pattern.compile("(.?)([^\\p{Punct}\\s]+)$");
-    public static final String SEPARATOR_BREAK_REGEX = "^([^\\.\\!\\?\\:\n]*)([\\.\\!\\?\\:\n])(?=(.?))";
-    private final static Pattern SEPARATOR_BREAK_PATTERN = Pattern.compile(SEPARATOR_BREAK_REGEX, Pattern.MULTILINE);
+    private static final String SEPARATOR_BREAK_REGEX = "^([^\\.\\!\\?\\:\n]*)([\\.\\!\\?\\:\n])(?=(.?))";
+    private static final Pattern SEPARATOR_BREAK_PATTERN = Pattern.compile(SEPARATOR_BREAK_REGEX, Pattern.MULTILINE);
+    private static final Pattern LAST_WORD_ABBREVIATION_PATTERN = Pattern.compile("(.?)([^\\p{Punct}\\s]+)$");
 
 	private static Logger logger = Logger.getLogger(SentenceSplitter.class.getCanonicalName());
 	

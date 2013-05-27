@@ -60,7 +60,6 @@ public class SentenceTokenizer {
 			line = normalizeSentence(line);
 
 			boolean check = false;
-			Integer id = Integer.MIN_VALUE;
 			String matchname = "UNKNOWN";
 			List<String> parm = new ArrayList<String>();
 
@@ -164,7 +163,7 @@ public class SentenceTokenizer {
 					matchname += "-TOOLONG";
 				}
 
-				result.add(new LicenseAttribution(parm, id, matchname, finalSentence.subRule, before, after, originalLine));
+				result.add(new LicenseAttribution(parm, finalSentence.id, matchname, finalSentence.subRule, before, after, originalLine));
 			} else if (getUnknown) { // UNKNOWN, sentence
                 result.add(new LicenseAttribution(null, Integer.MIN_VALUE, matchname, "UNKNOWN", Integer.toString(distance), saveLine, originalLine));
             }

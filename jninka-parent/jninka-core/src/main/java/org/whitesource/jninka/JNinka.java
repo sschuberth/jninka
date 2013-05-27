@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -126,23 +127,31 @@ public class JNinka {
 		ScanResults result = new ScanResults();
         for (File directory : directories) {
             monitor.progress(1, directory.getAbsolutePath());
-            File[] files = directory.listFiles();
-            if (files == null) { continue; }
-            for(File sourceFile : files){
-                if (JNinkaUtils.isSourceCode(sourceFile)) {
-//                    logger.fine("Scanning " + sourceFile);
-                    List<LicenseAttribution> attributions = scanFile(sourceFile);
-                    if (!JNinkaUtils.isEmpty(attributions)) {
-                        result.addFinding(handleHit(sourceFile, attributions));
-                    }
-                }
-            }
+            result.addFindings(scanDir(directory));
         }
 
 		return result;
 	}
 
 	/* --- Private methods --- */
+
+    private List<CodeFileAttributions> scanDir(File dir) {
+        List<CodeFileAttributions> results = new ArrayList<CodeFileAttributions>();
+
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for(File sourceFile : files){
+                if (JNinkaUtils.isSourceCode(sourceFile)) {
+                    List<LicenseAttribution> attributions = scanFile(sourceFile);
+                    if (!JNinkaUtils.isEmpty(attributions)) {
+                        results.add(handleHit(sourceFile, attributions));
+                    }
+                }
+            }
+        }
+
+        return results;
+    }
 
     private List<LicenseAttribution> scanFile(File codeFile){
         List<LicenseAttribution> attributions = null;

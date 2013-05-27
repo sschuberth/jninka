@@ -18,6 +18,7 @@ package org.whitesource.jninka.model;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -59,10 +60,10 @@ public class ScanResults {
 	/**
 	 * The method add the given attribution to this scan results.
 	 * 
-	 * @param attribution Code file attribution to add.
+	 * @param attributions Code files attributions to add.
 	 */
-	public void addFinding(CodeFileAttributions attribution){
-		findings.add(attribution);
+	public void addFindings(Collection<CodeFileAttributions> attributions){
+		findings.addAll(attributions);
 	}
 	
 	/**

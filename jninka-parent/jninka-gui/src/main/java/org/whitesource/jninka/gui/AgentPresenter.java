@@ -32,18 +32,7 @@ import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -125,7 +114,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		frame = new JFrame(" White Source JNinka Scanner - v" + version);
 		frame.setResizable(false);
 		frame.setLocation(300, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 		JPanel pane = (JPanel) frame.getContentPane();
 		pane.setBackground(BG_COLOR);
@@ -166,7 +155,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if ("progress" == evt.getPropertyName()) {
+		if ("progress".equals(evt.getPropertyName())) {
 			int progress = (Integer) evt.getNewValue();
 			progressBar.setValue(progress);
 		}
@@ -198,6 +187,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 						File file = fileDialog.getSelectedFile();
 						if (file != null) {
 							lastFile = file.getAbsolutePath();
+                            fileText.setText(file.getAbsolutePath());
 							log.info("Save: " + file.getAbsolutePath());
 						}
 					}
@@ -205,14 +195,14 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 			}
 			if (e.getSource() == runButton) {
 				if (dirText.getText().isEmpty() || fileText.getText().isEmpty()) {
-					JOptionPane.showConfirmDialog(getParent(), "Please provide both root directory and target file.", "JNinka", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showConfirmDialog(getParent(), "Please provide both root directory and target file.", "JNinka", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
 				} else {
 					File directory = new File(dirText.getText());
 					File file = new File(fileText.getText());
 					if (directory.isDirectory()) {
 						run(directory, file);
 					} else {
-						JOptionPane.showConfirmDialog(getParent(), "Root directory not found", "JNinka", JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showConfirmDialog(getParent(), "Root directory not found", "JNinka", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
@@ -265,6 +255,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 						try {
 							desktop.browse(uri);
 						} catch (Exception ex) {
+                            Logger.getLogger(getClass().getName()).log(Level.WARNING, "Can't open browser", ex);
 						}
 					}
 				}
@@ -369,8 +360,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	
 	private JTable getTable(){
 		resultsModel.addColumn("Folder");
-		JTable result = new JTable(resultsModel);
-		return result;
+        return new JTable(resultsModel);
 	}
 
 	private JFileChooser getDirectoryChooser() {
@@ -383,7 +373,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		fileDialog = new JFileChooser(lastFile);
 		FileFilter filter = new FileNameExtensionFilter("XML", "xml");
 		fileDialog.setFileFilter(filter);
-		fileDialog.setFileSelectionMode(JFileChooser.SAVE_DIALOG);
+		fileDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		return fileDialog;
 	}
 
@@ -456,6 +446,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 				scanResults.writeXML(output);
 			} catch (RuntimeException e) {
 				resultMessage ="Completed with errors, see log file.";
+                log.log(Level.SEVERE, "Error scanning folder", e);
 			}
 			
 			log.info("Scan completed in " + (System.currentTimeMillis() - startTime) +" [msec].");
@@ -470,7 +461,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		protected void done() {
 			setProgress(100);
 			scanFrame.setAlwaysOnTop(false);
-			JOptionPane.showConfirmDialog(getParent(), resultMessage, "JNinka", JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showConfirmDialog(getParent(), resultMessage, "JNinka", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);
 			scanFrame.setVisible(false);
 			progressBar.setVisible(false);
 			runButton.setVisible(true);
