@@ -452,7 +452,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 				});
 				
 				boolean sureMatches = sureMatchChk.isSelected();
-				ScanResults scanResults = ninka.scanFolderRecursive(root, !sureMatches);
+				ScanResults scanResults = ninka.scanFolder(root, !sureMatches);
 				scanResults.writeXML(output);
 			} catch (RuntimeException e) {
 				resultMessage ="Completed with errors, see log file.";

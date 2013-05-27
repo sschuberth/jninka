@@ -17,10 +17,11 @@ package org.whitesource.jninka;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,96 +64,105 @@ public class JNinka {
 	
 	/* --- Members --- */
 	
-	private ScanProgressMonitor monitor;
-	
-	private FileFilter dirFilter;
-	
-	private FileFilter sourceCodeFilter;
-	
-	private CommentsExtractor extComments;
-	
-	private SentenceSplitter splitter;
-	
-	private SentenceFilter filter;
-	
-	private SentenceTokenizer senttok;
-	
+	private CommentsExtractor commentsExtractor;
+
+	private SentenceSplitter sentenceSplitter;
+
+	private SentenceFilter sentenceFilter;
+
+	private SentenceTokenizer sentenceTokenizer;
+
 	private boolean getUnknowns;
-	
+
+	private ScanProgressMonitor monitor;
+
+    private boolean initialized;
+
 	/* --- Constructor --- */
 	
 	/**
 	 * Default constructor
 	 */
 	public JNinka() {
-        dirFilter = new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.isDirectory();
-            }
-        };
-        sourceCodeFilter = new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return JNinkaUtils.isSourceCode(pathname);
-            }
-        };
-		
-		extComments = new CommentsExtractor();
-		
-		splitter = new SentenceSplitter();
-		splitter.setDictionary(JNinka.class.getResourceAsStream("/splitter.dict"));
-		splitter.setAbbrvFile(JNinka.class.getResourceAsStream("/splitter.abv"));
-		
-		filter = new SentenceFilter();
-		filter.setCritWords(JNinka.class.getResourceAsStream("/criticalword.dict"));
-		
-		senttok = new SentenceTokenizer();
-		senttok.setLicSentences(JNinka.class.getResourceAsStream("/licensesentence.dict"));
-		
-		monitor = new ScanProgressMonitor();
+        initialized = false;
+        monitor = new ScanProgressMonitor();
 	}
-	
+
 	/* --- Public methods --- */
+
+    public void init() {
+        logger.info("Initializing JNinka");
+        long t = System.currentTimeMillis();
+
+        commentsExtractor = new CommentsExtractor();
+
+        sentenceSplitter = new SentenceSplitter();
+        sentenceSplitter.setDictionary(JNinka.class.getResourceAsStream("/splitter.dict"));
+        sentenceSplitter.setAbbrvFile(JNinka.class.getResourceAsStream("/splitter.abv"));
+
+        sentenceFilter = new SentenceFilter();
+        sentenceFilter.setCritWords(JNinka.class.getResourceAsStream("/criticalword.dict"));
+
+        sentenceTokenizer = new SentenceTokenizer();
+        sentenceTokenizer.setLicSentences(JNinka.class.getResourceAsStream("/licensesentence.dict"));
+
+        initialized = true;
+        logger.info("JNinka initialization is done in " + (System.currentTimeMillis() - t) + " [msec]");
+    }
 	
-	public ScanResults scanFolderRecursive(File folder, boolean getUnknowns){
-		// Problem: Folder count does not include parent folder, as oppose to the progress updater, which caused the range of progression
-		// to go over 100 (not allowed, throws exception)
-		// Solution: Includes parent folder (+1) to overall count.
-		int folderCount = countFoldersRecursive(folder) + 1;
-		monitor.reset();
-		monitor.setParams(folderCount, 1);
+	public ScanResults scanFolder(File folder, boolean getUnknowns){
+        if (!initialized) {
+            init();
+        }
 
 		this.getUnknowns = getUnknowns;
 
+        SortedSet<File> directories = listSubdirectories(folder);
+        logger.fine("counted " + directories.size() + " total directories to scan.");
+
+		monitor.reset();
+		monitor.setParams(directories.size(), 1);
+
 		ScanResults result = new ScanResults();
-        runRecursive(folder, result);
+        for (File directory : directories) {
+            monitor.progress(1, directory.getAbsolutePath());
+            File[] files = directory.listFiles();
+            if (files == null) { continue; }
+            for(File sourceFile : files){
+                if (JNinkaUtils.isSourceCode(sourceFile)) {
+//                    logger.fine("Scanning " + sourceFile);
+                    List<LicenseAttribution> attributions = scanFile(sourceFile);
+                    if (!JNinkaUtils.isEmpty(attributions)) {
+                        result.addFinding(handleHit(sourceFile, attributions));
+                    }
+                }
+            }
+        }
 
 		return result;
 	}
-	
-	public void run(File codeFile, ScanResults scanResult){
+
+	/* --- Private methods --- */
+
+    private List<LicenseAttribution> scanFile(File codeFile){
+        List<LicenseAttribution> attributions = null;
 		try {
 			// Stage 1.
-			extComments.setInputFile(codeFile.getAbsolutePath());
-			if (extComments.process()) {
+			commentsExtractor.setInputFile(codeFile.getAbsolutePath());
+			if (commentsExtractor.process()) {
 				// Stage 2.
-				splitter.setInputInfo(extComments.getOutputInfo());
-				if (splitter.process()) {
+				sentenceSplitter.setInputInfo(commentsExtractor.getOutputInfo());
+				if (sentenceSplitter.process()) {
 					// Stage 3.
-					filter.setInputInfo(splitter.getOutputInfo());
-					if (filter.process()) {
+					sentenceFilter.setInputInfo(sentenceSplitter.getOutputInfo());
+					if (sentenceFilter.process()) {
 						// Stage 4.
-						senttok.setTooLong(70);
-						List<LicenseAttribution> attributions = senttok.getAttributions(filter.getGoodOutputInfo(), getUnknowns);
-						if (attributions.size() > 0) {
-							handleHit(codeFile, scanResult, attributions);
-						}
+						attributions = sentenceTokenizer.getAttributions(sentenceFilter.getGoodOutputInfo(), getUnknowns);
 					} else {
-						logger.severe("filter failed");
+						logger.severe("sentenceFilter failed");
 					}
 				} else {
-					logger.severe("splitter failed");
+					logger.severe("sentenceSplitter failed");
 				}
 			} else {
 				logger.severe("extract-comments failed");
@@ -160,65 +170,41 @@ public class JNinka {
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, codeFile.getAbsolutePath() + " - " + e.getMessage(), e);
 		}
+
+        return attributions;
 	}
-	
-	/* --- Private methods --- */
-	
-	private int runRecursive(File directory, ScanResults result){
-		int count = 0;
-		monitor.progress(1, directory.getAbsolutePath());
 
-        File[] sourceFiles = directory.listFiles(sourceCodeFilter);
-		for(File sourceFile : sourceFiles){
-			run(sourceFile, result);
-			count++;
-		}
+    private SortedSet<File> listSubdirectories(File dir) {
+        SortedSet<File> folders = new TreeSet<File>();
+        folders.add(dir);
 
-        File[] children = directory.listFiles(dirFilter);
-        for(File child : children){
-			count += runRecursive(child, result);
-		}
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    folders.addAll(listSubdirectories(f));
+                }
+            }
+        }
 
-        return count;
+		return folders;
 	}
-	
-	private void handleHit(File codeFile, ScanResults scanResult, List<LicenseAttribution> attributions) {
+
+    private CodeFileAttributions handleHit(File codeFile, List<LicenseAttribution> attributions) {
         CodeFileAttributions fileAttributions = new CodeFileAttributions(attributions, codeFile.getName(), codeFile.lastModified());
 
-        if(isJava(codeFile)){
-            String pkg = getPkg(codeFile);
+        String ext = JNinkaUtils.fileExtension(codeFile);
+        if(JNinkaUtils.JAVA_EXT_PATTERN.matcher(ext).matches()){
+            String pkg = extractPackage(codeFile);
             if(!JNinkaUtils.isBlank(pkg)){
 				fileAttributions.setExtra(pkg);
 			}
 		}
 
-		scanResult.addFinding(fileAttributions);
+        return fileAttributions;
 	}
 
-    private int countFoldersRecursive(File dir) {
-		int result = 0;
-
-        try{
-			File[] directories = dir.listFiles(dirFilter);
-			if (directories != null) {
-				result = directories.length;
-				for (File directory : directories) {
-					result += countFoldersRecursive(directory);
-				}
-			}
-		} catch(Exception e){
-			logger.log(Level.WARNING, e.getMessage(), e);
-		}
-
-		return result;
-	}
-	
-	private boolean isJava(File codeFile){
-        String ext = JNinkaUtils.fileExtension(codeFile);
-        return JNinkaUtils.JAVA_EXT_PATTERN.matcher(ext).matches();
-	}
-	
-	private String getPkg(File javafile){
+	private String extractPackage(File javafile){
 		String result = null;
 		BufferedReader reader = null; 
 				
@@ -228,7 +214,7 @@ public class JNinka {
 			while(result == null && reader.ready()){
 				line = reader.readLine();
 				if(line != null && line.startsWith("package")){
-					result = getPackageFromLine(line);
+                    result = line.substring(line.indexOf(' '), line.indexOf(';'));
 				}
 			}
 		} catch (IOException e) {
@@ -238,10 +224,6 @@ public class JNinka {
 		}
 		
 		return result;
-	}
-	
-	private String getPackageFromLine(String line){
-        return line.substring(line.indexOf(' '), line.indexOf(';'));
 	}
 	
 	/* --- Getters / Setters --- */

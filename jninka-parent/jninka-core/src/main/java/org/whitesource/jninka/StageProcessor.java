@@ -38,7 +38,7 @@ public abstract class StageProcessor {
 	/* --- Getters / Setters --- */
 	
 	public List<String> getOutputInfo(){
-	    return this.outputInfo;
+	    return outputInfo;
 	}
 			   
 	public void setOutputInfo(List<String> outputInfo){
@@ -46,7 +46,7 @@ public abstract class StageProcessor {
 	}
 	   
 	public List<String> getInputInfo(){
-		return this.inputInfo;
+		return inputInfo;
 	}
 			   
 	public void setInputInfo(List<String> inputInfo){

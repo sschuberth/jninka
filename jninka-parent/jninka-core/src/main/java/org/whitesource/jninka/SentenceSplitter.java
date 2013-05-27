@@ -20,10 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -35,7 +33,11 @@ import java.util.regex.Pattern;
 public class SentenceSplitter extends StageProcessor {
 	
 	/* --- Static members --- */
-	
+
+    private final static Pattern LAST_WORD_ABBREVIATION_PATTERN = Pattern.compile("(.?)([^\\p{Punct}\\s]+)$");
+    public static final String SEPARATOR_BREAK_REGEX = "^([^\\.\\!\\?\\:\n]*)([\\.\\!\\?\\:\n])(?=(.?))";
+    private final static Pattern SEPARATOR_BREAK_PATTERN = Pattern.compile(SEPARATOR_BREAK_REGEX, Pattern.MULTILINE);
+
 	private static Logger logger = Logger.getLogger(SentenceSplitter.class.getCanonicalName());
 	
 	/* --- Members --- */
@@ -44,7 +46,7 @@ public class SentenceSplitter extends StageProcessor {
 	
 	private InputStream dictionary;
 
-	private Map<String, Integer> commonTerms = new Hashtable<String, Integer>();
+//	private Map<String, Integer> commonTerms = new Hashtable<String, Integer>();
 	
 	private List<String> abbreviations = new ArrayList<String>();	 
 	
@@ -55,7 +57,7 @@ public class SentenceSplitter extends StageProcessor {
 		try {
 			List<String> outputInfo = new ArrayList<String>();
 			
-			String text = JNinkaUtils.joinArrayList(this.getInputInfo(), "\n");
+			String text = JNinkaUtils.joinArrayList(getInputInfo(), "\n");
 			// append a "\n" just in case
 			text += "\n";
 
@@ -73,24 +75,16 @@ public class SentenceSplitter extends StageProcessor {
 
 				// let us count the number of alphabetic chars to check if we
 				// are skipping anything we should not
-				int count = 0;
-				for (int i = 0; i < curr.length(); i++) {
-					if (JNinkaRegullarExpression.isMatch(curr.substring(i, i), "[A-Za-z]")) {
-						count++;
-					}
-				}
-				List<String> sentences = this.splitText(curr);
+				int count = JNinkaUtils.alphabeticCount(curr);
+
+                List<String> sentences = this.splitText(curr);
 
 				int count2 = 0;
 				Iterator<String> it = sentences.iterator();
 				while (it.hasNext()) {
-					String s = (String) it.next();
-					for (int i = 0; i < s.length(); i++) {
-						if (JNinkaRegullarExpression.isMatch(s.substring(i, i), "[A-Za-z]")) {
-							count2++;
-						}
-					}
-					s = this.cleanSentence(s);
+					String s = it.next();
+                    count2 += JNinkaUtils.alphabeticCount(s);
+					s = cleanSentence(s);
 					s = JNinkaRegullarExpression.unescapeAfterRegex(s);
 					outputInfo.add(s);
 				}
@@ -99,8 +93,8 @@ public class SentenceSplitter extends StageProcessor {
 					logger.severe("[" + curr + "]");
 					it = sentences.iterator();
 					while (it.hasNext()) {
-						String s = (String) it.next();
-						logger.severe(this.cleanSentence(s));
+						String s = it.next();
+						logger.severe(cleanSentence(s));
 					}
 					result = false;
 					logger.severe("Number of printable chars does not match!  [" + count + "][" + count2 + "]");
@@ -117,9 +111,9 @@ public class SentenceSplitter extends StageProcessor {
 		return result;
 	}
 	
-	/* --- Protected methods --- */
+	/* --- Private methods --- */
 	
-	protected String cleanSentence(String text){		
+	private String cleanSentence(String text){
 		//check for trailing bullets of different types
 		text = JNinkaRegullarExpression.applyReplace(text, "^o ", "");				
 		text = JNinkaRegullarExpression.applyReplace(text, "^\\s*[0-9]+\\s*[\\-\\)]", "");		
@@ -143,7 +137,7 @@ public class SentenceSplitter extends StageProcessor {
 	* Open and read a file, and return the lines in the file as a  hashtable
 	 * @throws Exception 
 	*/
-	protected List<String> splitText(String text) throws Exception {
+    private List<String> splitText(String text) throws Exception {
 		//int len = 0;
 		List<String> result = new ArrayList<String>();
 		String currentSentence = "";
@@ -153,30 +147,28 @@ public class SentenceSplitter extends StageProcessor {
 		2. The separator [.!?:\n]
 		3.
 		*/
-		String patternText = "^([^\\.\\!\\?\\:\n]*)([\\.\\!\\?\\:\n])(?=(.?))";
-		while (JNinkaRegullarExpression.isMatch(text, patternText,Pattern.MULTILINE)){	
-			String sentenceMatch = JNinkaRegullarExpression.getGroupValue(text, patternText, 1, Pattern.MULTILINE);
-			String punctuation = JNinkaRegullarExpression.getGroupValue(text, patternText, 2, Pattern.MULTILINE);
-			String sentence = sentenceMatch + punctuation;
-			String after = JNinkaRegullarExpression.getGroupValue(text, patternText, 3, Pattern.MULTILINE);	
-			text = JNinkaRegullarExpression.postMatch(text, patternText,Pattern.MULTILINE);//!!!put after all operations
+        Matcher matcher = SEPARATOR_BREAK_PATTERN.matcher(text);
+        while(matcher.find()) {
+            String sentenceMatch = JNinkaRegullarExpression.getGroupValue(matcher, 1);
+            String punctuation = JNinkaRegullarExpression.getGroupValue(matcher, 2);
+            String sentence = sentenceMatch + punctuation;
+            String after = JNinkaRegullarExpression.getGroupValue(matcher, 3);
+            text = JNinkaRegullarExpression.postMatch(SEPARATOR_BREAK_PATTERN, text);//!!!put after all operations
 
 			//if next character is not a space, then we are not in a sentence"
-			if (!after.equals(" ") && !after.equals("\t"))
-			{
-				currentSentence += sentence;
+			if (!" ".equals(after) && !"\t".equals(after)) {
+                currentSentence += sentence;
 				continue;
 			}
+
 			//at this point we know that there is a space after
-			if (punctuation.equals(":") 
-				||  punctuation.equals("?")
-				|| punctuation.equals("!")){
+			if (":".equals(punctuation) || "?".equals(punctuation) || "!".equals(punctuation)){
 				//let us consider this right here a beginning of a sentence
 				result.add(currentSentence + sentence);			
 				currentSentence = "";
 				continue;
 			}
-			if (punctuation.equals(".")){
+			if (".".equals(punctuation)){
 				//we have a bunch of alternatives
 				//for the time being just consider a new sentence
 						
@@ -188,11 +180,12 @@ public class SentenceSplitter extends StageProcessor {
 				*/
 	
 				//is the last word an abbreviation? For this the period has to follow the word
-				//this expression might have to be updated to take care of special characters  in names :(			
-				String patternText2 = "(.?)([^\\p{Punct}\\s]+)$";
-				if (JNinkaRegullarExpression.isMatch(sentenceMatch, patternText2)){
-					String before = JNinkaRegullarExpression.getGroupValue(sentenceMatch, patternText2, 1);
-					String lastWord = JNinkaRegullarExpression.getGroupValue(sentenceMatch, patternText2, 2);					
+				//this expression might have to be updated to take care of special characters in names :(
+                Matcher matcher2 = LAST_WORD_ABBREVIATION_PATTERN.matcher(sentenceMatch);
+                if (matcher2.matches()) {
+                    String before = JNinkaRegullarExpression.getGroupValue(matcher2, 1);
+                    String lastWord = JNinkaRegullarExpression.getGroupValue(matcher2, 2);
+
 					//is it an abbreviation
 					if (lastWord.length() == 1 ){      
 						//single character abbreviations are special...
@@ -202,20 +195,23 @@ public class SentenceSplitter extends StageProcessor {
 							currentSentence += sentence;
 							continue;
 						}
-						logger.finer("last word an abbrev " + sentenceMatch + " lastword [" + lastWord + "] before [" + before + "]");
-	
+                        if (logger.isLoggable(Level.FINER)) {
+                            logger.finer("last word an abbrev " + sentenceMatch + " lastword [" + lastWord + "] before [" + before + "]");
+                        }
+
 						//but some are lowercase!
 						if ((c == 'e') || (c == 'i')){
 							currentSentence += sentence;
 							continue;
 						}
-						logger.finer("2 last word an abbrev " + sentenceMatch + " lastword [" + lastWord + "] before [" + before + "]");
-					} else {					
+                        if (logger.isLoggable(Level.FINER)) {
+                            logger.finer("2 last word an abbrev " + sentenceMatch + " lastword [" + lastWord + "] before [" + before + "]");
+                        }
+					} else {
 						lastWord = lastWord.toLowerCase();
 						//only accept abbreviations if the previous char to the abbrev is space or
 						//is empty (beginning of line). This avoids things like .c
-						if ( (before.length() > 0) && before.equals(" ") 
-							&& this.abbreviations.contains(lastWord)){
+						if (("".equals(before) || " ".equals(before)) && this.abbreviations.contains(lastWord)) {
 							currentSentence += sentence;
 							continue;
 						} 
@@ -230,7 +226,7 @@ public class SentenceSplitter extends StageProcessor {
 			}
 			
 			logger.severe("We have not dealt with this case");
-			throw new Exception();			
+			throw new IllegalStateException();
 		}
 		
 		result.add(currentSentence + text);
@@ -239,39 +235,32 @@ public class SentenceSplitter extends StageProcessor {
 	}	
 	
 	/**
-	* Open and read a file, and return the lines in the file as a  hashtable
+	* Open and read a file, and return the lines in the file as a hashtable
 	*/
-	protected void loadDictionary() {
-		this.commonTerms = new Hashtable<String, Integer>();
-		
-		BufferedReader reader = null;
-		try{
-			reader = new BufferedReader(new InputStreamReader(this.getDictionary()));
-			String line;
-			while ( (line = reader.readLine()) != null ){
-				if (JNinkaRegullarExpression.isMatch(line, "^[A-Z]")){
-					this.commonTerms.put(line, 1);
-				}
-			}
-		} catch(IOException e) {
-			logger.log(Level.SEVERE, "cannot open dictionary file " + this.getDictionary() + ": " + e.getMessage(), e);
-		} finally {
-			try {
-				if (reader != null) {
-					reader.close();
-				}
-			} catch (IOException e) {
-				logger.log(Level.SEVERE, e.getMessage(), e);
-			}
-		}
-		
+    private void loadDictionary() {
+//		commonTerms = new Hashtable<String, Integer>();
+//
+//		BufferedReader reader = null;
+//		try{
+//			reader = new BufferedReader(new InputStreamReader(this.getDictionary()));
+//			String line;
+//			while ( (line = reader.readLine()) != null ){
+//				if (JNinkaRegullarExpression.isMatch(line, "^[A-Z]")){
+//					commonTerms.put(line, 1);
+//				}
+//			}
+//		} catch(IOException e) {
+//			logger.log(Level.SEVERE, "cannot open dictionary file " + this.getDictionary() + ": " + e.getMessage(), e);
+//		} finally {
+//            JNinkaUtils.close(reader, logger);
+//		}
 	}
 
 	/**
 	* Open and read a file, and return the lines in the file as a hashtable
 	*/
-	protected void loadAbbreviations(){
-		this.abbreviations = new ArrayList<String>();
+    private void loadAbbreviations(){
+		abbreviations = new ArrayList<String>();
 		
 		BufferedReader reader = null;
 		try{
@@ -279,22 +268,16 @@ public class SentenceSplitter extends StageProcessor {
 			String line;
 			while ( (line = reader.readLine()) != null ){
 				line = line.toLowerCase();//java=>perl
-				this.abbreviations.add(line);
+				abbreviations.add(line);
 			}
 		} catch(IOException e){
 			logger.log(Level.SEVERE, "cannot open dictionary file " + this.getAbbrvFile() + ": " + e.getMessage(), e);
 		} finally {
-			try {
-				if (reader != null) {
-					reader.close();
-				}
-			} catch (IOException e) {
-				logger.log(Level.SEVERE, e.getMessage(), e);
-			}
+			JNinkaUtils.close(reader, logger);
 		}
 	}
-	
-	protected String preProcessText(String text){
+
+    private String preProcessText(String text){
 		text = JNinkaRegullarExpression.applyReplace(text, "\\+?\\-{3,1000}\\+?", " ", Pattern.MULTILINE); 
 		text = JNinkaRegullarExpression.applyReplace(text, "={3,1000}", " ", Pattern.MULTILINE); 
 		text = JNinkaRegullarExpression.applyReplace(text, ":{3,1000}", " ", Pattern.MULTILINE); 

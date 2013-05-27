@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.whitesource.jninka.model.LicenseAttribution;
@@ -30,11 +32,14 @@ import org.whitesource.jninka.model.LicenseAttribution;
 /**
  * @author Rami.Sass
  */
-public class SentenceTokenizer {	
-	
+public class SentenceTokenizer {
+
 	/* --- Static members --- */
-	
-	private static Logger logger = Logger.getLogger(SentenceTokenizer.class.getCanonicalName());
+
+    public static final Pattern GPL_LIKE_PATTERN = Pattern.compile("GNU|General Public License|GPL");
+    public static final Pattern LESSER_GPL_PATTERN = Pattern.compile("(Lesser|Library) GPL/GPL", Pattern.CASE_INSENSITIVE);
+
+    private static Logger logger = Logger.getLogger(SentenceTokenizer.class.getCanonicalName());
 	
 	/* --- Members --- */
 	
@@ -42,7 +47,7 @@ public class SentenceTokenizer {
 	
 	private int tooLong = 70;
 	
-	private List<String> licenseSentenceList;
+	private List<LicenseSentence> licenseSentences;
 
 	/* --- Public methods --- */
 	
@@ -52,86 +57,69 @@ public class SentenceTokenizer {
 		for (String line : lines){
 			String saveLine;
 			String originalLine = line;
-
-			line = this.normalizeSentence(line);
+			line = normalizeSentence(line);
 
 			boolean check = false;
 			Integer id = Integer.MIN_VALUE;
 			String matchname = "UNKNOWN";
-			ArrayList<String> parm = new ArrayList<String>();
+			List<String> parm = new ArrayList<String>();
 
 			int distance = 1; // maximum? number
-			String mostsimilarname = "UNKNOWN";
-			String before = "";
+            String before = "";
 			String after = "";
-			boolean gpl = false;
-			boolean gplLater = false;
-			String gplVersion = "";
 
-			if (this.looksLikeGPL(line)){
-				// String old = line;
-				gpl = true;
+            boolean gpl = false;
+            boolean gplLater = false;
+            String gplVersion = "";
+            if (GPL_LIKE_PATTERN.matcher(line).matches()){
+                gpl = true;
+                Object object[] = normalizeGPL(line);
+                line = object[0].toString();
+                gplLater = Boolean.parseBoolean(object[1].toString());
+                gplVersion = object[2].toString();//Integer.parseInt(object[2].toString());
+            }
 
-				Object object[] = this.normalizeGPL(line);
-				line = object[0].toString();
-				gplLater = Boolean.parseBoolean(object[1].toString());
-				gplVersion = object[2].toString();//Integer.parseInt(object[2].toString());
-
-				// lineAsGPL = line;
-			}
-
-			String subRule = "";
-			saveLine = line;
+            saveLine = line;
 			boolean saveGPL = gpl;
 			String LGPL = "";
-			for (int ki = 0; ki < licenseSentenceList.size(); ki++){
-				String sentence = licenseSentenceList.get(ki);
-				String[] separated = sentence.split(":");
-				if ((separated.length < 5) || (separated.length > 6)){
-					logger.severe("licenseSentenceList file has incorrect format:" + separated.length + "!\n");
-					throw new IllegalArgumentException();
-				}
-				id = Integer.parseInt(separated[0]);
-				String name = separated[1];
-				subRule = separated[2];
-				int number = Integer.parseInt(separated[3]);
-				String regexp = separated[4];
-				// String option = separated.length == 6 ? separated[5] :
-				// "";
 
-				// we need this due to the goto (loop in java) again
+            LicenseSentence finalSentence = null;
+            Iterator<LicenseSentence> iterator = licenseSentences.iterator();
+            while (iterator.hasNext()) {
+                LicenseSentence licenseSentence = iterator.next();
+
+                // we need this due to the goto (loop in java) again
 				line = saveLine;
 				gpl = saveGPL;
 				LGPL = "";
 
-				boolean isContinueExternalLoop = true;
+				boolean isContinueExternalLoop;
+				boolean isCondition;
 
-				boolean isCondition = false;
 				while (true) {
-					isCondition = false;
-					if (JNinkaRegullarExpression.isMatch(line, regexp, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE)) {
-						isCondition = true;
-						before = JNinkaRegullarExpression.beforeMatch(line, regexp, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-						after = JNinkaRegullarExpression.postMatch(line, regexp, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-
+                    isCondition = false;
+                    Matcher matcher = licenseSentence.pattern.matcher(line);
+					if (matcher.find()) {
+                        isCondition = true;
 						check = true;
-						matchname = name;
+                        finalSentence = licenseSentence;
+						matchname = licenseSentence.name;
 
-						for (int i = 1; i <= number; i++){
-							String r = JNinkaRegullarExpression.getGroupValue(line, regexp, i, Pattern.CASE_INSENSITIVE	| Pattern.MULTILINE);
-							if (r == null) {
-								r = "";
-							}
-							parm.add(r);
+						for (int i = 1; i <= licenseSentence.number; i++){
+							parm.add(JNinkaRegullarExpression.getGroupValue(matcher, i));
 						}
+
+						before = JNinkaRegullarExpression.beforeMatch(licenseSentence.pattern, line);
+						after = JNinkaRegullarExpression.postMatch(licenseSentence.pattern, line);
+
 						isContinueExternalLoop = false;
 						break;
 					} else {
 						isCondition = true;
-						// let us try again in case it is lesser/library
-						// do it only once
-						if (gpl	&& JNinkaRegullarExpression.isMatch(line, "(Lesser|Library) GPL/GPL", Pattern.CASE_INSENSITIVE)) {
-							LGPL = JNinkaRegullarExpression.getGroupValue(line, "(Lesser|Library) GPL/GPL", 1, Pattern.CASE_INSENSITIVE);
+						// let us try again in case it is lesser/library. Do it only once
+                        Matcher lgplMatcher = LESSER_GPL_PATTERN.matcher(line);
+                        if (gpl	&& lgplMatcher.find()) {
+							LGPL = JNinkaRegullarExpression.getGroupValue(lgplMatcher, 1);
 							continue;
 						}
 						if (gpl){
@@ -160,6 +148,8 @@ public class SentenceTokenizer {
 					break;
 				}
 			}
+
+            // create attribution
 			if (check){
 				// licensesentence name, parm1, parm2,..
 				if (gpl) {
@@ -169,22 +159,15 @@ public class SentenceTokenizer {
 					}
 					matchname = LGPL + matchname;
 				} 
-//					else {
-//						// nothing in perl code
-//					}
-				if ((before.length() > this.getTooLong())
-						|| (after.length() > this.getTooLong())){
+
+				if (before.length() > this.getTooLong() || after.length() > this.getTooLong()){
 					matchname += "-TOOLONG";
 				}
 
-				result.add(new LicenseAttribution(parm, id, matchname, subRule, before, after, originalLine));
-			} else {
-				// UNKNOWN, sentence
-				if (getUnknown) {
-					// String outputStr = matchname + ";" + "0;" + mostsimilarname + ";" + distance + ";" + saveLine + ":" + originalLine;
-					result.add(new LicenseAttribution(null, Integer.MIN_VALUE, matchname, mostsimilarname, Integer.toString(distance), saveLine, originalLine));
-				}
-			}
+				result.add(new LicenseAttribution(parm, id, matchname, finalSentence.subRule, before, after, originalLine));
+			} else if (getUnknown) { // UNKNOWN, sentence
+                result.add(new LicenseAttribution(null, Integer.MIN_VALUE, matchname, "UNKNOWN", Integer.toString(distance), saveLine, originalLine));
+            }
 		}
 			
 		return result;
@@ -195,28 +178,27 @@ public class SentenceTokenizer {
 	/**
 	* Open and read a file, and return the words from file as arraylist
 	*/
-	private List<String> loadLicenseSentence(InputStream filepath){
-		List<String> list = new ArrayList<String>();
+	private void loadLicenseSentence(InputStream filepath){
+        licenseSentences = new ArrayList<LicenseSentence>();
+
+		Pattern sentenceFormat = Pattern.compile("(.*?):(.*?):(.*)");
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new InputStreamReader(filepath));
 			String line;
 			while ((line = reader.readLine()) != null) {
-				if (JNinkaRegullarExpression.isMatch(line, "^\\#")) { continue; }
-				if (JNinkaRegullarExpression.isMatch(line, "^ *$")) { continue; }
-				if (!JNinkaRegullarExpression.isMatch(line, "(.*?):(.*?):(.*)")) {
+                if (JNinkaUtils.isBlank(line) || line.startsWith("#")) { continue; }
+                if (!sentenceFormat.matcher(line).matches()) {
 					logger.severe("Illegal format in license expression [" + line + "]");
 					throw new IllegalArgumentException("Illegal format in license expression [" + line + "]");
-				}
-				list.add(line);
+                }
+                licenseSentences.add(new LicenseSentence(line));
 			}
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "cannot open file " + filepath + ": "+ e.getMessage(), e);
 		} finally {
 			JNinkaUtils.close(reader, logger);
 		}
-		
-		return list;
 	}
 
     private Object[] normalizeGPL(String line){
@@ -297,97 +279,40 @@ public class SentenceTokenizer {
 	    return object;
 	}
 
-    private boolean looksLikeGPL(String line){
-        if (JNinkaRegullarExpression.isMatch(line, "GNU")){ return true; }
-		if (JNinkaRegullarExpression.isMatch(line, "General Public License")) { return true; }
-		if (JNinkaRegullarExpression.isMatch(line, "GPL")){ return true; }
-
-	    return false;
-	}
-
     private String normalizeSentence(String line){
 	    // do some very quick spelling corrections for english/british words
 	    line = JNinkaRegullarExpression.applyReplace(line, "icence", "icense", Pattern.CASE_INSENSITIVE);
 	    line = JNinkaRegullarExpression.applyReplace(line, "(\\.|;)$", "");	    	    	    		
 		return line;
 	}
-	
-	//Source http://www.merriampark.com/ldjava.htm
-    private int getLevenshteinDistance(String s, String t)
-	{	
-		if (s == null || t == null){
-			throw new IllegalArgumentException("Strings must not be null");
-		}
-				
-		/*
-		The difference between this impl. and the previous is that, rather 
-		than creating and retaining a matrix of size s.length()+1 by t.length()+1, 
-		we maintain two single-dimensional arrays of length s.length()+1.  The first, d,
-		is the 'current working' distance array that maintains the newest distance cost
-		counts as we iterate through the characters of String s.  Each time we increment
-		the index of String t we are comparing, d is copied to p, the second int[].  Doing so
-		allows us to retain the previous cost counts as required by the algorithm (taking 
-		the minimum of the cost count to the left, up one, and diagonally up and to the left
-		of the current cost count being calculated).  (Note that the arrays aren't really 
-		copied anymore, just switched...this is clearly much better than cloning an array 
-		or doing a System.arraycopy() each time  through the outer loop.)
 
-		Effectively, the difference between the two implementations is this one does not 
-		cause an out of memory condition when calculating the LD over two very large strings.  		
-		 */		
-				
-		int n = s.length(); // length of s
-		int m = t.length(); // length of t
+    /* --- Nested Classes --- */
 
-		if (n == 0) {
-			return m;
-		} else if (m == 0) {
-			return n;
-		}
+    private static final class LicenseSentence {
+        public int id;
+        public String name;
+        public String subRule;
+        public int number;
+        public Pattern pattern;
 
-		int p[] = new int[n + 1]; // 'previous' cost array, horizontally
-		int d[] = new int[n + 1]; // cost array, horizontally
-		int _d[]; // placeholder to assist in swapping p and d
-
-		// indexes into strings s and t
-		int i; // iterates through s
-		int j; // iterates through t
-
-		char t_j; // jth character of t
-
-		int cost; // cost
-
-		for (i = 0; i <= n; i++) {
-			p[i] = i;
-		}
-
-		for (j = 1; j <= m; j++) {
-			t_j = t.charAt(j - 1);
-			d[0] = j;
-
-			for (i = 1; i <= n; i++) {
-				cost = s.charAt(i - 1) == t_j ? 0 : 1;
-				// minimum of cell to the left+1, to the top+1, diagonally left
-				// and up +cost
-				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1]
-						+ cost);
-			}
-
-			// copy current distance counts to 'previous row' distance counts
-			_d = p;
-			p = d;
-			d = _d;
-		}
-		// our last action in the above loop was to switch d and p, so p now
-		// actually has the most recent cost counts
-		return p[n];
-	}
+        public LicenseSentence(String sentence) {
+            String[] shards = sentence.split(":");
+            if (shards.length < 5 || shards.length > 6){
+                throw new IllegalArgumentException("Illegal license sentence format: " + sentence);
+            }
+            id = Integer.parseInt(shards[0]);
+            name = shards[1];
+            subRule = shards[2];
+            number = Integer.parseInt(shards[3]);
+            pattern = Pattern.compile(shards[4], Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+        }
+    }
 	
 	/* --- Getters / Setters --- */
 	
 	public void setLicSentences(InputStream lLicSentences){
     	licSentences = lLicSentences;
-    	licenseSentenceList = loadLicenseSentence(lLicSentences);
+    	loadLicenseSentence(lLicSentences);
     }
    
     public InputStream getLicSentences(){

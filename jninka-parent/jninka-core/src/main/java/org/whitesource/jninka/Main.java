@@ -52,7 +52,7 @@ public class Main {
 
 				System.out.println("Starting scan ...");
 				File sourceFolder = new File(args[0]);
-				ScanResults scanResults = ninka.scanFolderRecursive(sourceFolder, true);
+				ScanResults scanResults = ninka.scanFolder(sourceFolder, true);
 				
 				System.out.println(" finished.\nWriting results to file ...");
 				scanResults.writeXML(new File(args[1]));

@@ -39,7 +39,7 @@ public class SentenceFilter extends StageProcessor{
 	
 	private InputStream critWords;
 	
-	private List<String> words;
+	private List<Pattern> wordPatterns;
 
 	private List<String> goodOutputInfo;
 	
@@ -51,12 +51,12 @@ public class SentenceFilter extends StageProcessor{
 		goodOutputInfo = new ArrayList<String>();
 		badOutputInfo = new ArrayList<String>();
 
-		for (String sentence : this.getInputInfo()) {
+        for (String sentence : getInputInfo()) {
 			boolean isCheck = false;
-            Iterator<String> iterator = words.iterator();
+            Iterator<Pattern> iterator = wordPatterns.iterator();
             while (iterator.hasNext() && !isCheck) {
-                String word = iterator.next();
-                isCheck = JNinkaRegullarExpression.isMatch(sentence, "\\b" + word + "\\b", Pattern.CASE_INSENSITIVE);
+                Pattern pattern = iterator.next();
+                isCheck = pattern.matcher(sentence).find();
             }
 
 			if (isCheck) {
@@ -74,43 +74,41 @@ public class SentenceFilter extends StageProcessor{
 	/**
 	* Open and read a file, and return the words from file as a list.
 	*/
-	private ArrayList<String> loadWords() {
-		ArrayList <String>list = new ArrayList<String>();
-		
+	private void loadWords() {
+        wordPatterns = new ArrayList<Pattern>();
+
 		BufferedReader reader = null;
 		try{
 			reader = new BufferedReader(new InputStreamReader(critWords));
 			String line;
 			while ( (line = reader.readLine()) != null ){
-				if (JNinkaRegullarExpression.isMatch(line, "^\\#")) { continue; }
-
-				line = JNinkaRegullarExpression.applyReplace(line, "\\#.*$", "");
-				if (!JNinkaUtils.isBlank(line)){
-					list.add(line);
-				}
+                if (JNinkaUtils.isBlank(line) || line.startsWith("#")) { continue; }
+                int index = line.indexOf("#");
+                if (index > 0) { line = line.substring(0, index); }
+                if (!JNinkaUtils.isBlank(line)){
+                    wordPatterns.add(Pattern.compile("\\b" + line + "\\b", Pattern.CASE_INSENSITIVE));
+                }
 			}
 		} catch(IOException e){
 			logger.log(Level.SEVERE, "Couldn't open " + critWords + " for reading! :" + e.getMessage(), e);
 		} finally {
             JNinkaUtils.close(reader, logger);
 		}
-		
-		return list;
 	}
 	
 	/* --- Getters / Setters --- */
 	
 	public void setCritWords(InputStream critWords){
 		this.critWords = critWords;
-		words = loadWords();
+		loadWords();
 	}
 	
 	public InputStream getCritWords(){
-		return this.critWords;
+		return critWords;
 	}	
 	
 	public List<String> getGoodOutputInfo(){
-		return this.goodOutputInfo;
+		return goodOutputInfo;
 	}
 	
 	public void setGoodOutputInfo(List<String> outputInfo){
@@ -118,7 +116,7 @@ public class SentenceFilter extends StageProcessor{
 	}    
 	
 	public List<String> getBadOutputInfo(){
-		return this.badOutputInfo;
+		return badOutputInfo;
 	}
 	
 	public void setBadOutputInfo(ArrayList<String> outputInfo){

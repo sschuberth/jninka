@@ -18,6 +18,7 @@ package org.whitesource.jninka;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -80,6 +81,10 @@ public class JNinkaUtils{
         return str == null || "".equals(str.trim());
     }
 
+    public static boolean isEmpty(Collection<?> collection) {
+        return collection == null || collection.isEmpty();
+    }
+
 	public static String fileExtension(String filepath){
 		return fileExtension(new File(filepath));
 	}
@@ -93,6 +98,18 @@ public class JNinkaUtils{
     public static boolean isSourceCode(File path) {
         String ext = fileExtension(path);
         return !isBlank(ext) && ALL_EXT_PATTERN.matcher(ext).matches();
+    }
+
+    public static int alphabeticCount(String s) {
+        int count = 0;
+
+        for (char c : s.toCharArray()) {
+            if (Character.isLetter(c)) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     public static void close(Closeable io, Logger logger) {

@@ -16,28 +16,26 @@
 package org.whitesource.jninka;
 
 import org.junit.Test;
-import org.whitesource.jninka.model.ScanResults;
 
-import java.io.File;
+import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-public class JNinkaTest {
+public class JNinkaUtilsTest {
 
-	@Test
-	public void testNewNinka() {
-		JNinka jninka = new JNinka();
-		assertNotNull("jninka shouldn't be null", jninka);
-	}
-	
-	@Test
-	public void testAGPL() {
-		JNinka jninka = new JNinka();
-		assertNotNull("jninka shouldn't be null", jninka);
-		
-		File folder = new File(".");
-		ScanResults scanResult = jninka.scanFolder(folder, true);
-		assertNotNull("scanResult shouldn't be null", scanResult);
-	}
-	
+    @Test
+	public void testAlphabeticalCount() {
+        assertEquals(0, JNinkaUtils.alphabeticCount(""));
+        assertEquals(3, JNinkaUtils.alphabeticCount("abc"));
+        assertEquals(3, JNinkaUtils.alphabeticCount("abc "));
+        assertEquals(3, JNinkaUtils.alphabeticCount("abc \n"));
+        assertEquals(5, JNinkaUtils.alphabeticCount("abc \nbn"));
+        assertEquals(5, JNinkaUtils.alphabeticCount("abc \nbn 1 "));
+        assertEquals(5, JNinkaUtils.alphabeticCount("abc \nBn 12"));
+    }
+
+
+
 }
