@@ -123,7 +123,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 		pane.add(getInfoPanel());
 		// Oddly - spaces seem to resolve sizing issue...
-		JLabel dirLabel = new JLabel("Project root directory                                                                                                             ");
+		JLabel dirLabel = new JLabel("Project root directory");
 		pane.add(dirLabel);
 		pane.setBorder(new EmptyBorder(10, 10, 10, 10));
 
