@@ -19,6 +19,10 @@ Details at:
 Also available at:
 <https://github.com/dmgerman/ninka/>
 
+Downloads
+---------
+You can download JNinka from the [online documentation](http://docs.whitesourcesoftware.com/display/docs/JNinka).
+
 
 License
 -------
