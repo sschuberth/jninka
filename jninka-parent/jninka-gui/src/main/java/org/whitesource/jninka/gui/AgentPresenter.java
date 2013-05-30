@@ -112,7 +112,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	public void show() {
 		// Create and set up the window.
 		frame = new JFrame(" White Source JNinka Scanner - v" + version);
-		frame.setResizable(false);
+        frame.setResizable(true);
 		frame.setLocation(300, 300);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -149,7 +149,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		// Display the window.
 		frame.pack();
 		frame.setVisible(true);
-		
+        frame.setSize(400,300);
 		scanFrame = getScanningFrame();
 	}
 	
