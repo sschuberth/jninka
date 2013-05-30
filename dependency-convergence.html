@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Project Dependency Management</title>
+    <title>Reactor Dependency Convergence</title>
     <style type="text/css" media="all">
       @import url("./css/maven-base.css");
       @import url("./css/maven-theme.css");
@@ -17,7 +17,7 @@
   <body class="composite">
     <div id="banner">
                     <div id="bannerLeft">
-                JNinka core module
+                JNinka parent project
                 </div>
                     <div class="clear">
         <hr/>
@@ -30,7 +30,7 @@
         <span id="publishDate">Last Published: 2013-05-30</span>
                   &nbsp;| <span id="projectVersion">Version: 1.2</span>
                       </div>
-            <div class="xright">                    <a href="./" title="JNinka core module">JNinka core module</a>
+            <div class="xright">                    <a href="./" title="JNinka parent project">JNinka parent project</a>
               
         
       </div>
@@ -42,15 +42,18 @@
       <div id="navcolumn">
              
         
-                                <h5>Parent Project</h5>
+                                          <h5>Modules</h5>
                   <ul>
                   <li class="none">
-                          <a href="../index.html" title="JNinka parent project">JNinka parent project</a>
+                          <a href="jninka-core/index.html" title="JNinka core module">JNinka core module</a>
+            </li>
+                  <li class="none">
+                          <a href="jninka-gui/index.html" title="JNinka GUI application">JNinka GUI application</a>
             </li>
           </ul>
                        <h5>Project Documentation</h5>
                   <ul>
-                                                                                                                                                                                                                                                                                                                        <li class="expanded">
+                                                                                                                                                                                                                                                                                                                                          <li class="expanded">
                           <a href="project-info.html" title="Project Information">Project Information</a>
                     <ul>
                       <li class="none">
@@ -75,8 +78,8 @@
                           <a href="license.html" title="Project License">Project License</a>
             </li>
                       <li class="none">
-            <strong>Dependency Management</strong>
-          </li>
+                          <a href="dependency-management.html" title="Dependency Management">Dependency Management</a>
+            </li>
                       <li class="none">
                           <a href="mail-lists.html" title="Mailing Lists">Mailing Lists</a>
             </li>
@@ -84,13 +87,16 @@
                           <a href="team-list.html" title="Project Team">Project Team</a>
             </li>
                       <li class="none">
-                          <a href="dependency-convergence.html" title="Dependency Convergence">Dependency Convergence</a>
-            </li>
+            <strong>Dependency Convergence</strong>
+          </li>
                       <li class="none">
                           <a href="source-repository.html" title="Source Repository">Source Repository</a>
             </li>
                       <li class="none">
                           <a href="plugin-management.html" title="Plugin Management">Plugin Management</a>
+            </li>
+                      <li class="none">
+                          <a href="modules.html" title="Project Modules">Project Modules</a>
             </li>
                       <li class="none">
                           <a href="project-summary.html" title="Project Summary">Project Summary</a>
@@ -107,7 +113,11 @@
     </div>
     <div id="bodyColumn">
       <div id="contentBox">
-        <div class="section"><h2>Project Dependency Management<a name="Project_Dependency_Management"></a></h2><a name="Project_Dependency_Management"></a><div class="section"><h3>test<a name="test"></a></h3><a name="test"></a><p>The following is a list of test dependencies in the DependencyManagement of this project. These dependencies can be included in the submodules to compile and run unit tests for the submodule:</p><table border="0" class="bodyTable"><tr class="a"><th>GroupId</th><th>ArtifactId</th><th>Version</th><th>Type</th><th>License</th></tr><tr class="b"><td>junit</td><td><a class="externalLink" href="http://junit.org">junit</a></td><td>4.10</td><td>jar</td><td><a class="externalLink" href="http://www.opensource.org/licenses/cpl1.0.txt">Common Public License Version 1.0</a></td></tr></table></div></div>
+        <div class="section"><h2>Reactor Dependency Convergence<a name="Reactor_Dependency_Convergence"></a></h2><table border="0" class="bodyTable"><caption>
+  <b>Legend:</b>
+</caption><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td>All projects share one version of the dependency.</td></tr><tr class="b"><td><img alt="error" src="images/icon_error_sml.gif" /></td><td>At least one project has a differing version of the dependency.</td></tr></table><br /><table border="0" class="bodyTable"><caption>
+  <b>Statistics:</b>
+</caption><tr class="a"><th>Number of sub-projects:</th><td>3</td></tr><tr class="b"><th>Number of dependencies (NOD):</th><td>2</td></tr><tr class="a"><th>Number of unique artifacts (NOA):</th><td>2</td></tr><tr class="b"><th>Number of SNAPSHOT artifacts (NOS):</th><td>0</td></tr><tr class="a"><th>Convergence (NOD/NOA):</th><td><img alt="success" src="images/icon_success_sml.gif" />&#160;<b>100%</b></td></tr><tr class="b"><th>Ready for Release (100% Convergence and no SNAPSHOTS):</th><td><img alt="success" src="images/icon_success_sml.gif" />&#160;<b>Success</b></td></tr></table></div><div class="section"><h3>Dependencies used in sub-projects<a name="Dependencies_used_in_sub-projects"></a></h3><div class="section"><h4>junit:junit<a name="junit:junit"></a></h4><table border="0" class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table border="0" class="bodyTable"><tr class="b"><td width="25%">4.10</td><td><ol style="list-style-type: lower-alpha"><li><a class="externalLink" href="https://github.com/whitesource/jninka/jninka-core/">org.whitesource:jninka-core</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h4>org.whitesource:jninka-core<a name="org.whitesource:jninka-core"></a></h4><table border="0" class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table border="0" class="bodyTable"><tr class="b"><td width="25%">1.2</td><td><ol style="list-style-type: lower-alpha"><li><a class="externalLink" href="https://github.com/whitesource/jninka/jninka-gui/">org.whitesource:jninka-gui</a></li></ol></td></tr></table></td></tr></table></div></div>
       </div>
     </div>
     <div class="clear">
