@@ -27,6 +27,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
@@ -39,6 +40,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 import org.whitesource.jninka.JNinka;
+import org.whitesource.jninka.JNinkaUtils;
 import org.whitesource.jninka.model.ScanResults;
 import org.whitesource.jninka.progress.ScanProgressListener;
 import org.whitesource.jninka.update.JNinkaUpdateClient;
@@ -124,16 +126,16 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		pane.add(getInfoPanel());
 		// Oddly - spaces seem to resolve sizing issue...
 		JLabel dirLabel = new JLabel("Project root directory");
-		pane.add(dirLabel);
-		pane.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-		JPanel dirPanel = getDirectoryPanel();
+        JPanel dirPanel = getDirectoryPanel();
+        dirLabel.setLabelFor(dirPanel);
+        pane.add(dirLabel);
+        pane.setBorder(new EmptyBorder(10, 10, 10, 10));
 		pane.add(dirPanel);
 
 		JLabel fileLabel = new JLabel("Save to XML file");
-		pane.add(fileLabel);
-
 		JPanel filePanel = getFilePanel();
+		fileLabel.setLabelFor(filePanel);
+        pane.add(fileLabel);
 		pane.add(filePanel);
 		
 		JPanel originalsPanel = getUnknownsPanel();
@@ -164,35 +166,31 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			if (e.getSource() == directoryBrowseButton) {
-				if (frame != null) {
-					int returnValue = directoryDialog.showOpenDialog(frame);
-
-					if (returnValue == JFileChooser.APPROVE_OPTION) {
-						File directory = directoryDialog.getSelectedFile();
-						lastDir = directory.getAbsolutePath();
-						dirText.setText(lastDir);
-						if (fileText.getText().isEmpty()) {
-							lastFile = lastDir + "\\jninka.xml";
-							fileText.setText(lastFile);
-						}
-					}
-				}
+			if (e.getSource() == directoryBrowseButton && frame != null) {
+                int returnValue = directoryDialog.showOpenDialog(frame);
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    File directory = directoryDialog.getSelectedFile();
+                    lastDir = directory.getAbsolutePath();
+                    dirText.setText(lastDir);
+                    if (fileText.getText().isEmpty()) {
+                        lastFile = lastDir + "\\jninka.xml";
+                        fileText.setText(lastFile);
+                    }
+                }
 			}
-			if (e.getSource() == fileBrowseButton) {
-				if (frame != null) {
-					int returnValue = fileDialog.showOpenDialog(frame);
 
-					if (returnValue == JFileChooser.APPROVE_OPTION) {
-						File file = fileDialog.getSelectedFile();
-						if (file != null) {
-							lastFile = file.getAbsolutePath();
-                            fileText.setText(file.getAbsolutePath());
-							log.info("Save: " + file.getAbsolutePath());
-						}
-					}
-				}
-			}
+			if (e.getSource() == fileBrowseButton && frame != null) {
+                int returnValue = fileDialog.showOpenDialog(frame);
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    File file = fileDialog.getSelectedFile();
+                    if (file != null) {
+                        lastFile = file.getAbsolutePath();
+                        fileText.setText(file.getAbsolutePath());
+                        log.info("Save: " + file.getAbsolutePath());
+                    }
+                }
+            }
+
 			if (e.getSource() == runButton) {
 				if (dirText.getText().isEmpty() || fileText.getText().isEmpty()) {
 					JOptionPane.showConfirmDialog(getParent(), "Please provide both root directory and target file.", "JNinka", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
@@ -206,7 +204,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 					}
 				}
 			}
-		} catch (Exception ex) {
+		} catch (RuntimeException ex) {
 			log.log(Level.SEVERE, "General error", ex);
 		}
 	}
@@ -254,7 +252,7 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 						Desktop desktop = Desktop.getDesktop();
 						try {
 							desktop.browse(uri);
-						} catch (Exception ex) {
+						} catch (IOException ex) {
                             Logger.getLogger(getClass().getName()).log(Level.WARNING, "Can't open browser", ex);
 						}
 					}
@@ -301,15 +299,8 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 	private JPanel getRunPanel() {
 		BorderLayout layout = new BorderLayout();
 		JPanel result = new JPanel(layout);
-		result.add(runButton = getRunBtn(), BorderLayout.CENTER);
-//		progressBar = new JProgressBar(0);
-//		progressBar.setValue(0);
-//		progressBar.setStringPainted(true);
-//		progressBar.setVisible(false);
-//		result.add(progressBar, BorderLayout.CENTER);
-//		progressLabel = new JLabel();
-//		progressLabel.setVisible(false);
-//		result.add(progressLabel, BorderLayout.SOUTH);
+        runButton = getRunBtn();
+		result.add(runButton, BorderLayout.CENTER);
 		result.setBackground(BG_COLOR);
 		return result;
 	}
@@ -415,11 +406,11 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		protected Void doInBackground() throws Exception {
 			long startTime = System.currentTimeMillis();
 			
-			Logger log = Logger.getLogger(getClass().getName());
-			log.info("----------------------------------------------------------------------");
-			log.info("Start scanning folder " + root);
-			log.info("Results file is " + output);
-			log.info("----------------------------------------------------------------------");
+			Logger myLog = Logger.getLogger(getClass().getName());
+			myLog.info("----------------------------------------------------------------------");
+			myLog.info("Start scanning folder " + root);
+			myLog.info("Results file is " + output);
+			myLog.info("----------------------------------------------------------------------");
 			
 			initProgressBar();
             resultsModel.getDataVector().removeAllElements();
@@ -445,13 +436,13 @@ public class AgentPresenter extends Container implements ActionListener, Propert
                 ScanResults scanResults = jNinka.scanFolder(root, !sureMatchChk.isSelected());
 				scanResults.writeXML(output);
 			} catch (RuntimeException e) {
-				resultMessage ="Completed with errors, see log file.";
-                log.log(Level.SEVERE, "Error scanning folder", e);
+				resultMessage ="Completed with errors, see myLog file.";
+                myLog.log(Level.SEVERE, "Error scanning folder", e);
 			}
 			
-			log.info("Scan completed in " + (System.currentTimeMillis() - startTime) +" [msec].");
-			log.info("Scan results message: " + resultMessage);
-			log.info("----------------------------------------------------------------------");
+			myLog.info("Scan completed in " + (System.currentTimeMillis() - startTime) + " [msec].");
+			myLog.info("Scan results message: " + resultMessage);
+			myLog.info("----------------------------------------------------------------------");
 			
 			// YEY
 			return null;
@@ -504,49 +495,37 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 			log.log(Level.INFO, "Checking for update");
 			JNinkaUpdateClient updater = new JNinkaUpdateClient();
 			String response = updater.checkForUpdate(version);
-			if (!response.isEmpty()) {
-				doNewVersionLogic(response);
+
+			if (!JNinkaUtils.isBlank(response)) {
+                int choice = JOptionPane.showConfirmDialog(
+                        getParent(),
+                        "A new version is available!\nGo to download page?",
+                        "Version update",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE);
+
+                if (choice == 0) {
+                    URI uri = null;
+                    try {
+                        uri = new URI(response);
+                    } catch (URISyntaxException e) {
+                        log.log(Level.WARNING, "Bad URI format: ", e);
+                    }
+
+                    if (uri != null && Desktop.isDesktopSupported()) {
+                        Desktop desktop = Desktop.getDesktop();
+                        try {
+                            desktop.browse(uri);
+                        } catch (IOException ex) {
+                            log.log(Level.WARNING, "Failed to launch browser: ", ex);
+                        }
+                    }
+                }
 			}
 			
 			return null;
 		}
 
-		/* --- Private methods --- */
-		
-		private void doNewVersionLogic(String downloadUrl) {
-			int choice = JOptionPane.showConfirmDialog(
-					getParent(),
-					"A new version is available!\nGo to download page?",
-					"Version update",
-					JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.INFORMATION_MESSAGE);
-			
-			if (choice == 0) {
-				final URI uri;
-				try {
-					uri = new URI(downloadUrl);
-					if (Desktop.isDesktopSupported()) {
-						Desktop desktop = Desktop.getDesktop();
-						try {
-							desktop.browse(uri);
-						} catch (Exception ex) {
-							// do nothing
-						}
-					}
-				} catch (URISyntaxException e) {
-					log.severe("error: " + e.getMessage());
-				}
-			}
-		}
-
-		public void setVersion(String version) {
-			this.version = version;
-		}
-
-		public String getVersion() {
-			return version;
-		}
-		
 	}
 
 	/* --- Getters / Setters --- */

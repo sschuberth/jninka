@@ -47,25 +47,23 @@ public final class JNinkaRegullarExpression {
      * @return
      */
     public static String applyReplace(String text, String patternText, String replaceText, int flag) {
-        String result = "";
-        try {
-            Pattern pat;
-            if (flag != JNinkaRegullarExpression.fakeFlag) {
-                pat = Pattern.compile(patternText, flag);
-            } else {
-                pat = Pattern.compile(patternText);
-            }
-            Matcher m = pat.matcher(text);
+        String result;
 
-            StringBuffer sb = new StringBuffer();
-            while (m.find()) {
-                m.appendReplacement(sb, replaceText);
-            }
-            m.appendTail(sb);
-            result = sb.toString();
-        } catch (Exception e) {
-            System.out.println("applyReplace:::" + e.getMessage());
+        Pattern pattern;
+        if (flag != JNinkaRegullarExpression.fakeFlag) {
+            pattern = Pattern.compile(patternText, flag);
+        } else {
+            pattern = Pattern.compile(patternText);
         }
+        Matcher m = pattern.matcher(text);
+
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(sb, replaceText);
+        }
+        m.appendTail(sb);
+        result = sb.toString();
+
         return result;
     }
 
@@ -78,20 +76,17 @@ public final class JNinkaRegullarExpression {
      */
     public static String getGroupValue(String text, String patternText, int group, int flag) {
         String result = "";
-        try {
-            Pattern pat;
-            if (flag != JNinkaRegullarExpression.fakeFlag) {
-                pat = Pattern.compile(patternText, flag);
-            } else {
-                pat = Pattern.compile(patternText);
-            }
-            Matcher m = pat.matcher(text);
 
-            if (m.find()) {
-                result = getGroupValue(m, group);
-            }
-        } catch (Exception e) {
-            System.out.println("getGroupValue:::" + e.getMessage());
+        Pattern pattern;
+        if (flag != JNinkaRegullarExpression.fakeFlag) {
+            pattern = Pattern.compile(patternText, flag);
+        } else {
+            pattern = Pattern.compile(patternText);
+        }
+
+        Matcher m = pattern.matcher(text);
+        if (m.find()) {
+            result = getGroupValue(m, group);
         }
 
         return result;
@@ -108,14 +103,14 @@ public final class JNinkaRegullarExpression {
      * @return
      */
     public static boolean isMatch(String text, String patternText, int flag) {
-        Pattern pat;
+        Pattern pattern;
         if (flag == JNinkaRegullarExpression.fakeFlag) {
-            pat = Pattern.compile(patternText);
+            pattern = Pattern.compile(patternText);
         } else {
-            pat = Pattern.compile(patternText, flag);
+            pattern = Pattern.compile(patternText, flag);
         }
 
-        return pat.matcher(text).find();
+        return pattern.matcher(text).find();
     }
 
     /**
@@ -124,7 +119,7 @@ public final class JNinkaRegullarExpression {
      */
     public static String escapeForRegex(String text) {
         if (text.contains("$")) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             for (char c : text.toCharArray()) {
                 if (c == '$') {
                     sb.append("__DOLLAR_SIGN__");
@@ -134,6 +129,7 @@ public final class JNinkaRegullarExpression {
             }
             text = sb.toString();
         }
+
         return text;
     }
 
@@ -152,24 +148,19 @@ public final class JNinkaRegullarExpression {
 	/* --- Private static methods --- */
 
     private static String beforePostMatch(Pattern pattern, String text, boolean isBeforeMatch) {
-        String result = "";
-        try {
-            Matcher m = pattern.matcher(text);
-            StringBuffer sb = new StringBuffer();
-            if (m.find()) {
-                m.appendReplacement(sb, "");
-            }
-            String before = sb.toString();
-            StringBuffer sb2 = new StringBuffer();
-            m.appendTail(sb2);
-            String after = sb2.toString();
+        StringBuffer sb = new StringBuffer();
 
-            result = isBeforeMatch ? before : after ;
-        } catch (Exception e) {
-            System.out.println("beforePostMatch:::" + e.getMessage());
+        Matcher m = pattern.matcher(text);
+        if (m.find()) {
+            m.appendReplacement(sb, "");
         }
 
-        return result;
+        String before = sb.toString();
+        StringBuffer sb2 = new StringBuffer();
+        m.appendTail(sb2);
+        String after = sb2.toString();
+
+        return isBeforeMatch ? before : after ;
     }
 
 	/* --- Constructors --- */
@@ -178,7 +169,7 @@ public final class JNinkaRegullarExpression {
      * Private constructor
      */
     private JNinkaRegullarExpression() {
-        // avoid instatiaion
+        // avoid instantiation
     }
 
 

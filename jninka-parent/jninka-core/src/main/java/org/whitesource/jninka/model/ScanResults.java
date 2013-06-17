@@ -89,7 +89,7 @@ public class ScanResults {
 		StringBuilder sb = new StringBuilder();
 		sb.append("scanTime = ").append(SimpleDateFormat.getInstance().format(scanTime)).append("\n\n");
 		for(CodeFileAttributions attribution : findings){
-			sb.append(attribution + "\n");
+			sb.append(attribution).append("\n");
 		}
 		return sb.toString();
 	}

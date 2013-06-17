@@ -26,6 +26,6 @@ public interface ScanProgressListener {
 	 * @param pct Per cent progress.
 	 * @param details progress details.
 	 */
-	public void progress(int pct, String details);
+	void progress(int pct, String details);
 
 }

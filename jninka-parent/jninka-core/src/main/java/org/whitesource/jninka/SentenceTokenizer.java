@@ -171,18 +171,17 @@ public class SentenceTokenizer {
 		return result;
 	}
 	
-    /* --- Private methods --- */
-    
+
 	/**
 	* Open and read a file, and return the words from file as arraylist
 	*/
-	private void loadLicenseSentence(InputStream filepath){
+	public void loadLicenseSentences(){
         licenseSentences = new ArrayList<LicenseSentence>();
 
 		Pattern sentenceFormat = Pattern.compile("(.*?):(.*?):(.*)");
 		BufferedReader reader = null;
 		try {
-			reader = new BufferedReader(new InputStreamReader(filepath));
+			reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/licensesentence.dict")));
 			String line;
 			while ((line = reader.readLine()) != null) {
                 if (JNinkaUtils.isBlank(line) || line.startsWith("#")) { continue; }
@@ -193,11 +192,13 @@ public class SentenceTokenizer {
                 licenseSentences.add(new LicenseSentence(line));
 			}
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "cannot open file " + filepath + ": "+ e.getMessage(), e);
+			logger.log(Level.SEVERE, "Cannot open license sentence file : "+ e.getMessage(), e);
 		} finally {
 			JNinkaUtils.close(reader, logger);
 		}
 	}
+
+    /* --- Private methods --- */
 
     private Object[] normalizeGPL(String line){
 	    boolean later = false;
@@ -303,15 +304,6 @@ public class SentenceTokenizer {
     }
 	
 	/* --- Getters / Setters --- */
-	
-	public void setLicSentences(InputStream licSentences){
-    	this.licSentences = licSentences;
-    	loadLicenseSentence(licSentences);
-    }
-   
-    public InputStream getLicSentences(){
-        return licSentences;
-    }	
 		
 	public void setTooLong(int tooLong){
 		this.tooLong = tooLong;

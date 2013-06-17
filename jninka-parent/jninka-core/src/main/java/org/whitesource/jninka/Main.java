@@ -87,7 +87,6 @@ public class Main {
 	 */
 	private static void initLogging() {
 		Logger log = Logger.getLogger("jninka");
-		log.setLevel(Level.ALL);
 		log.fine("Loading logging configuration file ...");
 
 		InputStream configFile = null; 

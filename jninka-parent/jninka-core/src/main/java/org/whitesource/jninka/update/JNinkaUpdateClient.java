@@ -15,6 +15,8 @@
  */
 package org.whitesource.jninka.update;
 
+import org.whitesource.jninka.JNinkaUtils;
+
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
@@ -40,15 +42,13 @@ public class JNinkaUpdateClient  {
 
 	/* --- Static members --- */
 	
-	private static final String UPDATE_URL_KEY = "wss.update.url";
+	private static final String UPDATE_URL_KEY = "wss.url";
 	
 	private static final String DEFAULT_UPDATE_URL = "http://saas.whitesourcesoftware.com/jninkaUpdate";
 	
 	private static final String JNINKA_VERSION_PARAM = "version";
 	
 	private static final String VERSION_UP_TO_DATE = "VERSION-UP-TO-DATE";
-	
-	private static final String ENCODING_UTF8 = "UTF-8";
 	
 	private static final int CONNECTION_TIMEOUT = 60000;
 	
@@ -63,118 +63,93 @@ public class JNinkaUpdateClient  {
 	 */
 	public String checkForUpdate(String currentVersion) {
 		String response = "";
-		HttpURLConnection connection = null;
-		try {
-			// create request
-			StringBuilder request = new StringBuilder();
-			addParamter(request, JNINKA_VERSION_PARAM, currentVersion);
-			
-			// init connection
-			connection = initConnection();
-			
-			// send request
-			response = sendRequest(connection, request);
-			
-			// handle response
-			if (response.equals(VERSION_UP_TO_DATE)) {
-				logger.log(Level.INFO, "Version is up to date");
-				response = "";
-			} else {
-				try {
-					// try parsing URL
-					new URL(response);
-					logger.log(Level.INFO, "Valid download url " + response);
-				} catch (MalformedURLException e) {
-					response = "";
-					logger.log(Level.INFO, "Invalid download url " + response);
-				}
-			}
+
+        // call service
+        HttpURLConnection connection = null;
+        try {
+            connection = initConnection();
+			response = sendRequest(connection, JNINKA_VERSION_PARAM + "=" + currentVersion);
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Problem checking for update", e);
+			logger.log(Level.SEVERE, "Error checking for update", e);
 		} finally {
 			if (connection != null) {
 				connection.disconnect();
 			}
 		}
-		
-	    return response;
+
+        return handleResponse(response);
 	}
 
 	/* --- Private methods --- */
-	
-	private HttpURLConnection initConnection()
-			throws MalformedURLException, IOException, ProtocolException {
+
+	private HttpURLConnection initConnection() throws IOException {
 		String updateUrl = System.getProperty(UPDATE_URL_KEY, DEFAULT_UPDATE_URL);
 		URL url = new URL(updateUrl);
-		
+
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
 		connection.setDoOutput(true);
-		connection.setConnectTimeout(CONNECTION_TIMEOUT);
-		connection.setReadTimeout(CONNECTION_TIMEOUT);
-		
+        connection.setInstanceFollowRedirects(true);
+        connection.setConnectTimeout(CONNECTION_TIMEOUT);
+        connection.setReadTimeout(CONNECTION_TIMEOUT);
+
 		return connection;
 	}
-	
+
 	/**
 	 * Writes the data to the connection and reads response.
-	 * 
+	 *
 	 * @param connection
-	 * @param request
-	 * 
-	 * @return 
-	 * 
+	 * @param path
+	 *
+	 * @return
+	 *
 	 * @throws IOException
 	 */
-	private String sendRequest(HttpURLConnection connection, StringBuilder request)
-			throws IOException {
-		OutputStreamWriter wr = null;
-		BufferedReader rd = null;
-		StringBuilder result = new StringBuilder();
-		
+	private String sendRequest(HttpURLConnection connection, String path) throws IOException {
+        String response = "";
+
+		OutputStreamWriter writer = null;
+		BufferedReader reader = null;
 		try {
 			logger.log(Level.INFO, "Sending request");
-			wr = new OutputStreamWriter(connection.getOutputStream());
-			wr.write(request.toString());
-			wr.flush();
-			
+			writer = new OutputStreamWriter(connection.getOutputStream());
+			writer.write(path);
+			writer.flush();
+
 			logger.log(Level.INFO, "Reading response");
-			rd = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		    StringBuilder sb = new StringBuilder();
 			String line;
-			while ((line = rd.readLine()) != null) {
-				result.append(line);
+			while ((line = reader.readLine()) != null) {
+				sb.append(line);
 			}
+            response = sb.toString();
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Problem sending request or reading response", e);
 		} finally {
-			// close resources
-			closeResource(wr);
-			closeResource(rd);
+            JNinkaUtils.close(writer, logger);
+            JNinkaUtils.close(reader, logger);
 		}
-	    
-		return result.toString();
+
+		return response;
 	}
 
-	private void closeResource(Closeable resource) throws IOException {
-		if (resource != null) {
-			resource.close();
-		}
-	}
+    private String handleResponse(String response) {
+        if (VERSION_UP_TO_DATE.equals(response)) {
+            logger.log(Level.INFO, "Version is up to date");
+            response = "";
+        } else {
+            try {
+                new URL(response); // validates download URL
+                logger.log(Level.INFO, "Valid download url " + response);
+            } catch (MalformedURLException e) {
+                response = "";
+                logger.log(Level.INFO, "Invalid download url " + response);
+            }
+        }
 
-	/**
-	 * Adds a Http request parameter to the data sent.
-	 * 
-	 * @param data
-	 * @param key
-	 * @param value
-	 * 
-	 * @throws UnsupportedEncodingException
-	 */
-	private void addParamter(StringBuilder data, String key, String value)
-			throws UnsupportedEncodingException {
-		data.append(URLEncoder.encode(key, ENCODING_UTF8));
-		data.append("=");
-		data.append(URLEncoder.encode(value, ENCODING_UTF8));
-	}
+        return response;
+    }
 
 }

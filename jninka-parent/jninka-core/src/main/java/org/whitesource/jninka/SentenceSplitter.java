@@ -41,10 +41,6 @@ public class SentenceSplitter extends StageProcessor {
 	private static Logger logger = Logger.getLogger(SentenceSplitter.class.getCanonicalName());
 	
 	/* --- Members --- */
-	
-	private InputStream abbrvFile;
-	
-	private InputStream dictionary;
 
 //	private Map<String, Integer> commonTerms = new Hashtable<String, Integer>();
 	
@@ -110,9 +106,52 @@ public class SentenceSplitter extends StageProcessor {
 			
 		return result;
 	}
-	
+
+    /**
+     * Open and read a file, and return the lines in the file as a hashtable
+     */
+    public void loadAbbreviations(){
+        abbreviations = new ArrayList<String>();
+
+        BufferedReader reader = null;
+        try{
+            reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/splitter.abv")));
+            String line;
+            while ( (line = reader.readLine()) != null ){
+                line = line.toLowerCase();//java=>perl
+                abbreviations.add(line);
+            }
+        } catch(IOException e){
+            logger.log(Level.SEVERE, "cannot open abbreviations file: " + e.getMessage(), e);
+        } finally {
+            JNinkaUtils.close(reader, logger);
+        }
+    }
+
+    /**
+     * Open and read a file, and return the lines in the file as a hashtable
+     */
+    public void loadDictionary() {
+//		commonTerms = new Hashtable<String, Integer>();
+//
+//		BufferedReader reader = null;
+//		try{
+//			reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/splitter.dict")));
+//			String line;
+//			while ( (line = reader.readLine()) != null ){
+//				if (JNinkaRegullarExpression.isMatch(line, "^[A-Z]")){
+//					commonTerms.put(line, 1);
+//				}
+//			}
+//		} catch(IOException e) {
+//			logger.log(Level.SEVERE, "cannot open dictionary file: " + e.getMessage(), e);
+//		} finally {
+//            JNinkaUtils.close(reader, logger);
+//		}
+    }
+
 	/* --- Private methods --- */
-	
+
 	private String cleanSentence(String text){
 		//check for trailing bullets of different types
 		text = JNinkaRegullarExpression.applyReplace(text, "^o ", "");				
@@ -233,49 +272,6 @@ public class SentenceSplitter extends StageProcessor {
 		
 		return result;
 	}	
-	
-	/**
-	* Open and read a file, and return the lines in the file as a hashtable
-	*/
-    private void loadDictionary() {
-//		commonTerms = new Hashtable<String, Integer>();
-//
-//		BufferedReader reader = null;
-//		try{
-//			reader = new BufferedReader(new InputStreamReader(this.getDictionary()));
-//			String line;
-//			while ( (line = reader.readLine()) != null ){
-//				if (JNinkaRegullarExpression.isMatch(line, "^[A-Z]")){
-//					commonTerms.put(line, 1);
-//				}
-//			}
-//		} catch(IOException e) {
-//			logger.log(Level.SEVERE, "cannot open dictionary file " + this.getDictionary() + ": " + e.getMessage(), e);
-//		} finally {
-//            JNinkaUtils.close(reader, logger);
-//		}
-	}
-
-	/**
-	* Open and read a file, and return the lines in the file as a hashtable
-	*/
-    private void loadAbbreviations(){
-		abbreviations = new ArrayList<String>();
-		
-		BufferedReader reader = null;
-		try{
-			reader = new BufferedReader(new InputStreamReader(this.getAbbrvFile()));
-			String line;
-			while ( (line = reader.readLine()) != null ){
-				line = line.toLowerCase();//java=>perl
-				abbreviations.add(line);
-			}
-		} catch(IOException e){
-			logger.log(Level.SEVERE, "cannot open dictionary file " + this.getAbbrvFile() + ": " + e.getMessage(), e);
-		} finally {
-			JNinkaUtils.close(reader, logger);
-		}
-	}
 
     private String preProcessText(String text){
 		text = JNinkaRegullarExpression.applyReplace(text, "\\+?\\-{3,1000}\\+?", " ", Pattern.MULTILINE); 
@@ -322,30 +318,6 @@ public class SentenceSplitter extends StageProcessor {
 		text += "\n";	
 	
 		return text;
-	}
-	
-	/* --- Getters / Setters --- */
-	
-	public void setDictionary(InputStream lDictionary) {
-		dictionary = lDictionary;
-		// Load in the dictionary and find the common words.
-		// Here, we assume the words in upper case are simply names and one
-		// word per line - i.e. in same form as /usr/dict/words
-		loadDictionary();
-	}
-
-	public void setAbbrvFile(InputStream lAbbrvFile) {
-		abbrvFile = lAbbrvFile;
-		// Same assumptions as for dictionary
-		loadAbbreviations();
-	}
-
-	public InputStream getDictionary() {
-		return dictionary;
-	}
-
-	public InputStream getAbbrvFile() {
-		return abbrvFile;
 	}
 	
 }

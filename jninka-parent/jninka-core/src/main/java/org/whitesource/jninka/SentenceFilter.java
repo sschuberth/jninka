@@ -37,8 +37,6 @@ public class SentenceFilter extends StageProcessor{
 	
 	/* --- Members --- */
 	
-	private InputStream critWords;
-	
 	private List<Pattern> wordPatterns;
 
 	private List<String> goodOutputInfo;
@@ -69,17 +67,15 @@ public class SentenceFilter extends StageProcessor{
 		return true;
 	}
 	
-	/* --- Private methods --- */
-	
 	/**
 	* Open and read a file, and return the words from file as a list.
 	*/
-	private void loadWords() {
+	public void loadWords() {
         wordPatterns = new ArrayList<Pattern>();
 
 		BufferedReader reader = null;
 		try{
-			reader = new BufferedReader(new InputStreamReader(critWords));
+			reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/criticalword.dict")));
 			String line;
 			while ( (line = reader.readLine()) != null ){
                 if (JNinkaUtils.isBlank(line) || line.startsWith("#")) { continue; }
@@ -90,23 +86,14 @@ public class SentenceFilter extends StageProcessor{
                 }
 			}
 		} catch(IOException e){
-			logger.log(Level.SEVERE, "Couldn't open " + critWords + " for reading! :" + e.getMessage(), e);
+			logger.log(Level.SEVERE, "Couldn't open critical words dictionary for reading! :" + e.getMessage(), e);
 		} finally {
             JNinkaUtils.close(reader, logger);
 		}
 	}
 	
 	/* --- Getters / Setters --- */
-	
-	public void setCritWords(InputStream critWords){
-		this.critWords = critWords;
-		loadWords();
-	}
-	
-	public InputStream getCritWords(){
-		return critWords;
-	}	
-	
+
 	public List<String> getGoodOutputInfo(){
 		return goodOutputInfo;
 	}
@@ -119,7 +106,7 @@ public class SentenceFilter extends StageProcessor{
 		return badOutputInfo;
 	}
 	
-	public void setBadOutputInfo(ArrayList<String> outputInfo){
+	public void setBadOutputInfo(List<String> outputInfo){
 		this.badOutputInfo = outputInfo;
 	}
 	

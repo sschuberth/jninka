@@ -108,7 +108,6 @@ public class Agent {
 	 */
 	private static void initLogging() {
 		Logger log = Logger.getLogger("jninka");
-		log.setLevel(Level.ALL);
 		log.info("Loading logging configuration file ...");
 
 		InputStream configFile = null; 
