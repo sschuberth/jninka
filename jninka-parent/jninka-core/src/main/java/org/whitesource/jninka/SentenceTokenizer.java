@@ -60,8 +60,8 @@ public class SentenceTokenizer {
 			line = normalizeSentence(line);
 
 			boolean check = false;
-			String matchname = "UNKNOWN";
-			List<String> parm = new ArrayList<String>();
+			String matchName = "UNKNOWN";
+			List<String> params = new ArrayList<String>();
 
 			int distance = 1; // maximum? number
             String before = "";
@@ -102,14 +102,16 @@ public class SentenceTokenizer {
                         isCondition = true;
 						check = true;
                         finalSentence = licenseSentence;
-						matchname = licenseSentence.name;
+						matchName = licenseSentence.name;
 
 						for (int i = 1; i <= licenseSentence.number; i++){
-							parm.add(JNinkaRegullarExpression.getGroupValue(matcher, i));
+							params.add(JNinkaRegullarExpression.getGroupValue(matcher, i));
 						}
 
 						before = JNinkaRegullarExpression.beforeMatch(licenseSentence.pattern, line);
+                        before = JNinkaUtils.abbreviate(before, this.getTooLong());
 						after = JNinkaRegullarExpression.postMatch(licenseSentence.pattern, line);
+                        after = JNinkaUtils.abbreviate(after, this.getTooLong());
 
 						isContinueExternalLoop = false;
 						break;
@@ -149,23 +151,20 @@ public class SentenceTokenizer {
 			}
 
             // create attribution
+            originalLine = JNinkaUtils.abbreviate(originalLine, this.getTooLong());
 			if (check){
-				// licensesentence name, parm1, parm2,..
+				// licensesentence name, param1, param2,..
 				if (gpl) {
-					matchname += "Ver" + gplVersion;
+					matchName += "Ver" + gplVersion;
 					if (gplLater){
-						matchname += "+";
+						matchName += "+";
 					}
-					matchname = LGPL + matchname;
-				} 
-
-				if (before.length() > this.getTooLong() || after.length() > this.getTooLong()){
-					matchname += "-TOOLONG";
+					matchName = LGPL + matchName;
 				}
-
-				result.add(new LicenseAttribution(parm, finalSentence.id, matchname, finalSentence.subRule, before, after, originalLine));
+				result.add(new LicenseAttribution(params, finalSentence.id, matchName, finalSentence.subRule, before, after, originalLine));
 			} else if (getUnknown) { // UNKNOWN, sentence
-                result.add(new LicenseAttribution(null, Integer.MIN_VALUE, matchname, "UNKNOWN", Integer.toString(distance), saveLine, originalLine));
+                saveLine = JNinkaUtils.abbreviate(saveLine, this.getTooLong());
+                result.add(new LicenseAttribution(null, Integer.MIN_VALUE, matchName, "UNKNOWN", Integer.toString(distance), saveLine, originalLine));
             }
 		}
 			
@@ -270,12 +269,8 @@ public class SentenceTokenizer {
     	
     	line = JNinkaRegullarExpression.applyReplace(line, " +", " ");
     	line = JNinkaRegullarExpression.applyReplace(line, " +$", "");
-	    
-    	Object object[] = new Object[3];
-        object[0] = line;
-        object[1] = later;
-        object[2] = version;    	
-	    return object;
+
+        return new Object[]{line, later, version};
 	}
 
     private String normalizeSentence(String line){
@@ -309,17 +304,17 @@ public class SentenceTokenizer {
 	
 	/* --- Getters / Setters --- */
 	
-	public void setLicSentences(InputStream lLicSentences){
-    	licSentences = lLicSentences;
-    	loadLicenseSentence(lLicSentences);
+	public void setLicSentences(InputStream licSentences){
+    	this.licSentences = licSentences;
+    	loadLicenseSentence(licSentences);
     }
    
     public InputStream getLicSentences(){
         return licSentences;
     }	
 		
-	public void setTooLong(int lTooLong){
-		tooLong = lTooLong;
+	public void setTooLong(int tooLong){
+		this.tooLong = tooLong;
     }
    
     public int getTooLong(){

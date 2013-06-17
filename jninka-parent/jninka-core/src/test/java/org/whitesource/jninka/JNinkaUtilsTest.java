@@ -17,11 +17,7 @@ package org.whitesource.jninka;
 
 import org.junit.Test;
 
-import java.util.regex.Pattern;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class JNinkaUtilsTest {
 
@@ -36,6 +32,13 @@ public class JNinkaUtilsTest {
         assertEquals(5, JNinkaUtils.alphabeticCount("abc \nBn 12"));
     }
 
-
+    @Test
+    public void testAbbreviate() {
+        assertEquals("abcdef...", JNinkaUtils.abbreviate("abcdefghij", 9));
+        assertEquals("abcdefghij", JNinkaUtils.abbreviate("abcdefghij", 10));
+        assertEquals("abcdefghij", JNinkaUtils.abbreviate("abcdefghij", 15));
+        assertEquals("ab...", JNinkaUtils.abbreviate("abcdefghij", 5));
+        assertEquals("...", JNinkaUtils.abbreviate("abcdefghij", 3));
+    }
 
 }

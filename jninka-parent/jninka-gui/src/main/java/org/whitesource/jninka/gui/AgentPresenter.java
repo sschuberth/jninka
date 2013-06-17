@@ -353,14 +353,12 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 		progressBar.setStringPainted(true);
 		progressBar.setVisible(false);
 		pane.add(progressBar, BorderLayout.NORTH);
-		pane.add(getTable(),BorderLayout.CENTER);
+
+        resultsModel.addColumn("Folder");
+        pane.add(new JTable(resultsModel), BorderLayout.CENTER);
+
 		result.pack();
 		return result;
-	}
-	
-	private JTable getTable(){
-		resultsModel.addColumn("Folder");
-        return new JTable(resultsModel);
 	}
 
 	private JFileChooser getDirectoryChooser() {
@@ -424,25 +422,27 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 			log.info("----------------------------------------------------------------------");
 			
 			initProgressBar();
+            resultsModel.getDataVector().removeAllElements();
 			resultsModel.insertRow(0 ,new String[]{"Warming up..."});
+            resultsModel.fireTableDataChanged();
 			scanFrame.setVisible(true);
 			scanFrame.setAlwaysOnTop(true);
 			runButton.setVisible(false);
 			resultMessage = "Completed successfully.";
 			
 			try {
-				JNinka ninka = new JNinka();
-				final int startIdx = root.getAbsolutePath().length();
-				ninka.getMonitor().addListener(new ScanProgressListener() {
+				JNinka jNinka = new JNinka();
+
+                final int relativeOffset = root.getAbsolutePath().length();
+				jNinka.getMonitor().addListener(new ScanProgressListener() {
 					@Override
 					public void progress(int pct, String details) {
 						setProgress(pct);
-						resultsModel.insertRow(0 ,new String[]{details.substring(startIdx)});
+						resultsModel.insertRow(0 ,new String[]{details.substring(relativeOffset)});
 					}
 				});
-				
-				boolean sureMatches = sureMatchChk.isSelected();
-				ScanResults scanResults = ninka.scanFolder(root, !sureMatches);
+
+                ScanResults scanResults = jNinka.scanFolder(root, !sureMatchChk.isSelected());
 				scanResults.writeXML(output);
 			} catch (RuntimeException e) {
 				resultMessage ="Completed with errors, see log file.";
@@ -501,7 +501,6 @@ public class AgentPresenter extends Container implements ActionListener, Propert
 
 		@Override
 		protected Void doInBackground() throws Exception {
-			// check for updates
 			log.log(Level.INFO, "Checking for update");
 			JNinkaUpdateClient updater = new JNinkaUpdateClient();
 			String response = updater.checkForUpdate(version);

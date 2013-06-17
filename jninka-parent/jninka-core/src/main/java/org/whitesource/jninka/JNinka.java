@@ -126,8 +126,8 @@ public class JNinka {
 
 		ScanResults result = new ScanResults();
         for (File directory : directories) {
-            monitor.progress(1, directory.getAbsolutePath());
             result.addFindings(scanDir(directory));
+            monitor.progress(1, directory.getAbsolutePath());
         }
 
 		return result;

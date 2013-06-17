@@ -100,6 +100,13 @@ public class JNinkaUtils{
         return !isBlank(ext) && ALL_EXT_PATTERN.matcher(ext).matches();
     }
 
+    public static String abbreviate(String str, int maxWidth) {
+        if (isBlank(str)) { return str; }
+        if (str.length() <= maxWidth) { return str; }
+        if (maxWidth < 3) { throw new IllegalArgumentException("maxWidth must be >= 3"); }
+        return str.substring(0, maxWidth - 3) + "...";
+    }
+
     public static int alphabeticCount(String s) {
         int count = 0;
 
