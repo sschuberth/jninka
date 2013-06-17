@@ -15,6 +15,12 @@
  */
 package org.whitesource.jninka.model;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,13 +29,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author Rami.Sass
@@ -89,7 +88,7 @@ public class ScanResults {
 		StringBuilder sb = new StringBuilder();
 		sb.append("scanTime = ").append(SimpleDateFormat.getInstance().format(scanTime)).append("\n\n");
 		for(CodeFileAttributions attribution : findings){
-			sb.append(attribution + "\n");
+			sb.append(attribution).append("\n");
 		}
 		return sb.toString();
 	}

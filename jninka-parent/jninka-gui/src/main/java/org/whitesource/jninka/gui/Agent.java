@@ -15,15 +15,14 @@
  */
 package org.whitesource.jninka.gui;
 
+import javax.swing.*;
+import javax.swing.UIManager.LookAndFeelInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 
 /**
  * @author Rami.Sass
@@ -108,7 +107,6 @@ public class Agent {
 	 */
 	private static void initLogging() {
 		Logger log = Logger.getLogger("jninka");
-		log.setLevel(Level.ALL);
 		log.info("Loading logging configuration file ...");
 
 		InputStream configFile = null; 

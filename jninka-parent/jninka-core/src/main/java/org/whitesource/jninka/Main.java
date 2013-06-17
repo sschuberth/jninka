@@ -15,15 +15,14 @@
  */
 package org.whitesource.jninka;
 
+import org.whitesource.jninka.model.ScanResults;
+import org.whitesource.jninka.progress.ScanProgressListener;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-
-import org.whitesource.jninka.model.ScanResults;
-import org.whitesource.jninka.progress.ScanProgressListener;
 
 /**
  * @author Rami.Sass
@@ -87,7 +86,6 @@ public class Main {
 	 */
 	private static void initLogging() {
 		Logger log = Logger.getLogger("jninka");
-		log.setLevel(Level.ALL);
 		log.fine("Loading logging configuration file ...");
 
 		InputStream configFile = null; 

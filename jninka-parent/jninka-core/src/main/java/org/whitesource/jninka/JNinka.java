@@ -15,6 +15,11 @@
  */
 package org.whitesource.jninka;
 
+import org.whitesource.jninka.model.CodeFileAttributions;
+import org.whitesource.jninka.model.LicenseAttribution;
+import org.whitesource.jninka.model.ScanResults;
+import org.whitesource.jninka.progress.ScanProgressMonitor;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -25,11 +30,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.whitesource.jninka.model.CodeFileAttributions;
-import org.whitesource.jninka.model.LicenseAttribution;
-import org.whitesource.jninka.model.ScanResults;
-import org.whitesource.jninka.progress.ScanProgressMonitor;
 
 /**
  * JNinka
@@ -98,14 +98,14 @@ public class JNinka {
         commentsExtractor = new CommentsExtractor();
 
         sentenceSplitter = new SentenceSplitter();
-        sentenceSplitter.setDictionary(JNinka.class.getResourceAsStream("/splitter.dict"));
-        sentenceSplitter.setAbbrvFile(JNinka.class.getResourceAsStream("/splitter.abv"));
+        sentenceSplitter.loadDictionary();
+        sentenceSplitter.loadAbbreviations();
 
         sentenceFilter = new SentenceFilter();
-        sentenceFilter.setCritWords(JNinka.class.getResourceAsStream("/criticalword.dict"));
+        sentenceFilter.loadWords();
 
         sentenceTokenizer = new SentenceTokenizer();
-        sentenceTokenizer.setLicSentences(JNinka.class.getResourceAsStream("/licensesentence.dict"));
+        sentenceTokenizer.loadLicenseSentences();
 
         initialized = true;
         logger.info("JNinka initialization is done in " + (System.currentTimeMillis() - t) + " [msec]");
