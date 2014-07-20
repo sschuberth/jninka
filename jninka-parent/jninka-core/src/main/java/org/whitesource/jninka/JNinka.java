@@ -24,10 +24,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -132,6 +129,33 @@ public class JNinka {
 
 		return result;
 	}
+
+    /**
+     * Scan a given file (not necessarily a source file)
+     *
+     * @param file
+     * @param getUnknowns
+     * @return
+     */
+    public ScanResults scanFile(File file, boolean getUnknowns) {
+        if (!initialized) {
+            init();
+        }
+
+        this.getUnknowns = getUnknowns;
+
+        monitor.reset();
+        monitor.setParams(1, 1);
+
+        ScanResults result = new ScanResults();
+        List<LicenseAttribution> attributions = scanFile(file);
+        if (!JNinkaUtils.isEmpty(attributions)) {
+            result.addFindings(Arrays.asList(handleHit(file, attributions)));
+        }
+        monitor.progress(1, file.getAbsolutePath());
+
+        return result;
+    }
 
 	/* --- Private methods --- */
 
