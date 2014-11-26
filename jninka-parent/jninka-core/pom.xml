@@ -22,7 +22,7 @@
     <parent>
         <artifactId>jninka-parent</artifactId>
         <groupId>org.whitesource</groupId>
-        <version>1.5</version>
+        <version>1.6-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
