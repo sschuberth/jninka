@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 /**
  * @author Rami.Sass
  */
-public final class JNinkaRegullarExpression {
+public final class JNinkaRegularExpression {
 
     /* --- Static members --- */
 
@@ -36,7 +36,7 @@ public final class JNinkaRegullarExpression {
      * @return
      */
     public static String applyReplace(String text, String patternText, String replaceText) {
-        return JNinkaRegullarExpression.applyReplace(text, patternText, replaceText, JNinkaRegullarExpression.fakeFlag);
+        return JNinkaRegularExpression.applyReplace(text, patternText, replaceText, JNinkaRegularExpression.fakeFlag);
     }
 
     /**
@@ -50,7 +50,7 @@ public final class JNinkaRegullarExpression {
         String result;
 
         Pattern pattern;
-        if (flag != JNinkaRegullarExpression.fakeFlag) {
+        if (flag != JNinkaRegularExpression.fakeFlag) {
             pattern = Pattern.compile(patternText, flag);
         } else {
             pattern = Pattern.compile(patternText);
@@ -78,7 +78,7 @@ public final class JNinkaRegullarExpression {
         String result = "";
 
         Pattern pattern;
-        if (flag != JNinkaRegullarExpression.fakeFlag) {
+        if (flag != JNinkaRegularExpression.fakeFlag) {
             pattern = Pattern.compile(patternText, flag);
         } else {
             pattern = Pattern.compile(patternText);
@@ -104,7 +104,7 @@ public final class JNinkaRegullarExpression {
      */
     public static boolean isMatch(String text, String patternText, int flag) {
         Pattern pattern;
-        if (flag == JNinkaRegullarExpression.fakeFlag) {
+        if (flag == JNinkaRegularExpression.fakeFlag) {
             pattern = Pattern.compile(patternText);
         } else {
             pattern = Pattern.compile(patternText, flag);
@@ -138,11 +138,11 @@ public final class JNinkaRegullarExpression {
     }
 
     public static String beforeMatch(Pattern pattern, String text) {
-        return JNinkaRegullarExpression.beforePostMatch(pattern, text, true);
+        return JNinkaRegularExpression.beforePostMatch(pattern, text, true);
     }
 
     public static String postMatch(Pattern pattern, String text) {
-        return JNinkaRegullarExpression.beforePostMatch(pattern, text, false);
+        return JNinkaRegularExpression.beforePostMatch(pattern, text, false);
     }
 
     /* --- Private static methods --- */
@@ -168,7 +168,7 @@ public final class JNinkaRegullarExpression {
     /**
      * Private constructor
      */
-    private JNinkaRegullarExpression() {
+    private JNinkaRegularExpression() {
         // avoid instantiation
     }
 

@@ -66,7 +66,7 @@ public class SentenceSplitter extends StageProcessor {
 
             while (m.find() && (m.groupCount() >= 1)) {
                 String curr = m.group(1);
-                curr = JNinkaRegullarExpression.escapeForRegex(curr);
+                curr = JNinkaRegularExpression.escapeForRegex(curr);
                 m.appendReplacement(sb, curr);
 
                 // let us count the number of alphabetic chars to check if we
@@ -81,7 +81,7 @@ public class SentenceSplitter extends StageProcessor {
                     String s = it.next();
                     count2 += JNinkaUtils.alphabeticCount(s);
                     s = cleanSentence(s);
-                    s = JNinkaRegullarExpression.unescapeAfterRegex(s);
+                    s = JNinkaRegularExpression.unescapeAfterRegex(s);
                     outputInfo.add(s);
                 }
 
@@ -139,7 +139,7 @@ public class SentenceSplitter extends StageProcessor {
 //          reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/splitter.dict")));
 //          String line;
 //          while ( (line = reader.readLine()) != null ){
-//              if (JNinkaRegullarExpression.isMatch(line, "^[A-Z]")){
+//              if (JNinkaRegularExpression.isMatch(line, "^[A-Z]")){
 //                  commonTerms.put(line, 1);
 //              }
 //          }
@@ -154,18 +154,18 @@ public class SentenceSplitter extends StageProcessor {
 
     private String cleanSentence(String text){
         //check for trailing bullets of different types
-        text = JNinkaRegullarExpression.applyReplace(text, "^o ", "");
-        text = JNinkaRegullarExpression.applyReplace(text, "^\\s*[0-9]+\\s*[\\-\\)]", "");
-        text = JNinkaRegullarExpression.applyReplace(text, "^[ \t]+", "");
-        text = JNinkaRegullarExpression.applyReplace(text, "[ \t]+$", "");
+        text = JNinkaRegularExpression.applyReplace(text, "^o ", "");
+        text = JNinkaRegularExpression.applyReplace(text, "^\\s*[0-9]+\\s*[\\-\\)]", "");
+        text = JNinkaRegularExpression.applyReplace(text, "^[ \t]+", "");
+        text = JNinkaRegularExpression.applyReplace(text, "[ \t]+$", "");
         //remove a trailing -
-        text = JNinkaRegullarExpression.applyReplace(text, "^[ \t]*[\\-\\.\\s*] +", "");
+        text = JNinkaRegularExpression.applyReplace(text, "^[ \t]*[\\-\\.\\s*] +", "");
         //replace quotes
-        text = JNinkaRegullarExpression.applyReplace(text, "\\s+", " ");
-        text = JNinkaRegullarExpression.applyReplace(text, "['\"`]+", "<quotes>");
+        text = JNinkaRegularExpression.applyReplace(text, "\\s+", " ");
+        text = JNinkaRegularExpression.applyReplace(text, "['\"`]+", "<quotes>");
 
-        text = JNinkaRegullarExpression.applyReplace(text, ":", "<colon>");
-        text = JNinkaRegullarExpression.applyReplace(text, "\\.+$", ".");
+        text = JNinkaRegularExpression.applyReplace(text, ":", "<colon>");
+        text = JNinkaRegularExpression.applyReplace(text, "\\.+$", ".");
         if ( text.matches("\n") ){
             throw new IllegalArgumentException("text cannot be \\n");
         }
@@ -189,11 +189,11 @@ public class SentenceSplitter extends StageProcessor {
         */
         Matcher matcher = SEPARATOR_BREAK_PATTERN.matcher(text);
         while(matcher.find()) {
-            String sentenceMatch = JNinkaRegullarExpression.getGroupValue(matcher, 1);
-            String punctuation = JNinkaRegullarExpression.getGroupValue(matcher, 2);
+            String sentenceMatch = JNinkaRegularExpression.getGroupValue(matcher, 1);
+            String punctuation = JNinkaRegularExpression.getGroupValue(matcher, 2);
             String sentence = sentenceMatch + punctuation;
-            String after = JNinkaRegullarExpression.getGroupValue(matcher, 3);
-            text = JNinkaRegullarExpression.postMatch(SEPARATOR_BREAK_PATTERN, text);//!!!put after all operations
+            String after = JNinkaRegularExpression.getGroupValue(matcher, 3);
+            text = JNinkaRegularExpression.postMatch(SEPARATOR_BREAK_PATTERN, text);//!!!put after all operations
 
             //if next character is not a space, then we are not in a sentence"
             if (!" ".equals(after) && !"\t".equals(after)) {
@@ -223,8 +223,8 @@ public class SentenceSplitter extends StageProcessor {
                 //this expression might have to be updated to take care of special characters in names :(
                 Matcher matcher2 = LAST_WORD_ABBREVIATION_PATTERN.matcher(sentenceMatch);
                 if (matcher2.matches()) {
-                    String before = JNinkaRegullarExpression.getGroupValue(matcher2, 1);
-                    String lastWord = JNinkaRegullarExpression.getGroupValue(matcher2, 2);
+                    String before = JNinkaRegularExpression.getGroupValue(matcher2, 1);
+                    String lastWord = JNinkaRegularExpression.getGroupValue(matcher2, 2);
 
                     //is it an abbreviation
                     if (lastWord.length() == 1 ){
@@ -275,46 +275,46 @@ public class SentenceSplitter extends StageProcessor {
     }
 
     private String preProcessText(String text){
-        text = JNinkaRegullarExpression.applyReplace(text, "\\+?\\-{3,1000}\\+?", " ", Pattern.MULTILINE);
-        text = JNinkaRegullarExpression.applyReplace(text, "={3,1000}", " ", Pattern.MULTILINE);
-        text = JNinkaRegullarExpression.applyReplace(text, ":{3,1000}", " ", Pattern.MULTILINE);
-        text = JNinkaRegullarExpression.applyReplace(text, "\\*{3,1000}", " ", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "\\+?\\-{3,1000}\\+?", " ", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "={3,1000}", " ", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, ":{3,1000}", " ", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "\\*{3,1000}", " ", Pattern.MULTILINE);
 
         //some characters are used for prettyprinting but never appear in sentences
-        text = JNinkaRegullarExpression.applyReplace(text, "\\|+", " ", Pattern.MULTILINE);
-        text = JNinkaRegullarExpression.applyReplace(text, "\\\\+", " ", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "\\|+", " ", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "\\\\+", " ", Pattern.MULTILINE);
 
         //let us deal with /* before we do anything
-        text = JNinkaRegullarExpression.applyReplace(text, "^[ \t]*/\\*", "", Pattern.MULTILINE); //Last Bug!!!!
-        text = JNinkaRegullarExpression.applyReplace(text, "\\*\\/[ \t]*$", "", Pattern.MULTILINE);
-        text = JNinkaRegullarExpression.applyReplace(text, "([^:])//", "$1", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "^[ \t]*/\\*", "", Pattern.MULTILINE); //Last Bug!!!!
+        text = JNinkaRegularExpression.applyReplace(text, "\\*\\/[ \t]*$", "", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "([^:])//", "$1", Pattern.MULTILINE);
 
         //Replace /\r\n/ with \n only
-        text = JNinkaRegullarExpression.applyReplace(text, "\r\n", "\n");
+        text = JNinkaRegularExpression.applyReplace(text, "\r\n", "\n");
 
         //now, try to replace the leading/ending character of each line #/-, at most 3 heading characters
         // and each repeated as many times as necessaary
-        text = JNinkaRegullarExpression.applyReplace(text, "^[ \t]{0,3}[\\*\\#\\/\\;]+", "", Pattern.MULTILINE);
-        text = JNinkaRegullarExpression.applyReplace(text, "^[ \t]{0,3}[\\-]+", "", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "^[ \t]{0,3}[\\*\\#\\/\\;]+", "", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "^[ \t]{0,3}[\\-]+", "", Pattern.MULTILINE);
 
-        text = JNinkaRegullarExpression.applyReplace(text, "[\\*\\#\\/]+[ \t]{0,3}$", "", Pattern.MULTILINE);
-        text = JNinkaRegullarExpression.applyReplace(text, "[\\-]+[ \t]{0,3}$", "", Pattern.MULTILINE);
-        text = JNinkaRegullarExpression.applyReplace(text, "^[ \t]{0,3}[\\*\\#\\/\\;]+", "", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "[\\*\\#\\/]+[ \t]{0,3}$", "", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "[\\-]+[ \t]{0,3}$", "", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "^[ \t]{0,3}[\\*\\#\\/\\;]+", "", Pattern.MULTILINE);
 
         //now, try to replace the ending character of each line if it is * or #
-        text = JNinkaRegullarExpression.applyReplace(text, "[\\*\\#]+$", "", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "[\\*\\#]+$", "", Pattern.MULTILINE);
 
         //at this point we have lines with nothing but spaces, let us get rid of them
-        text = JNinkaRegullarExpression.applyReplace(text, "^[ \t]+$", "\n", Pattern.MULTILINE);
+        text = JNinkaRegularExpression.applyReplace(text, "^[ \t]+$", "\n", Pattern.MULTILINE);
 
         //let us try the following trick
         // We first get rid of \t and replace it with ' '
         // we then use \t as a "single line separator" and \n as multiple line.
         // so we can match each with a single character.
-        text = JNinkaRegullarExpression.applyReplace(text, "\t", " ");
+        text = JNinkaRegularExpression.applyReplace(text, "\t", " ");
 
-        text = JNinkaRegullarExpression.applyReplace(text, "\n(?!\n)", "\t");//MIKL - some problem!!!
-        text = JNinkaRegullarExpression.applyReplace(text, "\n\n+", "\n");
+        text = JNinkaRegularExpression.applyReplace(text, "\n(?!\n)", "\t");//MIKL - some problem!!!
+        text = JNinkaRegularExpression.applyReplace(text, "\n\n+", "\n");
 
         text += "\n";
 
