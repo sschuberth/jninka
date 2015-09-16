@@ -148,7 +148,7 @@ public class JNinka {
         ScanResults result = new ScanResults();
         List<LicenseAttribution> attributions = scanFile(file);
         if (!JNinkaUtils.isEmpty(attributions)) {
-            result.addFindings(Arrays.asList(handleHit(file, attributions)));
+            result.addFindings(Collections.singletonList(handleHit(file, attributions)));
         }
         monitor.progress(1, file.getAbsolutePath());
 
