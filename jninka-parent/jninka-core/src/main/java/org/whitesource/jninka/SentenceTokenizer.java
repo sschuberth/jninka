@@ -84,10 +84,7 @@ public class SentenceTokenizer {
             String LGPL = "";
 
             LicenseSentence finalSentence = null;
-            Iterator<LicenseSentence> iterator = licenseSentences.iterator();
-            while (iterator.hasNext()) {
-                LicenseSentence licenseSentence = iterator.next();
-
+            for (LicenseSentence licenseSentence : licenseSentences) {
                 // we need this due to the goto (loop in java) again
                 line = saveLine;
                 gpl = saveGPL;

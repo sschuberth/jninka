@@ -76,9 +76,7 @@ public class SentenceSplitter extends StageProcessor {
                 List<String> sentences = this.splitText(curr);
 
                 int count2 = 0;
-                Iterator<String> it = sentences.iterator();
-                while (it.hasNext()) {
-                    String s = it.next();
+                for (String s : sentences) {
                     count2 += JNinkaUtils.alphabeticCount(s);
                     s = cleanSentence(s);
                     s = JNinkaRegularExpression.unescapeAfterRegex(s);
@@ -87,9 +85,7 @@ public class SentenceSplitter extends StageProcessor {
 
                 if (count != count2) {
                     logger.severe("[" + curr + "]");
-                    it = sentences.iterator();
-                    while (it.hasNext()) {
-                        String s = it.next();
+                    for (String s : sentences) {
                         logger.severe(cleanSentence(s));
                     }
                     result = false;
