@@ -178,7 +178,8 @@ public class SentenceSplitter extends StageProcessor {
     private List<String> splitText(String text) throws Exception {
         //int len = 0;
         List<String> result = new ArrayList<String>();
-        String currentSentence = "";
+        StringBuilder currentSentence = new StringBuilder();
+
         /*
         this breaks the sentence into
         1. Any text before a separator
@@ -195,7 +196,7 @@ public class SentenceSplitter extends StageProcessor {
 
             //if next character is not a space, then we are not in a sentence"
             if (!" ".equals(after) && !"\t".equals(after)) {
-                currentSentence += sentence;
+                currentSentence.append(sentence);
                 continue;
             }
 
@@ -203,7 +204,7 @@ public class SentenceSplitter extends StageProcessor {
             if (":".equals(punctuation) || "?".equals(punctuation) || "!".equals(punctuation)){
                 //let us consider this right here a beginning of a sentence
                 result.add(currentSentence + sentence);
-                currentSentence = "";
+                currentSentence.setLength(0);
                 continue;
             }
             if (".".equals(punctuation)){
@@ -230,7 +231,7 @@ public class SentenceSplitter extends StageProcessor {
                         //we will assume they never split the sentence if they are capitalized.
                         char c = lastWord.charAt(0);
                         if ((c >= 'A') && (c <= 'Z')){
-                            currentSentence += sentence;
+                            currentSentence.append(sentence);
                             continue;
                         }
                         if (logger.isLoggable(Level.FINER)) {
@@ -239,7 +240,7 @@ public class SentenceSplitter extends StageProcessor {
 
                         //but some are lowercase!
                         if ((c == 'e') || (c == 'i')){
-                            currentSentence += sentence;
+                            currentSentence.append(sentence);
                             continue;
                         }
                         if (logger.isLoggable(Level.FINER)) {
@@ -250,7 +251,7 @@ public class SentenceSplitter extends StageProcessor {
                         //only accept abbreviations if the previous char to the abbrev is space or
                         //is empty (beginning of line). This avoids things like .c
                         if (("".equals(before) || " ".equals(before)) && this.abbreviations.contains(lastWord)) {
-                            currentSentence += sentence;
+                            currentSentence.append(sentence);
                             continue;
                         }
 //                      else {
@@ -259,7 +260,7 @@ public class SentenceSplitter extends StageProcessor {
                     }
                 }
                 result.add(currentSentence + sentence);
-                currentSentence = "";
+                currentSentence.setLength(0);
                 continue;
             }
 
