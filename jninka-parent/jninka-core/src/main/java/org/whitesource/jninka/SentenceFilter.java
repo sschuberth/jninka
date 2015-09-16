@@ -18,6 +18,7 @@ package org.whitesource.jninka;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -74,7 +75,7 @@ public class SentenceFilter extends StageProcessor{
 
         BufferedReader reader = null;
         try{
-            reader = new BufferedReader(new InputStreamReader(SentenceFilter.class.getResourceAsStream("/criticalword.dict")));
+            reader = new BufferedReader(new InputStreamReader(SentenceFilter.class.getResourceAsStream("/criticalword.dict"), StandardCharsets.UTF_8));
             String line;
             while ( (line = reader.readLine()) != null ){
                 if (JNinkaUtils.isBlank(line) || line.startsWith("#")) { continue; }

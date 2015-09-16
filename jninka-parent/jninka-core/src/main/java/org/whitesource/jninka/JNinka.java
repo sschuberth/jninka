@@ -20,10 +20,8 @@ import org.whitesource.jninka.model.LicenseAttribution;
 import org.whitesource.jninka.model.ScanResults;
 import org.whitesource.jninka.progress.ScanProgressMonitor;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -242,7 +240,7 @@ public class JNinka {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new FileReader(javafile));
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(javafile), StandardCharsets.UTF_8));
             String line;
             while(result == null && reader.ready()){
                 line = reader.readLine();

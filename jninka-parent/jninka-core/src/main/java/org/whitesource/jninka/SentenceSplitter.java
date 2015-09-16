@@ -18,6 +18,7 @@ package org.whitesource.jninka;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -114,7 +115,7 @@ public class SentenceSplitter extends StageProcessor {
 
         BufferedReader reader = null;
         try{
-            reader = new BufferedReader(new InputStreamReader(SentenceSplitter.class.getResourceAsStream("/splitter.abv")));
+            reader = new BufferedReader(new InputStreamReader(SentenceSplitter.class.getResourceAsStream("/splitter.abv"), StandardCharsets.UTF_8));
             String line;
             while ( (line = reader.readLine()) != null ){
                 line = line.toLowerCase();//java=>perl

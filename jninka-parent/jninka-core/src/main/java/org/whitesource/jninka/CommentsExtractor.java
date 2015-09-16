@@ -15,9 +15,8 @@
  */
 package org.whitesource.jninka;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,7 +63,7 @@ public class CommentsExtractor extends StageProcessor {
                 List<String> outputInfo = new ArrayList<String>();
 
                 int totalLineCount = commentsLength(getInputFile());
-                reader = new BufferedReader(new FileReader(getInputFile()));
+                reader = new BufferedReader(new InputStreamReader(new FileInputStream(getInputFile()), StandardCharsets.UTF_8));
                 String line;
                 int i = totalLineCount > 0 ? 0 : 1;
                 while (((line = reader.readLine()) != null) && (i < totalLineCount)) {
