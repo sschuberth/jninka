@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  *
  * This program is originally based on the Ninka program
  * published by Daniel M German. at:
- * http://ninka.turingmachine.org/ 
+ * http://ninka.turingmachine.org/
  * available form:
  * https://github.com/dmgerman/ninka
  *
@@ -55,38 +55,38 @@ import java.util.logging.Logger;
  * along with this patch.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class JNinka {
-	
-	/* --- Static members --- */
-	
-	private static final Logger logger = Logger.getLogger(JNinka.class.getCanonicalName());
-	
-	/* --- Members --- */
-	
-	private CommentsExtractor commentsExtractor;
 
-	private SentenceSplitter sentenceSplitter;
+    /* --- Static members --- */
 
-	private SentenceFilter sentenceFilter;
+    private static final Logger logger = Logger.getLogger(JNinka.class.getCanonicalName());
 
-	private SentenceTokenizer sentenceTokenizer;
+    /* --- Members --- */
 
-	private boolean getUnknowns;
+    private CommentsExtractor commentsExtractor;
 
-	private ScanProgressMonitor monitor;
+    private SentenceSplitter sentenceSplitter;
+
+    private SentenceFilter sentenceFilter;
+
+    private SentenceTokenizer sentenceTokenizer;
+
+    private boolean getUnknowns;
+
+    private ScanProgressMonitor monitor;
 
     private boolean initialized;
 
-	/* --- Constructor --- */
-	
-	/**
-	 * Default constructor
-	 */
-	public JNinka() {
+    /* --- Constructor --- */
+
+    /**
+     * Default constructor
+     */
+    public JNinka() {
         initialized = false;
         monitor = new ScanProgressMonitor();
-	}
+    }
 
-	/* --- Public methods --- */
+    /* --- Public methods --- */
 
     public void init() {
         logger.info("Initializing JNinka");
@@ -107,28 +107,28 @@ public class JNinka {
         initialized = true;
         logger.info("JNinka initialization is done in " + (System.currentTimeMillis() - t) + " [msec]");
     }
-	
-	public ScanResults scanFolder(File folder, boolean getUnknowns){
+
+    public ScanResults scanFolder(File folder, boolean getUnknowns){
         if (!initialized) {
             init();
         }
 
-		this.getUnknowns = getUnknowns;
+        this.getUnknowns = getUnknowns;
 
         SortedSet<File> directories = listSubdirectories(folder);
         logger.fine("counted " + directories.size() + " total directories to scan.");
 
-		monitor.reset();
-		monitor.setParams(directories.size(), 1);
+        monitor.reset();
+        monitor.setParams(directories.size(), 1);
 
-		ScanResults result = new ScanResults();
+        ScanResults result = new ScanResults();
         for (File directory : directories) {
             result.addFindings(scanDir(directory));
             monitor.progress(1, directory.getAbsolutePath());
         }
 
-		return result;
-	}
+        return result;
+    }
 
     /**
      * Scan a given file (not necessarily a source file)
@@ -157,7 +157,7 @@ public class JNinka {
         return result;
     }
 
-	/* --- Private methods --- */
+    /* --- Private methods --- */
 
     private List<CodeFileAttributions> scanDir(File dir) {
         List<CodeFileAttributions> results = new ArrayList<CodeFileAttributions>();
@@ -179,33 +179,33 @@ public class JNinka {
 
     private List<LicenseAttribution> scanFile(File codeFile){
         List<LicenseAttribution> attributions = null;
-		try {
-			// Stage 1.
-			commentsExtractor.setInputFile(codeFile.getAbsolutePath());
-			if (commentsExtractor.process()) {
-				// Stage 2.
-				sentenceSplitter.setInputInfo(commentsExtractor.getOutputInfo());
-				if (sentenceSplitter.process()) {
-					// Stage 3.
-					sentenceFilter.setInputInfo(sentenceSplitter.getOutputInfo());
-					if (sentenceFilter.process()) {
-						// Stage 4.
-						attributions = sentenceTokenizer.getAttributions(sentenceFilter.getGoodOutputInfo(), getUnknowns);
-					} else {
-						logger.severe("sentenceFilter failed");
-					}
-				} else {
-					logger.severe("sentenceSplitter failed");
-				}
-			} else {
-				logger.severe("extract-comments failed");
-			}
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, codeFile.getAbsolutePath() + " - " + e.getMessage(), e);
-		}
+        try {
+            // Stage 1.
+            commentsExtractor.setInputFile(codeFile.getAbsolutePath());
+            if (commentsExtractor.process()) {
+                // Stage 2.
+                sentenceSplitter.setInputInfo(commentsExtractor.getOutputInfo());
+                if (sentenceSplitter.process()) {
+                    // Stage 3.
+                    sentenceFilter.setInputInfo(sentenceSplitter.getOutputInfo());
+                    if (sentenceFilter.process()) {
+                        // Stage 4.
+                        attributions = sentenceTokenizer.getAttributions(sentenceFilter.getGoodOutputInfo(), getUnknowns);
+                    } else {
+                        logger.severe("sentenceFilter failed");
+                    }
+                } else {
+                    logger.severe("sentenceSplitter failed");
+                }
+            } else {
+                logger.severe("extract-comments failed");
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, codeFile.getAbsolutePath() + " - " + e.getMessage(), e);
+        }
 
         return attributions;
-	}
+    }
 
     private SortedSet<File> listSubdirectories(File dir) {
         SortedSet<File> folders = new TreeSet<File>();
@@ -220,8 +220,8 @@ public class JNinka {
             }
         }
 
-		return folders;
-	}
+        return folders;
+    }
 
     private CodeFileAttributions handleHit(File codeFile, List<LicenseAttribution> attributions) {
         CodeFileAttributions fileAttributions = new CodeFileAttributions(attributions, codeFile.getName(), codeFile.lastModified());
@@ -230,40 +230,40 @@ public class JNinka {
         if(JNinkaUtils.JAVA_EXT_PATTERN.matcher(ext).matches()){
             String pkg = extractPackage(codeFile);
             if(!JNinkaUtils.isBlank(pkg)){
-				fileAttributions.setExtra(pkg);
-			}
-		}
+                fileAttributions.setExtra(pkg);
+            }
+        }
 
         return fileAttributions;
-	}
+    }
 
-	private String extractPackage(File javafile){
-		String result = null;
-		BufferedReader reader = null; 
-				
-		try {
-			reader = new BufferedReader(new FileReader(javafile));
-			String line;
-			while(result == null && reader.ready()){
-				line = reader.readLine();
-				if(line != null && line.startsWith("package")){
+    private String extractPackage(File javafile){
+        String result = null;
+        BufferedReader reader = null;
+
+        try {
+            reader = new BufferedReader(new FileReader(javafile));
+            String line;
+            while(result == null && reader.ready()){
+                line = reader.readLine();
+                if(line != null && line.startsWith("package")){
                     result = line.substring(line.indexOf(' '), line.indexOf(';'));
-				}
-			}
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Error reading package from file " + e.getMessage(), e);
-		} finally {
+                }
+            }
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Error reading package from file " + e.getMessage(), e);
+        } finally {
             JNinkaUtils.close(reader, logger);
-		}
-		
-		return result;
-	}
-	
-	/* --- Getters / Setters --- */
-	
-	public ScanProgressMonitor getMonitor(){
-		return this.monitor;
-	}
+        }
+
+        return result;
+    }
+
+    /* --- Getters / Setters --- */
+
+    public ScanProgressMonitor getMonitor(){
+        return this.monitor;
+    }
 }
 
 

@@ -24,77 +24,77 @@ import java.util.List;
 @XmlRootElement
 public class CodeFileAttributions {
 
-	/* --- Members --- */
-	
-	private String fileName;
-	
-	private String extra;
-	
-	private long lastModified;
-	
-	private List<LicenseAttribution> attribution;
-	
-	/* --- Constructors --- */
-	
-	/**
-	 * Default constructor
-	 */
-	public CodeFileAttributions(){
-		// For marshaling
-	}
+    /* --- Members --- */
 
-	/**
-	 * Constructor
-	 * 
-	 * @param attributions
-	 * @param fileName
-	 * @param lastModified
-	 */
-	public CodeFileAttributions(List<LicenseAttribution> attributions, String fileName, long lastModified) {
-		this.attribution = attributions;
-		this.fileName = fileName;
-		this.lastModified = lastModified;
-	}
-	
-	/* --- Overridden methods --- */
+    private String fileName;
 
-	@Override
-	public String toString() {
-		return fileName + " - " + attribution.size();
-	}
-	
-	/* --- Getters / Setters --- */
-	
-	public List<LicenseAttribution> getAttribution() {
-		return attribution;
-	}
+    private String extra;
 
-	public void setAttribution(List<LicenseAttribution> attributions) {
-		this.attribution = attributions;
-	}
+    private long lastModified;
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
+    private List<LicenseAttribution> attribution;
 
-	public String getFileName() {
-		return fileName;
-	}
-	
-	public void setExtra(String extra) {
-		this.extra = extra;
-	}
+    /* --- Constructors --- */
 
-	public String getExtra() {
-		return extra;
-	}
-	
-	public void setLastModified(long lastModified) {
-		this.lastModified = lastModified;
-	}
+    /**
+     * Default constructor
+     */
+    public CodeFileAttributions(){
+        // For marshaling
+    }
 
-	public long getLastModified() {
-		return lastModified;
-	}
-	
+    /**
+     * Constructor
+     *
+     * @param attributions
+     * @param fileName
+     * @param lastModified
+     */
+    public CodeFileAttributions(List<LicenseAttribution> attributions, String fileName, long lastModified) {
+        this.attribution = attributions;
+        this.fileName = fileName;
+        this.lastModified = lastModified;
+    }
+
+    /* --- Overridden methods --- */
+
+    @Override
+    public String toString() {
+        return fileName + " - " + attribution.size();
+    }
+
+    /* --- Getters / Setters --- */
+
+    public List<LicenseAttribution> getAttribution() {
+        return attribution;
+    }
+
+    public void setAttribution(List<LicenseAttribution> attributions) {
+        this.attribution = attributions;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setExtra(String extra) {
+        this.extra = extra;
+    }
+
+    public String getExtra() {
+        return extra;
+    }
+
+    public void setLastModified(long lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    public long getLastModified() {
+        return lastModified;
+    }
+
 }

@@ -29,107 +29,107 @@ import java.util.logging.Logger;
 
 /**
  * HTTP client for JNinka update requests.
- * 
+ *
  * @author tom.shapira
  *
  */
 public class JNinkaUpdateClient  {
 
 
-	/* --- Static members --- */
-	
-	private static final String UPDATE_URL_KEY = "wss.url";
-	
-	private static final String DEFAULT_UPDATE_URL = "http://saas.whitesourcesoftware.com/jninkaUpdate";
-	
-	private static final String JNINKA_VERSION_PARAM = "version";
-	
-	private static final String VERSION_UP_TO_DATE = "VERSION-UP-TO-DATE";
-	
-	private static final int CONNECTION_TIMEOUT = 60000;
-	
-	private static final Logger logger = Logger.getLogger(JNinkaUpdateClient.class.getCanonicalName());
-	
-	/* --- Public methods --- */
-	
-	/**
-	 * Send an update request to WSS.
-	 * 
-	 * @return Link to download page or null in case version is up to date or an error occurred.
-	 */
-	public String checkForUpdate(String currentVersion) {
-		String response = "";
+    /* --- Static members --- */
+
+    private static final String UPDATE_URL_KEY = "wss.url";
+
+    private static final String DEFAULT_UPDATE_URL = "http://saas.whitesourcesoftware.com/jninkaUpdate";
+
+    private static final String JNINKA_VERSION_PARAM = "version";
+
+    private static final String VERSION_UP_TO_DATE = "VERSION-UP-TO-DATE";
+
+    private static final int CONNECTION_TIMEOUT = 60000;
+
+    private static final Logger logger = Logger.getLogger(JNinkaUpdateClient.class.getCanonicalName());
+
+    /* --- Public methods --- */
+
+    /**
+     * Send an update request to WSS.
+     *
+     * @return Link to download page or null in case version is up to date or an error occurred.
+     */
+    public String checkForUpdate(String currentVersion) {
+        String response = "";
 
         // call service
         HttpURLConnection connection = null;
         try {
             connection = initConnection();
-			response = sendRequest(connection, JNINKA_VERSION_PARAM + "=" + currentVersion);
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Error checking for update", e);
-		} finally {
-			if (connection != null) {
-				connection.disconnect();
-			}
-		}
+            response = sendRequest(connection, JNINKA_VERSION_PARAM + "=" + currentVersion);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Error checking for update", e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
 
         return handleResponse(response);
-	}
+    }
 
-	/* --- Private methods --- */
+    /* --- Private methods --- */
 
-	private HttpURLConnection initConnection() throws IOException {
-		String updateUrl = System.getProperty(UPDATE_URL_KEY, DEFAULT_UPDATE_URL);
-		URL url = new URL(updateUrl);
+    private HttpURLConnection initConnection() throws IOException {
+        String updateUrl = System.getProperty(UPDATE_URL_KEY, DEFAULT_UPDATE_URL);
+        URL url = new URL(updateUrl);
 
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setDoOutput(true);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
         connection.setInstanceFollowRedirects(true);
         connection.setConnectTimeout(CONNECTION_TIMEOUT);
         connection.setReadTimeout(CONNECTION_TIMEOUT);
 
-		return connection;
-	}
+        return connection;
+    }
 
-	/**
-	 * Writes the data to the connection and reads response.
-	 *
-	 * @param connection
-	 * @param path
-	 *
-	 * @return
-	 *
-	 * @throws IOException
-	 */
-	private String sendRequest(HttpURLConnection connection, String path) throws IOException {
+    /**
+     * Writes the data to the connection and reads response.
+     *
+     * @param connection
+     * @param path
+     *
+     * @return
+     *
+     * @throws IOException
+     */
+    private String sendRequest(HttpURLConnection connection, String path) throws IOException {
         String response = "";
 
-		OutputStreamWriter writer = null;
-		BufferedReader reader = null;
-		try {
-			logger.log(Level.INFO, "Sending request");
-			writer = new OutputStreamWriter(connection.getOutputStream());
-			writer.write(path);
-			writer.flush();
+        OutputStreamWriter writer = null;
+        BufferedReader reader = null;
+        try {
+            logger.log(Level.INFO, "Sending request");
+            writer = new OutputStreamWriter(connection.getOutputStream());
+            writer.write(path);
+            writer.flush();
 
-			logger.log(Level.INFO, "Reading response");
-			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		    StringBuilder sb = new StringBuilder();
-			String line;
-			while ((line = reader.readLine()) != null) {
-				sb.append(line);
-			}
+            logger.log(Level.INFO, "Reading response");
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
             response = sb.toString();
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Problem sending request or reading response", e);
-		} finally {
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Problem sending request or reading response", e);
+        } finally {
             JNinkaUtils.close(writer, logger);
             JNinkaUtils.close(reader, logger);
-		}
+        }
 
-		return response;
-	}
+        return response;
+    }
 
     private String handleResponse(String response) {
         if (VERSION_UP_TO_DATE.equals(response)) {

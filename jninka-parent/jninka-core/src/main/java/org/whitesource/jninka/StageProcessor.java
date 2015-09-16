@@ -20,37 +20,37 @@ import java.util.List;
 
 /**
  * Base, abstract, class for a generic stage in the algorithm.
- * 
+ *
  * @author Rami.Sass
  */
 public abstract class StageProcessor {
-	
-	/* --- Members --- */
-	
-	private List<String> outputInfo = new ArrayList<String>();	  
-	
-	private List<String> inputInfo = new ArrayList<String>();	
-	
-	/* --- Abstract methods --- */
-	
-	public abstract boolean process();
-	
-	/* --- Getters / Setters --- */
-	
-	public List<String> getOutputInfo(){
-	    return outputInfo;
-	}
-			   
-	public void setOutputInfo(List<String> outputInfo){
-		this.outputInfo = outputInfo;
-	}
-	   
-	public List<String> getInputInfo(){
-		return inputInfo;
-	}
-			   
-	public void setInputInfo(List<String> inputInfo){
-		this.inputInfo = inputInfo;
-	}	 
-	
-}		
+
+    /* --- Members --- */
+
+    private List<String> outputInfo = new ArrayList<String>();
+
+    private List<String> inputInfo = new ArrayList<String>();
+
+    /* --- Abstract methods --- */
+
+    public abstract boolean process();
+
+    /* --- Getters / Setters --- */
+
+    public List<String> getOutputInfo(){
+        return outputInfo;
+    }
+
+    public void setOutputInfo(List<String> outputInfo){
+        this.outputInfo = outputInfo;
+    }
+
+    public List<String> getInputInfo(){
+        return inputInfo;
+    }
+
+    public void setInputInfo(List<String> inputInfo){
+        this.inputInfo = inputInfo;
+    }
+
+}

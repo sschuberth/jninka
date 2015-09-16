@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 public class JNinkaUtilsTest {
 
     @Test
-	public void testAlphabeticalCount() {
+    public void testAlphabeticalCount() {
         assertEquals(0, JNinkaUtils.alphabeticCount(""));
         assertEquals(3, JNinkaUtils.alphabeticCount("abc"));
         assertEquals(3, JNinkaUtils.alphabeticCount("abc "));
