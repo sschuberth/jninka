@@ -164,7 +164,7 @@ public class JNinka {
         File[] files = dir.listFiles();
         if (files != null) {
             for(File sourceFile : files){
-                if (JNinkaUtils.isSourceCode(sourceFile)) {
+                if (Main.doScanAllFiles() || JNinkaUtils.isSourceCode(sourceFile)) {
                     List<LicenseAttribution> attributions = scanFile(sourceFile);
                     if (!JNinkaUtils.isEmpty(attributions)) {
                         results.add(handleHit(sourceFile, attributions, baseDir));

@@ -28,6 +28,11 @@ import java.util.logging.Logger;
  * @author Rami.Sass
  */
 public class Main {
+    private static boolean scanAllFiles = false;
+
+    public static boolean doScanAllFiles() {
+        return scanAllFiles;
+    }
 
     /**
      * Main entry point.
@@ -36,12 +41,22 @@ public class Main {
      */
     public static void main(String[] args) {
         if (args.length < 2) {
-            System.out.println("usage: jninka <source-folder> <output-file>");
+            System.out.println("usage: jninka [--all] <source-folder> <output-file>");
         } else {
             long time = System.currentTimeMillis();
 
-            System.out.println("Source code directory is " + args[0]);
-            System.out.println("Scan results file is " + args[1]);
+            String sourceFolder, outputFile;
+            if ("--all".equals(args[0])) {
+                scanAllFiles = true;
+                sourceFolder = args[1];
+                outputFile = args[2];
+            } else {
+                sourceFolder = args[0];
+                outputFile = args[1];
+            }
+
+            System.out.println("Source code directory is " + sourceFolder);
+            System.out.println("Scan results file is " + outputFile);
 
             initLogging();
 
@@ -50,13 +65,12 @@ public class Main {
                 ninka.getMonitor().addListener(new SysOutListener());
 
                 System.out.println("Starting scan ...");
-                File sourceFolder = new File(args[0]);
-                ScanResults scanResults = ninka.scanFolder(sourceFolder, true);
+                ScanResults scanResults = ninka.scanFolder(new File(sourceFolder), true);
 
                 System.out.println(" finished.\nWriting results to file ...");
-                scanResults.writeXML(new File(args[1]));
+                scanResults.writeXML(new File(outputFile));
 
-                System.out.println("Scan results found " + scanResults.getfindings().size() + " potential files." );
+                System.out.println("Scan results found " + scanResults.getfindings().size() + " potential license(s)." );
 
                 time = (System.currentTimeMillis() - time) / 1000;
                 System.out.println("Completed at " + time + " [sec]");
