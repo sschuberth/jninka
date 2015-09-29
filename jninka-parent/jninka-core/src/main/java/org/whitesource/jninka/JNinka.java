@@ -20,10 +20,9 @@ import org.whitesource.jninka.model.LicenseAttribution;
 import org.whitesource.jninka.model.ScanResults;
 import org.whitesource.jninka.progress.ScanProgressMonitor;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -123,7 +122,7 @@ public class JNinka {
 
         ScanResults result = new ScanResults();
         for (File directory : directories) {
-            result.addFindings(scanDir(directory));
+            result.addFindings(scanDir(directory, folder));
             monitor.progress(1, directory.getAbsolutePath());
         }
 
@@ -150,7 +149,7 @@ public class JNinka {
         ScanResults result = new ScanResults();
         List<LicenseAttribution> attributions = scanFile(file);
         if (!JNinkaUtils.isEmpty(attributions)) {
-            result.addFindings(Arrays.asList(handleHit(file, attributions)));
+            result.addFindings(Collections.singletonList(handleHit(file, attributions)));
         }
         monitor.progress(1, file.getAbsolutePath());
 
@@ -159,7 +158,7 @@ public class JNinka {
 
     /* --- Private methods --- */
 
-    private List<CodeFileAttributions> scanDir(File dir) {
+    private List<CodeFileAttributions> scanDir(File dir, File baseDir) {
         List<CodeFileAttributions> results = new ArrayList<CodeFileAttributions>();
 
         File[] files = dir.listFiles();
@@ -168,7 +167,7 @@ public class JNinka {
                 if (JNinkaUtils.isSourceCode(sourceFile)) {
                     List<LicenseAttribution> attributions = scanFile(sourceFile);
                     if (!JNinkaUtils.isEmpty(attributions)) {
-                        results.add(handleHit(sourceFile, attributions));
+                        results.add(handleHit(sourceFile, attributions, baseDir));
                     }
                 }
             }
@@ -224,7 +223,12 @@ public class JNinka {
     }
 
     private CodeFileAttributions handleHit(File codeFile, List<LicenseAttribution> attributions) {
-        CodeFileAttributions fileAttributions = new CodeFileAttributions(attributions, codeFile.getName(), codeFile.lastModified());
+        return handleHit(codeFile, attributions, null);
+    }
+
+    private CodeFileAttributions handleHit(File codeFile, List<LicenseAttribution> attributions, File baseDir) {
+        String fileName = (baseDir != null) ? baseDir.toPath().relativize(codeFile.toPath()).toString() : codeFile.getName();
+        CodeFileAttributions fileAttributions = new CodeFileAttributions(attributions, fileName, codeFile.lastModified());
 
         String ext = JNinkaUtils.fileExtension(codeFile);
         if(JNinkaUtils.JAVA_EXT_PATTERN.matcher(ext).matches()){
@@ -242,7 +246,7 @@ public class JNinka {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new FileReader(javafile));
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(javafile), StandardCharsets.UTF_8));
             String line;
             while(result == null && reader.ready()){
                 line = reader.readLine();

@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -83,10 +84,7 @@ public class SentenceTokenizer {
             String LGPL = "";
 
             LicenseSentence finalSentence = null;
-            Iterator<LicenseSentence> iterator = licenseSentences.iterator();
-            while (iterator.hasNext()) {
-                LicenseSentence licenseSentence = iterator.next();
-
+            for (LicenseSentence licenseSentence : licenseSentences) {
                 // we need this due to the goto (loop in java) again
                 line = saveLine;
                 gpl = saveGPL;
@@ -105,12 +103,12 @@ public class SentenceTokenizer {
                         matchName = licenseSentence.name;
 
                         for (int i = 1; i <= licenseSentence.number; i++){
-                            params.add(JNinkaRegullarExpression.getGroupValue(matcher, i));
+                            params.add(JNinkaRegularExpression.getGroupValue(matcher, i));
                         }
 
-                        before = JNinkaRegullarExpression.beforeMatch(licenseSentence.pattern, line);
+                        before = JNinkaRegularExpression.beforeMatch(licenseSentence.pattern, line);
                         before = JNinkaUtils.abbreviate(before, this.getTooLong());
-                        after = JNinkaRegullarExpression.postMatch(licenseSentence.pattern, line);
+                        after = JNinkaRegularExpression.postMatch(licenseSentence.pattern, line);
                         after = JNinkaUtils.abbreviate(after, this.getTooLong());
 
                         isContinueExternalLoop = false;
@@ -120,7 +118,7 @@ public class SentenceTokenizer {
                         // let us try again in case it is lesser/library. Do it only once
                         Matcher lgplMatcher = LESSER_GPL_PATTERN.matcher(line);
                         if (gpl && lgplMatcher.find()) {
-                            LGPL = JNinkaRegullarExpression.getGroupValue(lgplMatcher, 1);
+                            LGPL = JNinkaRegularExpression.getGroupValue(lgplMatcher, 1);
                             continue;
                         }
                         if (gpl){
@@ -133,7 +131,7 @@ public class SentenceTokenizer {
                         /*
                          * commented in perl String targetset = regexp;
                          * targetset =
-                         * JNinkaRegullarExpression.applyReplace(targetset,
+                         * JNinkaRegularExpression.applyReplace(targetset,
                          * "^(.*)$", "$1"); int tmpdist =
                          * senttok.getLevenshteinDistance(line,
                          * targetset)/Math
@@ -181,7 +179,7 @@ public class SentenceTokenizer {
         Pattern sentenceFormat = Pattern.compile("(.*?):(.*?):(.*)");
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new InputStreamReader(SentenceTokenizer.class.getResourceAsStream("/licensesentence.dict")));
+            reader = new BufferedReader(new InputStreamReader(SentenceTokenizer.class.getResourceAsStream("/licensesentence.dict"), StandardCharsets.UTF_8));
             String line;
             while ((line = reader.readLine()) != null) {
                 if (JNinkaUtils.isBlank(line) || line.startsWith("#")) { continue; }
@@ -205,79 +203,79 @@ public class SentenceTokenizer {
         String version = "0";
 
         //do some very quick spelling corrections for english/british words
-        line = JNinkaRegullarExpression.applyReplace(line, "Version 2,? \\(June 1991\\)", "Version 2", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "Version 2,? dated June 1991", "Version 2", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "Version 2\\.1,? dated February 1999", "Version 2.1", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "Version 2,? \\(June 1991\\)", "Version 2", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "Version 2,? dated June 1991", "Version 2", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "Version 2\\.1,? dated February 1999", "Version 2.1", Pattern.CASE_INSENSITIVE);
 
-        if (JNinkaRegullarExpression.isMatch(line, ",? or \\(?at your option\\)?,? any later version", Pattern.CASE_INSENSITIVE)){
+        if (JNinkaRegularExpression.isMatch(line, ",? or \\(?at your option\\)?,? any later version", Pattern.CASE_INSENSITIVE)){
             later = true;
-            line = JNinkaRegullarExpression.applyReplace(line, ",? or \\(?at your option\\)?,? any later version", "", Pattern.CASE_INSENSITIVE);
+            line = JNinkaRegularExpression.applyReplace(line, ",? or \\(?at your option\\)?,? any later version", "", Pattern.CASE_INSENSITIVE);
         }
-        if (JNinkaRegullarExpression.isMatch(line, ", or any later version", Pattern.CASE_INSENSITIVE)){
+        if (JNinkaRegularExpression.isMatch(line, ", or any later version", Pattern.CASE_INSENSITIVE)){
             later = true;
-            line = JNinkaRegullarExpression.applyReplace(line, ", or any later version", "", Pattern.CASE_INSENSITIVE);
+            line = JNinkaRegularExpression.applyReplace(line, ", or any later version", "", Pattern.CASE_INSENSITIVE);
         }
-        if (JNinkaRegullarExpression.isMatch(line, " or (greater|later)", Pattern.CASE_INSENSITIVE)){
+        if (JNinkaRegularExpression.isMatch(line, " or (greater|later)", Pattern.CASE_INSENSITIVE)){
             later = true;
-            line = JNinkaRegullarExpression.applyReplace(line, " or (greater|later)", "", Pattern.CASE_INSENSITIVE);
+            line = JNinkaRegularExpression.applyReplace(line, " or (greater|later)", "", Pattern.CASE_INSENSITIVE);
         }
-        if (JNinkaRegullarExpression.isMatch(line, "or (greater|later) ", Pattern.CASE_INSENSITIVE)){
+        if (JNinkaRegularExpression.isMatch(line, "or (greater|later) ", Pattern.CASE_INSENSITIVE)){
             later = true;
-            line = JNinkaRegullarExpression.applyReplace(line, "or (greater|later) ", "", Pattern.CASE_INSENSITIVE);
+            line = JNinkaRegularExpression.applyReplace(line, "or (greater|later) ", "", Pattern.CASE_INSENSITIVE);
         }
 
-        if (JNinkaRegullarExpression.isMatch(line, "(version|v\\.?) ([123\\.0]+)", Pattern.CASE_INSENSITIVE)){
-            version = JNinkaRegullarExpression.getGroupValue(line, "(version|v\\.?) ([123\\.0]+)", 2, Pattern.CASE_INSENSITIVE);
-            line = JNinkaRegullarExpression.applyReplace(line, "(version|v\\.?) ([123\\.0]+)", "<VERSION>", Pattern.CASE_INSENSITIVE);
+        if (JNinkaRegularExpression.isMatch(line, "(version|v\\.?) ([123\\.0]+)", Pattern.CASE_INSENSITIVE)){
+            version = JNinkaRegularExpression.getGroupValue(line, "(version|v\\.?) ([123\\.0]+)", 2, Pattern.CASE_INSENSITIVE);
+            line = JNinkaRegularExpression.applyReplace(line, "(version|v\\.?) ([123\\.0]+)", "<VERSION>", Pattern.CASE_INSENSITIVE);
         }
-        if (JNinkaRegullarExpression.isMatch(line, "GPL ?[v\\-]([123\\.0]+)", Pattern.CASE_INSENSITIVE)){
-            version = JNinkaRegullarExpression.getGroupValue(line, "GPL ?[v\\-]([123\\.0]+)", 1, Pattern.CASE_INSENSITIVE);
-            line = JNinkaRegullarExpression.applyReplace(line, "GPL ?[v\\-]([123\\.0]+)", "GPL <VERSION>", Pattern.CASE_INSENSITIVE);
+        if (JNinkaRegularExpression.isMatch(line, "GPL ?[v\\-]([123\\.0]+)", Pattern.CASE_INSENSITIVE)){
+            version = JNinkaRegularExpression.getGroupValue(line, "GPL ?[v\\-]([123\\.0]+)", 1, Pattern.CASE_INSENSITIVE);
+            line = JNinkaRegularExpression.applyReplace(line, "GPL ?[v\\-]([123\\.0]+)", "GPL <VERSION>", Pattern.CASE_INSENSITIVE);
         }
-        if (JNinkaRegullarExpression.isMatch(line, "v\\.?([123\\.0]+)( *[0-9]+)", Pattern.CASE_INSENSITIVE)){
-            version = JNinkaRegullarExpression.getGroupValue(line, "v\\.?([123\\.0]+)( *[0-9]+)", 1, Pattern.CASE_INSENSITIVE);
-            line = JNinkaRegullarExpression.applyReplace(line, "v\\.?([123\\.0]+)( *[0-9]+)", "<VERSION>$2", Pattern.CASE_INSENSITIVE);
+        if (JNinkaRegularExpression.isMatch(line, "v\\.?([123\\.0]+)( *[0-9]+)", Pattern.CASE_INSENSITIVE)){
+            version = JNinkaRegularExpression.getGroupValue(line, "v\\.?([123\\.0]+)( *[0-9]+)", 1, Pattern.CASE_INSENSITIVE);
+            line = JNinkaRegularExpression.applyReplace(line, "v\\.?([123\\.0]+)( *[0-9]+)", "<VERSION>$2", Pattern.CASE_INSENSITIVE);
         }
 
-        line = JNinkaRegullarExpression.applyReplace(line, "(distributable|licensed|released|made available)", "<LICENSED>", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "Library General Public License", "Library General Public License", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "Lesser General Public License", "Lesser General Public License", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "(distributable|licensed|released|made available)", "<LICENSED>", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "Library General Public License", "Library General Public License", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "Lesser General Public License", "Lesser General Public License", Pattern.CASE_INSENSITIVE);
 
-        line = JNinkaRegullarExpression.applyReplace(line, "General Public License", "GPL", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "GPL \\(GPL\\)", "GPL", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "GPL \\(<QUOTES>GPL<QUOTES>\\)", "GPL", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "General Public License", "GPL", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "GPL \\(GPL\\)", "GPL", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "GPL \\(<QUOTES>GPL<QUOTES>\\)", "GPL", Pattern.CASE_INSENSITIVE);
 
-        line = JNinkaRegullarExpression.applyReplace(line, "GNU ", "", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "under GPL", "under the GPL", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "under Lesser", "under the Lesser", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "under Library", "under the Library", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "GNU ", "", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "under GPL", "under the GPL", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "under Lesser", "under the Lesser", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "under Library", "under the Library", Pattern.CASE_INSENSITIVE);
 
 
-        line = JNinkaRegullarExpression.applyReplace(line, "of GPL", "of the GPL", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "f Lesser", "of the Lesser", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "of Library", "of the Library", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "of GPL", "of the GPL", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "f Lesser", "of the Lesser", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "of Library", "of the Library", Pattern.CASE_INSENSITIVE);
 
-        line = JNinkaRegullarExpression.applyReplace(line, "(can|may)", "can", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "<VERSION> only", "<VERSION>", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "<VERSION> of the license", "<VERSION>", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "(<VERSION>|GPL),? as published by the Free Software Foundation", "$1", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "(<VERSION>|GPL) \\(as published by the Free Software Foundation\\)", "$1", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "(<VERSION>|GPL),? incorporated herein by reference", "$1", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "(can|may)", "can", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "<VERSION> only", "<VERSION>", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "<VERSION> of the license", "<VERSION>", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "(<VERSION>|GPL),? as published by the Free Software Foundation", "$1", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "(<VERSION>|GPL) \\(as published by the Free Software Foundation\\)", "$1", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "(<VERSION>|GPL),? incorporated herein by reference", "$1", Pattern.CASE_INSENSITIVE);
 
-        line = JNinkaRegullarExpression.applyReplace(line, "terms and conditions", "terms", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "GPL along with", "GPL with", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "GPL \\(<VERSION\\)", "GPL <VERSION>", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "terms and conditions", "terms", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "GPL along with", "GPL with", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "GPL \\(<VERSION\\)", "GPL <VERSION>", Pattern.CASE_INSENSITIVE);
 
-        line = JNinkaRegullarExpression.applyReplace(line, " +", " ");
-        line = JNinkaRegullarExpression.applyReplace(line, " +$", "");
+        line = JNinkaRegularExpression.applyReplace(line, " +", " ");
+        line = JNinkaRegularExpression.applyReplace(line, " +$", "");
 
         return new Object[]{line, later, version};
     }
 
     private String normalizeSentence(String line){
         // do some very quick spelling corrections for english/british words
-        line = JNinkaRegullarExpression.applyReplace(line, "icence", "icense", Pattern.CASE_INSENSITIVE);
-        line = JNinkaRegullarExpression.applyReplace(line, "(\\.|;)$", "");
+        line = JNinkaRegularExpression.applyReplace(line, "icence", "icense", Pattern.CASE_INSENSITIVE);
+        line = JNinkaRegularExpression.applyReplace(line, "(\\.|;)$", "");
         return line;
     }
 
