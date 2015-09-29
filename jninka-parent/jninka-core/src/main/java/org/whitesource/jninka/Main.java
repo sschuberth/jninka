@@ -70,7 +70,7 @@ public class Main {
                 System.out.println(" finished.\nWriting results to file ...");
                 scanResults.writeXML(new File(outputFile));
 
-                System.out.println("Scan results found " + scanResults.getfindings().size() + " potential license(s)." );
+                System.out.println("Scan results found " + scanResults.getFindings().size() + " potential license(s)." );
 
                 time = (System.currentTimeMillis() - time) / 1000;
                 System.out.println("Completed at " + time + " [sec]");
