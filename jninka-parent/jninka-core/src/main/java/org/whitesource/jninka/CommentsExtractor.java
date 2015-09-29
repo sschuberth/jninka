@@ -26,9 +26,9 @@ import java.util.regex.Pattern;
 /**
  * @author Rami.Sass
  */
-public class CommentsExtractor extends StageProcessor {	
+public class CommentsExtractor extends StageProcessor {
 
-	/* --- Static members --- */
+    /* --- Static members --- */
     public static final int DEFAULT_COMMENTS_LENGTH = 700;
 
     private static final Map<Pattern, Integer> commentsLengthMap = new HashMap<Pattern, Integer>();
@@ -44,54 +44,54 @@ public class CommentsExtractor extends StageProcessor {
         commentsLengthMap.put(JNinkaUtils.OBJECTIVE_C_EXT_PATTERN, DEFAULT_COMMENTS_LENGTH);
     }
 
-	private static Logger logger = Logger.getLogger(CommentsExtractor.class.getCanonicalName());
+    private static Logger logger = Logger.getLogger(CommentsExtractor.class.getCanonicalName());
 
-	/* --- Members --- */
-	
-	private String inputFile = "";
-	
-	/* --- Public methods --- */
-	
-	public boolean process() {	
-		boolean result = true;
-		
-		if (getInputFile().length() <= 0){
-			logger.severe("Failed to retrieve file size info: file " + getInputFile() + " doesn\'t exist or empty.");
-			result = false;
-		} else {
-			BufferedReader reader = null;
-			try{
-				List<String> outputInfo = new ArrayList<String>();
-				
-				int totalLineCount = commentsLength(getInputFile());
-				reader = new BufferedReader(new FileReader(getInputFile()));
-				String line;
-				int i = totalLineCount > 0 ? 0 : 1;
-				while (((line = reader.readLine()) != null) && (i < totalLineCount)) {
-					i++;
-					outputInfo.add(line);
-				}
-				
-				this.setOutputInfo(outputInfo);
-			} catch (IOException e){
-				result = false;
-				logger.log(Level.WARNING, e.getMessage(), e);
-			}
-			finally {
-				JNinkaUtils.close(reader, logger);
-			}
-		}
-		
-		return result;
-	}
-	
-	/* --- Private methods --- */
-	
-	private int commentsLength(String filepath){
-		Integer lineCount = null;
+    /* --- Members --- */
+
+    private String inputFile = "";
+
+    /* --- Public methods --- */
+
+    public boolean process() {
+        boolean result = true;
+
+        if (getInputFile().length() <= 0){
+            logger.severe("Failed to retrieve file size info: file " + getInputFile() + " doesn\'t exist or empty.");
+            result = false;
+        } else {
+            BufferedReader reader = null;
+            try{
+                List<String> outputInfo = new ArrayList<String>();
+
+                int totalLineCount = commentsLength(getInputFile());
+                reader = new BufferedReader(new FileReader(getInputFile()));
+                String line;
+                int i = totalLineCount > 0 ? 0 : 1;
+                while (((line = reader.readLine()) != null) && (i < totalLineCount)) {
+                    i++;
+                    outputInfo.add(line);
+                }
+
+                this.setOutputInfo(outputInfo);
+            } catch (IOException e){
+                result = false;
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
+            finally {
+                JNinkaUtils.close(reader, logger);
+            }
+        }
+
+        return result;
+    }
+
+    /* --- Private methods --- */
+
+    private int commentsLength(String filepath){
+        Integer lineCount = null;
 
         String ext = JNinkaUtils.fileExtension(filepath);
-	    if (JNinkaUtils.isBlank(ext)) {
+        if (JNinkaUtils.isBlank(ext)) {
             lineCount = DEFAULT_COMMENTS_LENGTH;
         } else {
             Iterator<Map.Entry<Pattern, Integer>> iterator = commentsLengthMap.entrySet().iterator();
@@ -103,20 +103,20 @@ public class CommentsExtractor extends StageProcessor {
             }
             if (lineCount == null) {
                 lineCount = DEFAULT_COMMENTS_LENGTH;
-	        } 
-	    }
-	    
-	    return lineCount;
-	}
-		
-	/* --- Getters / Setters --- */
-	
+            }
+        }
+
+        return lineCount;
+    }
+
+    /* --- Getters / Setters --- */
+
     public String getInputFile(){
         return this.inputFile;
     }
 
-	public void setInputFile(String lInputFile){
-    	this.inputFile = lInputFile;
+    public void setInputFile(String lInputFile){
+        this.inputFile = lInputFile;
     }
 
 }

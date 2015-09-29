@@ -54,28 +54,28 @@ public class JNinkaUtils{
             JAVA_EXT_REGEX+ "|" + JS_EXT_REGEX+ "|" + PERL_EXT_REGEX+ "|" + LISP_EXT_REGEX+ "|" + PHP_EXT_REGEX+ "|" +
             C_CPP_EXT_REGEX+ "|" + DOT_NET_EXT_REGEX+ "|" + AS_EXT_REGEX+ "|" + OBJECTIVE_C_EXT_REGEX);
 
-	/* --- Public static methods --- */
-	
-	/**
-	 * @param coll
-	 * @param delimiter
-	 * @return
-	 * 
-	 * @deprecated Consider using StringUtils instead. 
-	 */
-	public static String joinArrayList(List<String> coll, String delimiter){
-	    if (coll.isEmpty()){
-	    	return "";
-	    }
-	    StringBuilder sb = new StringBuilder();
-	 
-	    for (String x : coll){
-	    	sb.append(x).append(delimiter);
-	    }
-	    sb.delete(sb.length() - delimiter.length(), sb.length());
+    /* --- Public static methods --- */
+
+    /**
+     * @param coll
+     * @param delimiter
+     * @return
+     *
+     * @deprecated Consider using StringUtils instead.
+     */
+    public static String joinArrayList(List<String> coll, String delimiter){
+        if (coll.isEmpty()){
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+
+        for (String x : coll){
+            sb.append(x).append(delimiter);
+        }
+        sb.delete(sb.length() - delimiter.length(), sb.length());
 
         return sb.toString();
-	}
+    }
 
     public static boolean isBlank(String str) {
         return str == null || "".equals(str.trim());
@@ -85,9 +85,9 @@ public class JNinkaUtils{
         return collection == null || collection.isEmpty();
     }
 
-	public static String fileExtension(String filepath){
-		return fileExtension(new File(filepath));
-	}
+    public static String fileExtension(String filepath){
+        return fileExtension(new File(filepath));
+    }
 
     public static String fileExtension(File file){
         String fileName = file.getName();
@@ -130,14 +130,14 @@ public class JNinkaUtils{
             }
         }
     }
-	
-	/* --- Constructors --- */
-	
-	/**
-	 * Private default constructor
-	 */
-	private JNinkaUtils() {
-		// avoid instantiation
-	}
-	
+
+    /* --- Constructors --- */
+
+    /**
+     * Private default constructor
+     */
+    private JNinkaUtils() {
+        // avoid instantiation
+    }
+
 }

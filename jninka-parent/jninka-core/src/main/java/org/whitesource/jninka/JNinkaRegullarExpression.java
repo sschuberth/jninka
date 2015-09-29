@@ -23,11 +23,11 @@ import java.util.regex.Pattern;
  */
 public final class JNinkaRegullarExpression {
 
-	/* --- Static members --- */
+    /* --- Static members --- */
 
     private static final int fakeFlag = -987;
-	
-	/* --- Public static methods --- */
+
+    /* --- Public static methods --- */
 
     /**
      * @param text
@@ -144,8 +144,8 @@ public final class JNinkaRegullarExpression {
     public static String postMatch(Pattern pattern, String text) {
         return JNinkaRegullarExpression.beforePostMatch(pattern, text, false);
     }
-	
-	/* --- Private static methods --- */
+
+    /* --- Private static methods --- */
 
     private static String beforePostMatch(Pattern pattern, String text, boolean isBeforeMatch) {
         StringBuffer sb = new StringBuffer();
@@ -163,7 +163,7 @@ public final class JNinkaRegullarExpression {
         return isBeforeMatch ? before : after ;
     }
 
-	/* --- Constructors --- */
+    /* --- Constructors --- */
 
     /**
      * Private constructor

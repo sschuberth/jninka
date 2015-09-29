@@ -29,91 +29,91 @@ import java.util.logging.Logger;
  */
 public class Main {
 
-	/**
-	 * Main entry point.
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		if (args.length < 2) {
-			System.out.println("usage: jninka <source-folder> <output-file>");
-		} else {
-			long time = System.currentTimeMillis();
-			
-			System.out.println("Source code directory is " + args[0]);
-			System.out.println("Scan results file is " + args[1]);
-			
-			initLogging();
-			
-			try {
-				JNinka ninka = new JNinka();
-				ninka.getMonitor().addListener(new SysOutListener());
+    /**
+     * Main entry point.
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        if (args.length < 2) {
+            System.out.println("usage: jninka <source-folder> <output-file>");
+        } else {
+            long time = System.currentTimeMillis();
 
-				System.out.println("Starting scan ...");
-				File sourceFolder = new File(args[0]);
-				ScanResults scanResults = ninka.scanFolder(sourceFolder, true);
-				
-				System.out.println(" finished.\nWriting results to file ...");
-				scanResults.writeXML(new File(args[1]));
-				
-				System.out.println("Scan results found " + scanResults.getfindings().size() + " potential files." );
-				
-				time = (System.currentTimeMillis() - time) / 1000;
-				System.out.println("Completed at " + time + " [sec]");
-			} catch (Exception e) {
-				System.out.println("Error: " + e.getMessage());
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	/* --- Nested classes --- */
-	
-	/**
-	 * Implementation of the interface using {@link System#out} to report progress.
-	 */
-	static class SysOutListener implements ScanProgressListener {
-		@Override
-		public void progress(int pct, String details) {
-			System.out.print("\rScan progress: " + pct + " %");
-		}
-	}
-	
-	/* --- Private methods --- */
-	
-	/**
-	 * The method initialize the application logging facilities.
-	 */
-	private static void initLogging() {
-		Logger log = Logger.getLogger("jninka");
-		log.fine("Loading logging configuration file ...");
+            System.out.println("Source code directory is " + args[0]);
+            System.out.println("Scan results file is " + args[1]);
 
-		InputStream configFile = null; 
-		try {
-			configFile = Main.class.getResourceAsStream("/logging.properties");
-		    LogManager.getLogManager().readConfiguration(configFile);
-		} catch (IOException ex) {
-		    System.out.println("WARNING: Could not open configuration file");
-		    System.out.println("WARNING: Logging not configured (console output only)");
-		} finally {
-			if (configFile != null) {
-				try {
-					configFile.close();
-				} catch (IOException e) {
-					System.out.println("ERROR: Could not close configuration file");
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
+            initLogging();
+
+            try {
+                JNinka ninka = new JNinka();
+                ninka.getMonitor().addListener(new SysOutListener());
+
+                System.out.println("Starting scan ...");
+                File sourceFolder = new File(args[0]);
+                ScanResults scanResults = ninka.scanFolder(sourceFolder, true);
+
+                System.out.println(" finished.\nWriting results to file ...");
+                scanResults.writeXML(new File(args[1]));
+
+                System.out.println("Scan results found " + scanResults.getfindings().size() + " potential files." );
+
+                time = (System.currentTimeMillis() - time) / 1000;
+                System.out.println("Completed at " + time + " [sec]");
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /* --- Nested classes --- */
+
+    /**
+     * Implementation of the interface using {@link System#out} to report progress.
+     */
+    static class SysOutListener implements ScanProgressListener {
+        @Override
+        public void progress(int pct, String details) {
+            System.out.print("\rScan progress: " + pct + " %");
+        }
+    }
+
+    /* --- Private methods --- */
+
+    /**
+     * The method initialize the application logging facilities.
+     */
+    private static void initLogging() {
+        Logger log = Logger.getLogger("jninka");
+        log.fine("Loading logging configuration file ...");
+
+        InputStream configFile = null;
+        try {
+            configFile = Main.class.getResourceAsStream("/logging.properties");
+            LogManager.getLogManager().readConfiguration(configFile);
+        } catch (IOException ex) {
+            System.out.println("WARNING: Could not open configuration file");
+            System.out.println("WARNING: Logging not configured (console output only)");
+        } finally {
+            if (configFile != null) {
+                try {
+                    configFile.close();
+                } catch (IOException e) {
+                    System.out.println("ERROR: Could not close configuration file");
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 /* --- Constructors --- */
-	
-	/**
-	 * Private default constructor
-	 */
-	private Main() {
-		// avoid instantiation
-	}
+
+    /**
+     * Private default constructor
+     */
+    private Main() {
+        // avoid instantiation
+    }
 
 }

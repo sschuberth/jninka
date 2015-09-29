@@ -35,68 +35,68 @@ import java.util.logging.Logger;
  */
 @XmlRootElement(name="CodeScan")
 public class ScanResults {
-	
-	/* --- Members --- */
-	
-	@XmlElement(name="File")
-	private List<CodeFileAttributions> findings;
-	
-	@XmlAttribute(name="scanTime")
-	private Date scanTime;
-	
-	/* --- Constructors --- */
-	
-	/**
-	 * Default constructor
-	 */
-	public ScanResults(){
-		scanTime = new Date();
-		findings = new ArrayList<CodeFileAttributions>();
-	}
-	
-	/* --- Public methods  --- */
-	
-	/**
-	 * The method add the given attribution to this scan results.
-	 * 
-	 * @param attributions Code files attributions to add.
-	 */
-	public void addFindings(Collection<CodeFileAttributions> attributions){
-		findings.addAll(attributions);
-	}
-	
-	/**
-	 * The method write this scan results to a XML file.
-	 * 
-	 * @param target Output file location.
-	 */
-	public void writeXML(File target){
-		try {
-			JAXBContext jc = JAXBContext.newInstance(ScanResults.class);
-			Marshaller marshaller = jc.createMarshaller();
-			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			marshaller.marshal(this, target);
-		} catch (JAXBException e) {
-			Logger.getLogger(ScanResults.class.getCanonicalName()).log(Level.SEVERE, "Unable to marshal " + e.getMessage(), e);
-		}
-	}
-	
-	/* --- Overridden methods  --- */
-	
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("scanTime = ").append(SimpleDateFormat.getInstance().format(scanTime)).append("\n\n");
-		for(CodeFileAttributions attribution : findings){
-			sb.append(attribution).append("\n");
-		}
-		return sb.toString();
-	}
 
-	/* --- Getters / Setters --- */
-	
-	public List<CodeFileAttributions> getfindings(){
-		return findings;
-	}
+    /* --- Members --- */
+
+    @XmlElement(name="File")
+    private List<CodeFileAttributions> findings;
+
+    @XmlAttribute(name="scanTime")
+    private Date scanTime;
+
+    /* --- Constructors --- */
+
+    /**
+     * Default constructor
+     */
+    public ScanResults(){
+        scanTime = new Date();
+        findings = new ArrayList<CodeFileAttributions>();
+    }
+
+    /* --- Public methods  --- */
+
+    /**
+     * The method add the given attribution to this scan results.
+     *
+     * @param attributions Code files attributions to add.
+     */
+    public void addFindings(Collection<CodeFileAttributions> attributions){
+        findings.addAll(attributions);
+    }
+
+    /**
+     * The method write this scan results to a XML file.
+     *
+     * @param target Output file location.
+     */
+    public void writeXML(File target){
+        try {
+            JAXBContext jc = JAXBContext.newInstance(ScanResults.class);
+            Marshaller marshaller = jc.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            marshaller.marshal(this, target);
+        } catch (JAXBException e) {
+            Logger.getLogger(ScanResults.class.getCanonicalName()).log(Level.SEVERE, "Unable to marshal " + e.getMessage(), e);
+        }
+    }
+
+    /* --- Overridden methods  --- */
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("scanTime = ").append(SimpleDateFormat.getInstance().format(scanTime)).append("\n\n");
+        for(CodeFileAttributions attribution : findings){
+            sb.append(attribution).append("\n");
+        }
+        return sb.toString();
+    }
+
+    /* --- Getters / Setters --- */
+
+    public List<CodeFileAttributions> getfindings(){
+        return findings;
+    }
 
 }

@@ -28,86 +28,86 @@ import java.util.regex.Pattern;
 /**
  * @author Rami.Sass
  */
-public class SentenceFilter extends StageProcessor{	   		
-	
-	/* --- Static members --- */
-	
-	private static Logger logger = Logger.getLogger(SentenceFilter.class.getCanonicalName());
-	
-	/* --- Members --- */
-	
-	private List<Pattern> wordPatterns;
+public class SentenceFilter extends StageProcessor{
 
-	private List<String> goodOutputInfo;
-	
-	private List<String> badOutputInfo;	
-	
-	/* --- Public methods --- */
-	
-	public boolean process() {
-		goodOutputInfo = new ArrayList<String>();
-		badOutputInfo = new ArrayList<String>();
+    /* --- Static members --- */
+
+    private static Logger logger = Logger.getLogger(SentenceFilter.class.getCanonicalName());
+
+    /* --- Members --- */
+
+    private List<Pattern> wordPatterns;
+
+    private List<String> goodOutputInfo;
+
+    private List<String> badOutputInfo;
+
+    /* --- Public methods --- */
+
+    public boolean process() {
+        goodOutputInfo = new ArrayList<String>();
+        badOutputInfo = new ArrayList<String>();
 
         for (String sentence : getInputInfo()) {
-			boolean isCheck = false;
+            boolean isCheck = false;
             Iterator<Pattern> iterator = wordPatterns.iterator();
             while (iterator.hasNext() && !isCheck) {
                 Pattern pattern = iterator.next();
                 isCheck = pattern.matcher(sentence).find();
             }
 
-			if (isCheck) {
-				goodOutputInfo.add(sentence);
-			} else {
-				badOutputInfo.add(sentence);
-			}
-		}
+            if (isCheck) {
+                goodOutputInfo.add(sentence);
+            } else {
+                badOutputInfo.add(sentence);
+            }
+        }
 
-		return true;
-	}
-	
-	/**
-	* Open and read a file, and return the words from file as a list.
-	*/
-	public void loadWords() {
+        return true;
+    }
+
+    /**
+    * Open and read a file, and return the words from file as a list.
+    */
+    public void loadWords() {
         wordPatterns = new ArrayList<Pattern>();
 
-		BufferedReader reader = null;
-		try{
-			reader = new BufferedReader(new InputStreamReader(SentenceFilter.class.getResourceAsStream("/criticalword.dict")));
-			String line;
-			while ( (line = reader.readLine()) != null ){
+        BufferedReader reader = null;
+        try{
+            reader = new BufferedReader(new InputStreamReader(SentenceFilter.class.getResourceAsStream("/criticalword.dict")));
+            String line;
+            while ( (line = reader.readLine()) != null ){
                 if (JNinkaUtils.isBlank(line) || line.startsWith("#")) { continue; }
                 int index = line.indexOf('#');
                 if (index > 0) { line = line.substring(0, index); }
                 if (!JNinkaUtils.isBlank(line)){
                     wordPatterns.add(Pattern.compile("\\b" + line + "\\b", Pattern.CASE_INSENSITIVE));
                 }
-			}
-		} catch(IOException e){
-			logger.log(Level.SEVERE, "Couldn't open critical words dictionary for reading! :" + e.getMessage(), e);
-		} finally {
+            }
+        } catch(IOException e){
+            logger.log(Level.SEVERE, "Couldn't open critical words dictionary for reading! :" + e.getMessage(), e);
+        } finally {
             JNinkaUtils.close(reader, logger);
-		}
-	}
-	
-	/* --- Getters / Setters --- */
+        }
+    }
 
-	public List<String> getGoodOutputInfo(){
-		return goodOutputInfo;
-	}
-	
-	public void setGoodOutputInfo(List<String> outputInfo){
-		this.goodOutputInfo = outputInfo;
-	}    
-	
-	public List<String> getBadOutputInfo(){
-		return badOutputInfo;
-	}
-	
-	public void setBadOutputInfo(List<String> outputInfo){
-		this.badOutputInfo = outputInfo;
-	}
-	
+    /* --- Getters / Setters --- */
+
+    public List<String> getGoodOutputInfo(){
+        return goodOutputInfo;
+    }
+
+    public void setGoodOutputInfo(List<String> outputInfo){
+        this.goodOutputInfo = outputInfo;
+    }
+
+    public List<String> getBadOutputInfo(){
+        return badOutputInfo;
+    }
+
+    public void setBadOutputInfo(List<String> outputInfo){
+        this.badOutputInfo = outputInfo;
+    }
+
 }
 

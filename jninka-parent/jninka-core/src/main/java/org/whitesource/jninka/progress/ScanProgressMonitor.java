@@ -23,85 +23,85 @@ import java.util.List;
  */
 public class ScanProgressMonitor {
 
-	/* --- Members --- */
-	
-	private int max;
-	
-	private int current;
-	
-	private int currentStep;
-	
-	private int reportInterval;
+    /* --- Members --- */
 
-	private List<ScanProgressListener> listeners;
+    private int max;
 
-	/* --- Constructors --- */
+    private int current;
 
-	/**
-	 * Default constructor
-	 */
-	public ScanProgressMonitor() {
-		current = 0;
-		currentStep = 0;
-		listeners = new ArrayList<ScanProgressListener>();
-	}
+    private int currentStep;
 
-	/* --- Public methods --- */
-	
-	/**
-	 * The method reset this progress monitor.
-	 */
-	public void reset(){
-		current = 0;
-		currentStep = 0;
-	}
+    private int reportInterval;
 
-	/**
-	 * The method set the parameters of this progress monitor to the given values.
-	 * 
-	 * @param max Maximal progress value.
-	 * @param reportInterval Report interval value.
-	 */
-	public void setParams(int max, int reportInterval) {
-		this.max = max;
-		this.reportInterval = reportInterval;
-	}
+    private List<ScanProgressListener> listeners;
 
-	/**
-	 * The method add the given {@link ScanProgressListener} to the list of listeners.
-	 * 
-	 * @param listener Listener to add.
-	 */
-	public void addListener(ScanProgressListener listener) {
-		this.listeners.add(listener);
-	}
+    /* --- Constructors --- */
 
-	/**
-	 * The method increment this progress monitor.
-	 * 
-	 * @param increment Progress increment value.
-	 * @param details Details message to display. 
-	 */
-	public void progress(int increment, String details) {
-		current += increment;
-		if (current / reportInterval > currentStep) {
-			currentStep = current / reportInterval;
-			reportProgress(details);
-		}
-	}
+    /**
+     * Default constructor
+     */
+    public ScanProgressMonitor() {
+        current = 0;
+        currentStep = 0;
+        listeners = new ArrayList<ScanProgressListener>();
+    }
 
-	/* --- Private methods --- */
+    /* --- Public methods --- */
 
-	/**
-	 * Report progress to all listeners.
-	 * 
-	 * @param details
-	 */
-	private void reportProgress(String details) {
-		int progress = (100 * current) / max;
-		for (ScanProgressListener listener : listeners) {
-			listener.progress(progress, details);
-		}
-	}
-	
+    /**
+     * The method reset this progress monitor.
+     */
+    public void reset(){
+        current = 0;
+        currentStep = 0;
+    }
+
+    /**
+     * The method set the parameters of this progress monitor to the given values.
+     *
+     * @param max Maximal progress value.
+     * @param reportInterval Report interval value.
+     */
+    public void setParams(int max, int reportInterval) {
+        this.max = max;
+        this.reportInterval = reportInterval;
+    }
+
+    /**
+     * The method add the given {@link ScanProgressListener} to the list of listeners.
+     *
+     * @param listener Listener to add.
+     */
+    public void addListener(ScanProgressListener listener) {
+        this.listeners.add(listener);
+    }
+
+    /**
+     * The method increment this progress monitor.
+     *
+     * @param increment Progress increment value.
+     * @param details Details message to display.
+     */
+    public void progress(int increment, String details) {
+        current += increment;
+        if (current / reportInterval > currentStep) {
+            currentStep = current / reportInterval;
+            reportProgress(details);
+        }
+    }
+
+    /* --- Private methods --- */
+
+    /**
+     * Report progress to all listeners.
+     *
+     * @param details
+     */
+    private void reportProgress(String details) {
+        int progress = (100 * current) / max;
+        for (ScanProgressListener listener : listeners) {
+            listener.progress(progress, details);
+        }
+    }
+
 }

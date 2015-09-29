@@ -25,87 +25,87 @@ import java.util.List;
 @XmlRootElement
 public class LicenseAttribution {
 
-	/* --- Members --- */
-	
-	@XmlElement
-	private List<String> params;
-	
-	@XmlElement
-	private Integer id;
-	
-	@XmlElement
-	private String matchname;
-	
-	@XmlElement
-	private String subrule;
-	
-	@XmlElement
-	private String before;
-	
-	@XmlElement
-	private String after;
-	
-	@XmlElement
-	private String originalLine;
+    /* --- Members --- */
 
-	/* --- Constructors --- */
-	
-	/**
-	 * Default constructor
-	 */
-	public LicenseAttribution(){
-		// for marshaling
-	}
-	
-	/**
-	 * Constructor
-	 * 
-	 * @param params
-	 * @param matchname
-	 * @param subrule
-	 * @param before
-	 * @param after
-	 * @param originalLine
-	 */
-	public LicenseAttribution(List<String> params, Integer id, String matchname, String subrule, String before, String after, String originalLine) {
-		this.params = params;
-		this.id = id;
-		this.matchname = matchname;
-		this.subrule = subrule;
-		this.before = before;
-		this.after = after;
-		this.originalLine = originalLine;
-	}
-	
-	/* --- Getters / Setters --- */
+    @XmlElement
+    private List<String> params;
+
+    @XmlElement
+    private Integer id;
+
+    @XmlElement
+    private String matchname;
+
+    @XmlElement
+    private String subrule;
+
+    @XmlElement
+    private String before;
+
+    @XmlElement
+    private String after;
+
+    @XmlElement
+    private String originalLine;
+
+    /* --- Constructors --- */
+
+    /**
+     * Default constructor
+     */
+    public LicenseAttribution(){
+        // for marshaling
+    }
+
+    /**
+     * Constructor
+     *
+     * @param params
+     * @param matchname
+     * @param subrule
+     * @param before
+     * @param after
+     * @param originalLine
+     */
+    public LicenseAttribution(List<String> params, Integer id, String matchname, String subrule, String before, String after, String originalLine) {
+        this.params = params;
+        this.id = id;
+        this.matchname = matchname;
+        this.subrule = subrule;
+        this.before = before;
+        this.after = after;
+        this.originalLine = originalLine;
+    }
+
+    /* --- Getters / Setters --- */
 
 
-	public List<String> getParams() {
-		return params;
-	}
+    public List<String> getParams() {
+        return params;
+    }
 
-	public Integer getId() {
-		return id;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public String getMatchname() {
-		return matchname;
-	}
-	
-	public String getSubrule() {
-		return subrule;
-	}
+    public String getMatchname() {
+        return matchname;
+    }
 
-	public String getBefore() {
-		return before;
-	}
+    public String getSubrule() {
+        return subrule;
+    }
 
-	public String getAfter() {
-		return after;
-	}
+    public String getBefore() {
+        return before;
+    }
 
-	public String getOriginalLine() {
-		return originalLine;
-	}
-	
+    public String getAfter() {
+        return after;
+    }
+
+    public String getOriginalLine() {
+        return originalLine;
+    }
+
 }
