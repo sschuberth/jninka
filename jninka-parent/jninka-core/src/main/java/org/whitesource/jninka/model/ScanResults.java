@@ -95,7 +95,7 @@ public class ScanResults {
 
     /* --- Getters / Setters --- */
 
-    public List<CodeFileAttributions> getfindings(){
+    public List<CodeFileAttributions> getFindings(){
         return findings;
     }
 
