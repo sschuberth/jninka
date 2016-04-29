@@ -119,6 +119,10 @@ public class JNinkaUtils{
         return count;
     }
 
+    public static boolean isPrintable(String s) {
+        return s.matches("[^\\x00-\\x1f]*");
+    }
+
     public static void close(Closeable io, Logger logger) {
         try {
             if (io != null) {
