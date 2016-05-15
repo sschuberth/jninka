@@ -161,7 +161,13 @@ public class JNinka {
     private List<CodeFileAttributions> scanDir(File dir, File baseDir) {
         List<CodeFileAttributions> results = new ArrayList<CodeFileAttributions>();
 
-        File[] files = dir.listFiles();
+        File[] files = dir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.isFile();
+            }
+        });
+
         if (files != null) {
             for(File sourceFile : files){
                 if (Main.doScanAllFiles() || JNinkaUtils.isSourceCode(sourceFile)) {
@@ -208,12 +214,19 @@ public class JNinka {
 
     private SortedSet<File> listSubdirectories(File dir) {
         SortedSet<File> folders = new TreeSet<File>();
-        folders.add(dir);
 
-        File[] files = dir.listFiles();
-        if (files != null) {
-            for (File f : files) {
-                if (f.isDirectory()) {
+        if (!JNinkaUtils.isVcsDirectory(dir)) {
+            folders.add(dir);
+
+            File[] files = dir.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.isDirectory();
+                }
+            });
+
+            if (files != null) {
+                for (File f : files) {
                     folders.addAll(listSubdirectories(f));
                 }
             }

@@ -18,6 +18,7 @@ package org.whitesource.jninka;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -53,6 +54,8 @@ public class JNinkaUtils{
     public static final Pattern ALL_EXT_PATTERN = Pattern.compile(
             JAVA_EXT_REGEX+ "|" + JS_EXT_REGEX+ "|" + PERL_EXT_REGEX+ "|" + LISP_EXT_REGEX+ "|" + PHP_EXT_REGEX+ "|" +
             C_CPP_EXT_REGEX+ "|" + DOT_NET_EXT_REGEX+ "|" + AS_EXT_REGEX+ "|" + OBJECTIVE_C_EXT_REGEX);
+
+    public static final List<String> VCS_DIRECTORIES = Arrays.asList(".bzr", ".git", ".hg", ".repo", ".svn");
 
     /* --- Public static methods --- */
 
@@ -100,6 +103,10 @@ public class JNinkaUtils{
         return !isBlank(ext) && ALL_EXT_PATTERN.matcher(ext).matches();
     }
 
+    public static boolean isVcsDirectory(File path) {
+        return path.isDirectory() && VCS_DIRECTORIES.contains(path.getName());
+    }
+
     public static String abbreviate(String str, int maxWidth) {
         if (isBlank(str)) { return str; }
         if (str.length() <= maxWidth) { return str; }
@@ -117,6 +124,10 @@ public class JNinkaUtils{
         }
 
         return count;
+    }
+
+    public static boolean isPrintable(String s) {
+        return s.matches("[^\\x00-\\x1f]*");
     }
 
     public static void close(Closeable io, Logger logger) {

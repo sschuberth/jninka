@@ -84,9 +84,11 @@ public class SentenceSplitter extends StageProcessor {
                 }
 
                 if (count != count2) {
-                    logger.severe("[" + curr + "]");
-                    for (String s : sentences) {
-                        logger.severe(cleanSentence(s));
+                    if (JNinkaUtils.isPrintable(curr)) {
+                        logger.severe("[" + curr + "]");
+                        for (String s : sentences) {
+                            logger.severe(cleanSentence(s));
+                        }
                     }
                     result = false;
                     logger.severe("Number of printable chars does not match!  [" + count + "][" + count2 + "]");
